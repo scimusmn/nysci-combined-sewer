@@ -1,0 +1,10 @@
+Comment,Designator,Footprint,LCSC
+"2.2uF","C1","Capacitor_SMD:C_0805_2012Metric","C377773"
+"1uF","C2","Capacitor_SMD:C_0805_2012Metric","C28323"
+"200uF","C3","Capacitor_Tantalum_SMD:CP_EIA-7361-38_AVX-V","TAJV227M016RNJ"
+"Fuse","F1","Library:3549-2",""
+"RJ45","J1,J2","SMM:RC01516","C708636"
+"Conn_01x04","J3","SMM:KK-1x04_right",""
+"Screw_Terminal_01x02","J4,J5","2604-1102:P-2604-1102_1",""
+"~","U1","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","C7422579"
+"LP2950-5.0_TO252","U3","Package_TO_SOT_SMD:TO-252-2","C130186"
