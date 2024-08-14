@@ -48,6 +48,16 @@
 #define CORE32_END    128
 
 
+// left sewer
+#define LSEWER0_START 265
+#define LSEWER0_END   273
+
+#define LSEWER1_START 273
+#define LSEWER1_END   286
+
+#define LSEWER2_START 286
+#define LSEWER2_END   292
+
 
 
 PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
@@ -58,19 +68,20 @@ PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
 }
 
 
-void createPipes(PipeSource **lists, Adafruit_NeoPixel &strip) {
-  PipeSource *toilets = nullptr;
-  PipeSource *sinks = nullptr;
-  PipeSource *washers = nullptr;
-  PipeSource *showers = nullptr;
-  PipeSource *pipes = nullptr;
-
+void createPipes(
+  Adafruit_NeoPixel &strip,
+  PipeSource **pipes,
+  PipeSource **toilets,
+  PipeSource **washers,
+  PipeSource **sinks,
+  PipeSource **showers
+) {
   #define PIPE(name) \
     Pipe * name = new Pipe(strip, name ## _START, name ## _END); \
-    pipes = pushPipe(name, pipes);
+    *pipes = pushPipe(name, *pipes);
   #define TPIPE(name, type) \
     PIPE(name) \
-    type = pushPipe(name, type); \
+    *type = pushPipe(name, *type); \
 
   TPIPE(TOILET0, toilets);
   TPIPE(SINK0, sinks);
@@ -85,28 +96,30 @@ void createPipes(PipeSource **lists, Adafruit_NeoPixel &strip) {
 
   TPIPE(SHOWER2, showers);
   TPIPE(TOILET2, toilets);
-  PIPE(CORE20);
-  CORE20->attachInput(SHOWER2);
-  CORE20->attachInput(TOILET2);
+  // PIPE(CORE20);
+  // CORE20->attachInput(SHOWER2);
+  // CORE20->attachInput(TOILET2);
   PIPE(CORE21);
   CORE21->attachInput(SHOWER2);
   CORE21->attachInput(TOILET2);
 
   TPIPE(SHOWER3, showers);
-  PIPE(CORE30);
-  CORE30->attachInput(CORE20);
-  CORE30->attachInput(SHOWER3);
+  // PIPE(CORE30);
+  // CORE30->attachInput(CORE20);
+  // CORE30->attachInput(SHOWER3);
   PIPE(CORE31);
-  CORE31->attachInput(CORE20);
+  CORE31->attachInput(CORE21);
   CORE31->attachInput(SHOWER3);
-  PIPE(CORE32);
-  CORE32->attachInput(CORE20);
-  CORE32->attachInput(SHOWER3);
+  // PIPE(CORE32);
+  // CORE32->attachInput(CORE20);
+  // CORE32->attachInput(SHOWER3);
 
-
-  lists[0] = pipes;
-  lists[1] = toilets;
-  lists[2] = washers;
-  lists[3] = sinks;
-  lists[4] = showers;
+  PIPE(LSEWER0);
+  LSEWER0->attachInput(CORE00);
+  PIPE(LSEWER1);
+  LSEWER1->attachInput(LSEWER0);
+  LSEWER1->attachInput(WASHER1);
+  PIPE(LSEWER2);
+  LSEWER2->attachInput(LSEWER1);
+  LSEWER2->attachInput(CORE31);
 }

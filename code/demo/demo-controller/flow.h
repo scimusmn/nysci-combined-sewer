@@ -43,7 +43,7 @@ class Pipe {
 
   // getters for pipe output
   unsigned int getOutputRate();
-  FlowType getOutputType();
+  unsigned int getOutputType();
 
   void update();
   void render();
@@ -61,13 +61,19 @@ class Pipe {
 
   struct PipeFlow *inputFlow = nullptr;
 
-  struct PipeFlow *selfFlow = nullptr;
+  FlowType selfType = FlowType::NO_FLOW;
   unsigned int selfRate = 0;
 
   void processFlow(PipeFlow *flow);
   void updateInput();
-  void updateSelf();
 };
 
 
-void createPipes(PipeSource **lists, Adafruit_NeoPixel &strip);
+void createPipes(
+  Adafruit_NeoPixel &strip,
+  PipeSource **pipes,
+  PipeSource **toilets,
+  PipeSource **sinks,
+  PipeSource **washers,
+  PipeSource **showers
+);
