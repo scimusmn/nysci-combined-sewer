@@ -55,36 +55,37 @@ void Pipe::updateInput() {
     type |= source->pipe->getOutputType();
   }
 
-  if (type == FlowType::NO_FLOW && inputFlow != nullptr) {
-    // move existing input flow to this->flows
-    // inputFlow->offset += speed;
-    inputFlow->next = flows;
-    flows = inputFlow;
-    inputFlow = nullptr;
-    return;
-  } 
-
-  if (inputFlow != nullptr) {
-    if (inputFlow->type == type) {
-      // extend existing flow
-      inputFlow->length += speed;
-    } else {
+  if (type == FlowType::NO_FLOW) {
+    if (inputFlow != nullptr) {
       // move existing input flow to this->flows
       // inputFlow->offset += speed;
       inputFlow->next = flows;
       flows = inputFlow;
+      inputFlow = nullptr;
+    }
+  } else {
+    if (inputFlow != nullptr) {
+      if (inputFlow->type == type) {
+        // extend existing flow
+        inputFlow->length += speed;
+      } else {
+        // move existing input flow to this->flows
+        // inputFlow->offset += speed;
+        inputFlow->next = flows;
+        flows = inputFlow;
+        // create new input flow
+        inputFlow = new PipeFlow;
+        inputFlow->type = type;
+        inputFlow->offset = 0;
+        inputFlow->length = speed;
+      }
+    } else {
       // create new input flow
       inputFlow = new PipeFlow;
       inputFlow->type = type;
       inputFlow->offset = 0;
       inputFlow->length = speed;
     }
-  } else {
-    // create new input flow
-    inputFlow = new PipeFlow;
-    inputFlow->type = type;
-    inputFlow->offset = 0;
-    inputFlow->length = speed;
   }
 }
 
@@ -144,11 +145,13 @@ color_t alphaBlend(color_t a, color_t b, float alpha) {
 
 
 color_t bgColor(int index) {
-  double x = ((double)index) / 10.0;
-  double t = ((double)millis()) / 1000.0;
-  double level = 0.5 + (0.5 * sin(10*(x - t)));
-  // return { 0, 0, 16 * level + 3 };
-  return { 0, 0, 0 };
+  double x = ((double)index) / 1.0;
+  // double t = ((double)millis()) / 1000.0;
+  double t = 0;
+  // double level = 0.5 + (0.5 * sin((x - t)));
+  double level = 1.0;
+  return { 0, 4, 8 * level + 3 };
+  // return { 0, 0, 0 };
 }
 
 
@@ -172,7 +175,7 @@ void drawPixel(Adafruit_NeoPixel &strip, int index, int type, float alpha) {
   if (type & FlowType::SHOWER) {
     c = alphaBlend(c, { 32, 32, 0 }, 0.5);
   }
-  c = alphaBlend(c, bgColor(index), alpha);
+  c = alphaBlend(bgColor(index), c, alpha);
   strip.setPixelColor(index, c.r, c.g, c.b);
 }
 
@@ -181,7 +184,9 @@ void drawFlow(Adafruit_NeoPixel &strip, int x0, int x1, int step, PipeFlow *flow
   for (int i=0; i<flow->length; i++) {
     int move = step * (i + flow->offset);
     if (x0+move < x1) {
-      drawPixel(strip, x0+move, flow->type, 0.0);
+      double x = flow->length - i;
+      double alpha = exp(-x/3);
+      drawPixel(strip, x0+move, flow->type, 0.8 * alpha + 0.2);
     }
   }
 }

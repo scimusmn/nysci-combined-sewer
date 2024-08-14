@@ -71,7 +71,7 @@ void loop() {
   k += 1;
   INTERMITTENT(toilets, TOILET, 10, 3);
   INTERMITTENT(showers, SHOWER, 10, 5);
-  INTERMITTENT(washers, WASHER, 42, 4);
+  INTERMITTENT(washers, WASHER, 42, 10);
   INTERMITTENT(dishwashers, DISHWASHER, 59, 6);
 
   for (PipeSource *source = allPipes; source != nullptr; source = source->next) {
