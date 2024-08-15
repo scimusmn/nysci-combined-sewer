@@ -27,6 +27,9 @@
 #define COLUMN_UM_0_START 452
 #define COLUMN_UM_0_END   544
 
+#define FLOW_UM_0_START 419
+#define FLOW_UM_0_END   452
+
 #define FLOW_UM_1_START 300
 #define FLOW_UM_1_END   310
 
@@ -40,7 +43,7 @@
 #define GUTTER_UM_1_END   404
 
 #define GUTTER_UM_0_START 404
-#define GUTTER_UM_0_END   418
+#define GUTTER_UM_0_END   419
 
 #define COLUMN_UM_1_START 544
 #define COLUMN_UM_1_END   560
@@ -84,6 +87,7 @@ void createPipes(
 
   PIPE(COLUMN_UM_0);
   COLUMN_UM_0->attachInput(COLUMN_TOP);
+  TPIPE(FLOW_UM_0, toilets);
   TPIPE(FLOW_UM_1, washers);
   TPIPE(FLOW_UM_2, dishwashers);
   TPIPE(FLOW_UM_3, showers);
@@ -96,4 +100,5 @@ void createPipes(
   PIPE(COLUMN_UM_1);
   COLUMN_UM_1->attachInput(GUTTER_UM_0);
   COLUMN_UM_1->attachInput(COLUMN_UM_0);
+  COLUMN_UM_1->attachInput(FLOW_UM_0);
 }
