@@ -145,12 +145,10 @@ color_t alphaBlend(color_t a, color_t b, float alpha) {
 
 
 color_t bgColor(int index) {
-  double x = ((double)index) / 1.0;
-  // double t = ((double)millis()) / 1000.0;
-  double t = 0;
-  // double level = 0.5 + (0.5 * sin((x - t)));
-  double level = 1.0;
-  return { 0, 4, 8 * level + 3 };
+  double x = ((double)index) / 30.0;
+  double t = ((double)millis()) / 1000.0;
+  double level = 0.5 + (0.5 * sin(10*(x - t)));
+  return { 0, 2, 8 * level + 3 };
   // return { 0, 0, 0 };
 }
 
@@ -170,7 +168,7 @@ void drawPixel(Adafruit_NeoPixel &strip, int index, int type, float alpha) {
     c = alphaBlend(c, { 0, 64, 0 }, 0.5);
   }
   if (type & FlowType::DISHWASHER) {
-    c = alphaBlend(c, { 0, 0, 64 }, 0.5);
+    c = alphaBlend(c, { 0, 0, 128 }, 0.5);
   }
   if (type & FlowType::SHOWER) {
     c = alphaBlend(c, { 32, 32, 0 }, 0.5);

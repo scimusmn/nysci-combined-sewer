@@ -3,26 +3,35 @@
 #include "flow.h"
 
 
+// the leds
 #define N_LEDS 395
 #define LED_PIN 6
 Adafruit_NeoPixel strip(N_LEDS, LED_PIN, NEO_GRBW + NEO_KHZ800);
 
 
-InputLevels levels;
-bool flag = false;
+// globals for storing incoming CAN data
+InputLevels levels, nextLevels;
+bool updatedLevels = false;
 
+
+// process an incoming InputLevels CAN msg
 void processInputLevels(uint8_t src, InputLevels newLevels) {
-  memcpy(&levels, &newLevels, sizeof(InputLevels));
-  flag = true;
+  Serial.println("new levels!");
+  memcpy(&nextLevels, &newLevels, sizeof(InputLevels));
+  updatedLevels = true;
 }
 
 
+// pipe lists
+// allPipes contains every pipe; the rest contain only specific ones
 PipeSource *allPipes;
 PipeSource *toilets;
 PipeSource *washers;
 PipeSource *dishwashers;
 PipeSource *showers;
 
+
+// helper functions to manage creating & removing flows
 void startFlow(PipeSource *source, FlowType type) {
   for (; source != nullptr; source = source->next) {
     source->pipe->startFlow(type, 1);
@@ -34,10 +43,11 @@ void endFlow(PipeSource *source) {
   }
 }
 
+
 void setup() {
   Serial.begin(15200);
   delay(200);
-  // setupCan();
+  setupCan();
   Serial.println("boot!");
   strip.begin();
   strip.clear();
@@ -45,39 +55,48 @@ void setup() {
 }
 
 
-/*const int x0 = 273;
-const int x1 = 286;
-//const int x1 = 292;
 void loop() {
-  static int k = 0;
-  strip.fill(0x112288, x0, x1-x0);
-  strip.show();
-}//*/
+  // update flows if a CAN msg was received
+  if (updatedLevels) {
+    updatedLevels = false; // reset flag
+    memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
 
+    // update toilet flows
+    if (levels.toiletFlow > 0) {
+      startFlow(toilets, TOILET);
+    } else {
+      endFlow(toilets);
+    }
 
-#define INTERMITTENT(SOURCES, TYPE, FREQ, LEN) \
-  do { \
-    if (k % FREQ == 0) { \
-      startFlow(SOURCES, TYPE); \
-    } else if (k % FREQ == LEN) { \
-      endFlow(SOURCES); \
-    } \
-  } while (0)
+    // update washer flows
+    if (levels.washerFlow > 0) {
+      startFlow(washers, WASHER);
+    } else {
+      endFlow(washers);
+    }
 
+    // update dishwasher flows
+    if (levels.dishWasherFlow > 0) {
+      startFlow(dishwashers, DISHWASHER);
+    } else {
+      endFlow(dishwashers);
+    }
 
-void loop() {
-  static unsigned long k = 0;
-  strip.fill(0);
-  k += 1;
-  INTERMITTENT(toilets, TOILET, 10, 3);
-  INTERMITTENT(showers, SHOWER, 10, 5);
-  INTERMITTENT(washers, WASHER, 42, 10);
-  INTERMITTENT(dishwashers, DISHWASHER, 59, 6);
+    // update shower flows
+    if (levels.showerFlow > 0) {
+      startFlow(showers, SHOWER);
+    } else {
+      endFlow(showers);
+    }
+  }
 
+  // update & render all pipes
   for (PipeSource *source = allPipes; source != nullptr; source = source->next) {
     source->pipe->update();
     source->pipe->render();
   }
+
+  // display
   strip.show();
-  delay(200);
+  delay(20);
 }//*/
