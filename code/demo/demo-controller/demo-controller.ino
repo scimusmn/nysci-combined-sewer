@@ -24,11 +24,12 @@ void processInputLevels(uint8_t src, InputLevels newLevels) {
 
 // pipe lists
 // allPipes contains every pipe; the rest contain only specific ones
-PipeSource *allPipes;
-PipeSource *toilets;
-PipeSource *washers;
-PipeSource *dishwashers;
-PipeSource *showers;
+PipeSource *allPipes = nullptr;
+PipeSource *rains = nullptr;
+PipeSource *toilets = nullptr;
+PipeSource *washers = nullptr;
+PipeSource *dishwashers = nullptr;
+PipeSource *showers = nullptr;
 
 
 // helper functions to manage creating & removing flows
@@ -52,7 +53,12 @@ void setup() {
   strip.begin();
   memset(displayMemory, 0, sizeof(displayMemory));
   strip.show();
-  createPipes(strip, &allPipes, &toilets, &washers, &dishwashers, &showers);
+  createPipes(
+    strip, 
+    &allPipes, &rains, 
+    &toilets, &washers, 
+    &dishwashers, &showers
+  );
 }
 
 

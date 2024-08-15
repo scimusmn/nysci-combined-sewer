@@ -72,6 +72,7 @@ class Pipe {
 void createPipes(
   OctoWS2811 &strip,
   PipeSource **pipes,
+  PipeSource **rains,
   PipeSource **toilets,
   PipeSource **sinks,
   PipeSource **washers,
