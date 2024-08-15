@@ -1,12 +1,12 @@
-#include <Adafruit_NeoPixel.h>
+#include <OctoWS2811.h>
 #include "messages.h"
 #include "flow.h"
 
 
 // the leds
-#define N_LEDS 395
-#define LED_PIN 6
-Adafruit_NeoPixel strip(N_LEDS, LED_PIN, NEO_GRBW + NEO_KHZ800);
+#define STRIP_LEN 300
+DMAMEM int displayMemory[STRIP_LEN*6];
+OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_GRB | WS2811_800kHz);
 
 
 // globals for storing incoming CAN data
@@ -50,7 +50,8 @@ void setup() {
   setupCan();
   Serial.println("boot!");
   strip.begin();
-  strip.clear();
+  memset(displayMemory, 0, sizeof(displayMemory));
+  strip.show();
   createPipes(strip, &allPipes, &toilets, &washers, &dishwashers, &showers);
 }
 
@@ -89,6 +90,9 @@ void loop() {
       endFlow(showers);
     }
   }
+
+  // wait for update to finish
+  while (strip.busy()) {}
 
   // update & render all pipes
   for (PipeSource *source = allPipes; source != nullptr; source = source->next) {

@@ -1,8 +1,8 @@
 #include "flow.h"
-#include <Adafruit_NeoPixel.h>
+#include <OctoWS2811.h>
 
 // (constructor)
-Pipe::Pipe(Adafruit_NeoPixel &strip, size_t start, size_t end) 
+Pipe::Pipe(OctoWS2811 &strip, size_t start, size_t end) 
   : strip(strip), start(start), end(end) {
 }
 
@@ -153,13 +153,13 @@ color_t bgColor(int index) {
 }
 
 
-void drawBg(Adafruit_NeoPixel &strip, int index) {
+void drawBg(OctoWS2811 &strip, int index) {
   color_t c = bgColor(index);
-  strip.setPixelColor(index, c.r, c.g, c.b);
+  strip.setPixel(index, c.r, c.g, c.b);
 }
 
 
-void drawPixel(Adafruit_NeoPixel &strip, int index, int type, float alpha) {
+void drawPixel(OctoWS2811 &strip, int index, int type, float alpha) {
   color_t c;
   if (type & FlowType::TOILET) {
     c = alphaBlend(c, { 64, 0, 0 }, 0.5);
@@ -174,10 +174,10 @@ void drawPixel(Adafruit_NeoPixel &strip, int index, int type, float alpha) {
     c = alphaBlend(c, { 32, 32, 0 }, 0.5);
   }
   c = alphaBlend(bgColor(index), c, alpha);
-  strip.setPixelColor(index, c.r, c.g, c.b);
+  strip.setPixel(index, c.r, c.g, c.b);
 }
 
-void drawFlow(Adafruit_NeoPixel &strip, int x0, int x1, int step, PipeFlow *flow) {
+void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow *flow) {
   if (flow == nullptr) { return; }
   for (int i=0; i<flow->length; i++) {
     int move = step * (i + flow->offset);

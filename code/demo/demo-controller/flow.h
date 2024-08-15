@@ -1,5 +1,5 @@
 #pragma once
-#include <Adafruit_NeoPixel.h>
+#include <OctoWS2811.h>
 
 
 typedef enum {
@@ -31,7 +31,7 @@ struct PipeFlow {
 
 class Pipe {
   public:
-  Pipe(Adafruit_NeoPixel &strip, size_t start, size_t end);
+  Pipe(OctoWS2811 &strip, size_t start, size_t end);
 
   // attach a pipe as input to this pipe
   void attachInput(Pipe *pipe);
@@ -49,7 +49,7 @@ class Pipe {
   void render();
 
   protected:
-  Adafruit_NeoPixel &strip;
+  OctoWS2811 &strip;
   size_t start;
   size_t end;
 
@@ -70,7 +70,7 @@ class Pipe {
 
 
 void createPipes(
-  Adafruit_NeoPixel &strip,
+  OctoWS2811 &strip,
   PipeSource **pipes,
   PipeSource **toilets,
   PipeSource **sinks,
