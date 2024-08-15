@@ -48,6 +48,31 @@
 #define COLUMN_UM_1_START 544
 #define COLUMN_UM_1_END   560
 
+
+// lower middle segment
+#define COLUMN_LM_0_START 600
+#define COLUMN_LM_0_END   667
+
+#define FLOW_LM_0_START 709
+#define FLOW_LM_0_END   720
+
+#define FLOW_LM_1_START 720
+#define FLOW_LM_1_END   731
+
+#define FLOW_LM_2_START 731
+#define FLOW_LM_2_END   780
+
+#define GUTTER_LM_1_START 780
+#define GUTTER_LM_1_END   813
+
+#define GUTTER_LM_0_START 813
+#define GUTTER_LM_0_END   830
+
+#define COLUMN_LM_1_START 667
+#define COLUMN_LM_1_END   709
+
+
+
 PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
   PipeSource *node = new PipeSource;
   node->pipe = pipe;
@@ -71,6 +96,7 @@ void createPipes(
     PIPE(name) \
     *type = pushPipe(name, *type); \
 
+  // top
   TPIPE(FLOW_TOP_0, toilets);
   TPIPE(FLOW_TOP_1, washers);
   TPIPE(FLOW_TOP_2, dishwashers);
@@ -85,6 +111,7 @@ void createPipes(
   COLUMN_TOP->attachInput(GUTTER_TOP_0);
   COLUMN_TOP->attachInput(FLOW_TOP_0);
 
+  // upper middle
   PIPE(COLUMN_UM_0);
   COLUMN_UM_0->attachInput(COLUMN_TOP);
   TPIPE(FLOW_UM_0, toilets);
@@ -101,4 +128,20 @@ void createPipes(
   COLUMN_UM_1->attachInput(GUTTER_UM_0);
   COLUMN_UM_1->attachInput(COLUMN_UM_0);
   COLUMN_UM_1->attachInput(FLOW_UM_0);
+
+  // lower middle
+  PIPE(COLUMN_LM_0);
+  COLUMN_LM_0->attachInput(COLUMN_UM_1);
+  TPIPE(FLOW_LM_0, washers);
+  TPIPE(FLOW_LM_1, dishwashers);
+  TPIPE(FLOW_LM_2, showers);
+  PIPE(GUTTER_LM_1);
+  GUTTER_LM_1->attachInput(FLOW_LM_1);
+  GUTTER_LM_1->attachInput(FLOW_LM_2);
+  PIPE(GUTTER_LM_0);
+  GUTTER_LM_0->attachInput(FLOW_LM_0);
+  GUTTER_LM_0->attachInput(GUTTER_LM_1);
+  PIPE(COLUMN_LM_1);
+  COLUMN_LM_1->attachInput(COLUMN_LM_0);
+  COLUMN_LM_1->attachInput(GUTTER_LM_0);
 }
