@@ -25,6 +25,7 @@ struct PipeFlow {
   unsigned int type;
   unsigned int offset;
   unsigned int length;
+  Pipe *src;
   struct PipeFlow *next;
 };
 
@@ -42,8 +43,8 @@ class Pipe {
   void endFlow();
 
   // getters for pipe output
-  unsigned int getOutputRate();
   unsigned int getOutputType();
+  unsigned long getOutputTime();
 
   void update();
   void render();
@@ -56,13 +57,15 @@ class Pipe {
   struct PipeSource *sources = nullptr;
   struct PipeFlow *flows = nullptr;
   unsigned int speed = 1;
-  unsigned int outputRate = 0;
   unsigned int outputType = FlowType::NO_FLOW;
+  unsigned long outputStartTime = 0;
+  PipeFlow *outputFlow;
 
   struct PipeFlow *inputFlow = nullptr;
+  unsigned long inputTime = 0;
 
   FlowType selfType = FlowType::NO_FLOW;
-  unsigned int selfRate = 0;
+  unsigned int selfLength = 0;
 
   void processFlow(PipeFlow *flow);
   void updateInput();

@@ -28,11 +28,11 @@ void Pipe::endFlow() {
 
 
 // getters for the pipe outputs
-unsigned int Pipe::getOutputRate() {
-  return outputRate;
-}
 unsigned int Pipe::getOutputType() {
   return outputType;
+}
+unsigned long Pipe::getOutputTime() {
+  return outputStartTime;
 }
 
 
@@ -40,20 +40,32 @@ unsigned int Pipe::getOutputType() {
 void Pipe::processFlow(PipeFlow *flow) {
   if (flow == nullptr) { return; }
   if (flow->offset + flow->length >= llabs(end - start)) {
-    outputRate = speed;
-    outputType |= flow->type;
+    outputType = flow->type;
+    outputFlow = flow;
   }
+}
+
+
+FlowType collectFlowType(PipeSource *sources, FlowType start, unsigned long *time) {
+  FlowType type = start;
+  *time = 0;
+  for (PipeSource *source = sources; source != nullptr; source = source->next) {
+    if (
+      source->pipe->getOutputType() != NO_FLOW && 
+      source->pipe->getOutputTime() > *time 
+    ) {
+      type = source->pipe->getOutputType();
+      *time = source->pipe->getOutputTime();
+    }
+  }
+  return type;
 }
 
 
 // create/update the input flow
 void Pipe::updateInput() {
-  unsigned int type = selfType;
-  unsigned int rate = 0;
-  for (PipeSource *source = sources; source != nullptr; source = source->next) {
-    rate = source->pipe->getOutputRate();
-    type |= source->pipe->getOutputType();
-  }
+  unsigned long time;
+  unsigned int type = collectFlowType(sources, selfType, &time);
 
   if (type == FlowType::NO_FLOW) {
     if (inputFlow != nullptr) {
@@ -65,7 +77,7 @@ void Pipe::updateInput() {
     }
   } else {
     if (inputFlow != nullptr) {
-      if (inputFlow->type == type) {
+      if (inputFlow->type == type && inputTime == time) {
         // extend existing flow
         inputFlow->length += speed;
       } else {
@@ -78,6 +90,7 @@ void Pipe::updateInput() {
         inputFlow->type = type;
         inputFlow->offset = 0;
         inputFlow->length = speed;
+        inputTime = time;
       }
     } else {
       // create new input flow
@@ -85,6 +98,7 @@ void Pipe::updateInput() {
       inputFlow->type = type;
       inputFlow->offset = 0;
       inputFlow->length = speed;
+      inputTime = time;
     }
   }
 }
@@ -92,7 +106,9 @@ void Pipe::updateInput() {
 
 // update all flows and outputs
 void Pipe::update() {
-  outputRate = 0;
+  FlowType oldOutputType = outputType;
+  PipeFlow *oldOutputFlow = outputFlow;
+  outputFlow = nullptr;
   outputType = NO_FLOW;
 
   // input flow
@@ -117,6 +133,10 @@ void Pipe::update() {
       flow = flow->next;
     }
   }
+
+  if (outputType != oldOutputType || outputFlow != oldOutputFlow) {
+    outputStartTime = millis();
+  }
 }
 
 
@@ -136,6 +156,9 @@ uint8_t ulerp(uint8_t a, uint8_t b, float theta) {
 }
 
 color_t alphaBlend(color_t a, color_t b, float alpha) {
+  if (a.r == 0 && a.g == 0 && a.b == 0) {
+    return b;
+  }
   color_t c;
   c.r = ulerp(a.r, b.r, alpha);
   c.g = ulerp(a.g, b.g, alpha);
@@ -147,8 +170,8 @@ color_t alphaBlend(color_t a, color_t b, float alpha) {
 color_t bgColor(int index) {
   double x = ((double)index) / 30.0;
   double t = ((double)millis()) / 1000.0;
-  double level = 0.5 + (0.5 * sin(10*(x - t)));
-  return { 0, 2, 8 * level + 3 };
+  double level = 0.5 + (0.5 * sin((x - t)));
+  return { 0, 128 * level, (200 * level) + 32 };
   // return { 0, 0, 0 };
 }
 
@@ -161,17 +184,24 @@ void drawBg(OctoWS2811 &strip, int index) {
 
 void drawPixel(OctoWS2811 &strip, int index, int type, float alpha) {
   color_t c;
+  if (type & FlowType::RAIN) {
+    c = { 0, 0, 255 };
+  }
   if (type & FlowType::TOILET) {
-    c = alphaBlend(c, { 64, 0, 0 }, 0.5);
+    c = { 255, 0, 0 };
+    // c = alphaBlend(c, { 255, 0, 0 }, 0.5);
   }
   if (type & FlowType::WASHER) {
-    c = alphaBlend(c, { 0, 64, 0 }, 0.5);
+    c = { 0, 255, 0 };
+    // c = alphaBlend(c, { 0, 255, 0 }, 0.5);
   }
   if (type & FlowType::DISHWASHER) {
-    c = alphaBlend(c, { 0, 0, 128 }, 0.5);
+    c = { 255, 0, 255 };
+    // c = alphaBlend(c, { 255, 0, 255 }, 0.5);
   }
   if (type & FlowType::SHOWER) {
-    c = alphaBlend(c, { 32, 32, 0 }, 0.5);
+    c = { 255, 255, 0 };
+    // c = alphaBlend(c, { 255, 255, 0 }, 0.5);
   }
   c = alphaBlend(bgColor(index), c, alpha);
   strip.setPixel(index, c.r, c.g, c.b);
@@ -183,8 +213,9 @@ void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow *flow) {
     int move = step * (i + flow->offset);
     if (x0+move < x1) {
       double x = flow->length - i;
-      double alpha = exp(-x/3);
-      drawPixel(strip, x0+move, flow->type, 0.8 * alpha + 0.2);
+      double alpha = exp(-x/20);
+      //double alpha = 1.0;
+      drawPixel(strip, x0+move, flow->type, alpha);
     }
   }
 }
@@ -196,7 +227,8 @@ void Pipe::render() {
   unsigned int x0 = end > start ? start : end;
   unsigned int x1 = end > start ? end : start;
   for (int i = x0; i != x1; i += step) {
-    drawBg(strip, i);
+    strip.setPixel(i, 0);
+    // drawBg(strip, i);
   }
   for (PipeFlow *flow = flows; flow != nullptr; flow = flow->next) {
     drawFlow(strip, x0, x1, step, flow);

@@ -6,7 +6,7 @@
 // the leds
 #define STRIP_LEN 300
 DMAMEM int displayMemory[STRIP_LEN*6];
-OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_GRB | WS2811_800kHz);
+OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz);
 
 
 // globals for storing incoming CAN data
