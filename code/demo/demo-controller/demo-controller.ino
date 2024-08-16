@@ -68,6 +68,14 @@ void loop() {
     updatedLevels = false; // reset flag
     memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
 
+    // update rain flows
+    if (levels.rainFlow > 0) {
+      startFlow(rains, RAIN);
+    } else {
+      endFlow(rains);
+    }
+
+
     // update toilet flows
     if (levels.toiletFlow > 0) {
       startFlow(toilets, TOILET);
@@ -108,5 +116,4 @@ void loop() {
 
   // display
   strip.show();
-  delay(20);
 }//*/

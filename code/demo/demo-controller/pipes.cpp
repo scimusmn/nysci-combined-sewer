@@ -179,7 +179,7 @@ void createPipes(
   PIPE(COL_LM_1);
   COL_LM_1->attachInput(COL_LM_0);
   COL_LM_1->attachInput(GUTTER_LM_0);
-  TPIPE(FLOW_LM_3, toilets);
+  TPIPE(FLOW_LM_3, rains);
 
   // bottom
   PIPE(COL_BTM_0);
