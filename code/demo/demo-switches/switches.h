@@ -1,11 +1,14 @@
 #pragma once
 
+#define RAIN_PIN 0
 #define TOILET_PIN 1
-#define DISHWASHER_PIN 2
-#define SHOWER_PIN 3
-#define WASHER_PIN 0
+#define WASHER_PIN 2
+#define DISHWASHER_PIN 3
+#define SHOWER_PIN 4
+
 
 #define SWITCHES \
+  X(RAIN_PIN) \
   X(TOILET_PIN) \
   X(WASHER_PIN) \
   X(DISHWASHER_PIN) \

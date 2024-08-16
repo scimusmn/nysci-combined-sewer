@@ -33,7 +33,7 @@ void loop() {
 
   if (update) {
     InputLevels levels = {
-      0,
+      SWITCH(RAIN_PIN).level,
       SWITCH(TOILET_PIN).level,
       SWITCH(WASHER_PIN).level,
       SWITCH(DISHWASHER_PIN).level,
@@ -41,7 +41,7 @@ void loop() {
     };
     sendInputLevels(0, levels);
     Serial.println("================================================================");
-    Serial.print("rain: "); Serial.println(0);
+    Serial.print("rain: "); Serial.println(SWITCH(RAIN_PIN).level);
     Serial.print("toilet: "); Serial.println(SWITCH(TOILET_PIN).level);
     Serial.print("washer: "); Serial.println(SWITCH(WASHER_PIN).level);
     Serial.print("dishwasher: "); Serial.println(SWITCH(DISHWASHER_PIN).level);
