@@ -213,7 +213,8 @@ void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow *flow) {
     int move = step * (i + flow->offset);
     if (x0+move < x1) {
       double x = flow->length - i;
-      double alpha = exp(-x/20);
+      x -= 20;
+      double alpha = x < 0 ? 1.0 : exp(-x/20);
       //double alpha = 1.0;
       drawPixel(strip, x0+move, flow->type, alpha);
     }

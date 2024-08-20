@@ -47,9 +47,9 @@ void endFlow(PipeSource *source) {
 
 void setup() {
   Serial.begin(15200);
-  delay(200);
+  delay(1000);
   setupCan();
-  Serial.println("boot!");
+  Serial.println("[pipes] boot!");
   strip.begin();
   memset(displayMemory, 0, sizeof(displayMemory));
   strip.show();
@@ -67,6 +67,14 @@ void loop() {
   if (updatedLevels) {
     updatedLevels = false; // reset flag
     memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
+
+    Serial.println("================================================================");
+    Serial.print("rain: "); Serial.println(levels.rainFlow);
+    Serial.print("toilet: "); Serial.println(levels.toiletFlow);
+    Serial.print("washer: "); Serial.println(levels.washerFlow);
+    Serial.print("dishwasher: "); Serial.println(levels.dishWasherFlow);
+    Serial.print("shower: "); Serial.println(levels.showerFlow);
+    Serial.println("\n");
 
     // update rain flows
     if (levels.rainFlow > 0) {

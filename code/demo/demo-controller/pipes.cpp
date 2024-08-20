@@ -133,9 +133,9 @@ void createPipes(
 
   // top
   TPIPE(FLOW_TOP_0, washers);
-  TPIPE(FLOW_TOP_1, showers);
-  TPIPE(FLOW_TOP_2, dishwashers);
-  TPIPE(FLOW_TOP_3, showers);
+  TPIPE(FLOW_TOP_1, dishwashers);
+  TPIPE(FLOW_TOP_2, showers);
+  TPIPE(FLOW_TOP_3, toilets);
   PIPE(GUTTER_TOP_1);
   GUTTER_TOP_1->attachInput(FLOW_TOP_2);
   GUTTER_TOP_1->attachInput(FLOW_TOP_3);
@@ -167,9 +167,9 @@ void createPipes(
   // lower middle
   PIPE(COL_LM_0);
   COL_LM_0->attachInput(COL_UM_1);
-  TPIPE(FLOW_LM_0, washers);
+  TPIPE(FLOW_LM_0, dishwashers);
   TPIPE(FLOW_LM_1, dishwashers);
-  TPIPE(FLOW_LM_2, showers);
+  TPIPE(FLOW_LM_2, toilets);
   PIPE(GUTTER_LM_1);
   GUTTER_LM_1->attachInput(FLOW_LM_1);
   GUTTER_LM_1->attachInput(FLOW_LM_2);
