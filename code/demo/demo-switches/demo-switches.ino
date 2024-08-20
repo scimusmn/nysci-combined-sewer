@@ -13,7 +13,7 @@ void setup() {
   Serial.begin(115200);
   delay(200);
   setupCan();
-  Serial.println("boot!");
+  Serial.println("[switches] boot!");
   setupSwitches();
 }
 
