@@ -1,4 +1,4 @@
-#include <Adafruit_NeoPixel.h>
+#include <OctoWS2811.h>
 #include "messages.h"
 
 
@@ -12,14 +12,17 @@ void processInputLevels(uint8_t src, InputLevels update) {
 
 
 // the leds
-typedef Adafruit_NeoPixel LedStrip_t;
-#define LED_PIN    8
-#define LED_COUNT (11*60)
-Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+typedef OctoWS2811 LedStrip_t;
+#define LEDS_PER_STRIP 60*4
+#define NUM_PINS 3
+uint8_t ledPins[] = { 8, 7, 13 };
+DMAMEM int displayMemory[LEDS_PER_STRIP * NUM_PINS * 3 / 4];
+LedStrip_t strip(LEDS_PER_STRIP, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, NUM_PINS, ledPins);
 
 
 // icon class
-#define ICON_COLOR 0xff, 0xff, 0xff
+// #define ICON_COLOR 0xff, 0xff, 0xff
+#define ICON_COLOR 0xffffff
 class Icon {
   public:
   Icon(LedStrip_t &strip, size_t len) 
@@ -28,12 +31,12 @@ class Icon {
   }
   void show() {
     for (int i=0; i<len; i++) {
-      strip.setPixelColor(i+start, ICON_COLOR);
+      strip.setPixel(i+start, ICON_COLOR);
     }
   }
   void hide() {
     for (int i=0; i<len; i++) {
-      strip.setPixelColor(i+start, 0);
+      strip.setPixel(i+start, 0);
     }
   }
   static size_t START;
@@ -51,6 +54,7 @@ size_t Icon::START = 0;
 Icon dishwasherLM0(strip, 61);
 Icon dishwasherLM1(strip, 60);
 Icon toiletLM(strip,      60);
+Icon dummy(strip, 59);
 
 Icon washerUM(strip,      60);
 Icon dishwasherUM(strip,  60);
@@ -119,7 +123,7 @@ void updateIcons() {
 void setup() {
   setupCan();
   strip.begin();
-  levels = { 0, 0, 0, 0, 0 };
+  levels = { 1, 1, 1, 1, 1 };
   updateIcons();
 }
 

@@ -10,6 +10,7 @@ void setup() {
   delay(500);
   Serial.println("[cantest] boot!");
   setupCan();
+  Serial.println("can configured");
 }
 
 
