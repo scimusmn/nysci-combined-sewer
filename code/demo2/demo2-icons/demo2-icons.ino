@@ -2,12 +2,50 @@
 #include "messages.h"
 
 
-InputLevels levels = { 1, 1, 1, 1, 1 };
-void processInputLevels(uint8_t src, InputLevels update) {}
+void processInputLevels(uint8_t src, InputLevels levels) {}
+
+
+InputLevels levels;
+InputLevels nextLevels = { 1, 1, 1, 1, 1 };
+bool updatedLevels = true;
+
+
+int invert(int x) {
+  return x == 1 ? 0 : 1;
+}
+
+void tryUpdateLevels() {
+  static unsigned long time = 1000;
+  static unsigned int index = 0;
+  if (millis() > time) {
+    updatedLevels = true;
+    time = millis() + 1000 + (rand() % 4000);
+    switch (index) {
+      case 0:
+        nextLevels.toiletFlow = invert(nextLevels.toiletFlow);
+        break;
+      case 1:
+        nextLevels.showerFlow = invert(nextLevels.showerFlow);
+        break;
+      case 2:
+        nextLevels.dishWasherFlow = invert(nextLevels.dishWasherFlow);
+        break;
+      case 3:
+        nextLevels.washerFlow = invert(nextLevels.washerFlow);
+        break;
+      default:
+        break;
+    };
+    index = rand() % 4;
+  }
+}
+
+
+
 
 // the leds
 typedef OctoWS2811 LedStrip_t;
-#define LEDS_PER_STRIP 60*4
+#define LEDS_PER_STRIP 420
 #define NUM_PINS 8
 uint8_t ledPins[] = { 2, 3, 4, 5, 6, 7, 8, 9 };
 DMAMEM int displayMemory[LEDS_PER_STRIP * NUM_PINS * 3 / 4];
@@ -138,38 +176,41 @@ void updateIcons() {
 void setup() {
   srand(0);
   Serial.begin(9600);
+  delay(1000);
   Serial.println("[icons] boot!");
   setupIcons();
   setupCan();
   strip.begin();
   Serial.println("setup complete");
-  updateIcons();
+  // updateIcons();
 }
 
 
 void loop() {
-  static unsigned long time = 1000;
-  static unsigned int index = 0;
-  if (millis() > time) {
-    switch (index) {
-      case 0:
-        levels.toiletFlow = 1 - levels.toiletFlow;
-        break;
-      case 1:
-        levels.showerFlow = 1 - levels.showerFlow;
-        break;
-      case 2:
-        levels.dishWasherFlow = 1 - levels.dishWasherFlow;
-        break;
-      case 3:
-        levels.washerFlow = 1 - levels.washerFlow;
-        break;
-      default:
-        break;
-    };
-    time = millis() + 1000 + (rand() % 4000);
-    index = rand() % 4;
-    updateIcons();
-    sendInputLevels(0, levels);
-  }
+  Serial.println("toilet");
+  updateIconList(toilet, 1);
+  strip.show();
+  delay(1000);
+  updateIconList(toilet, 0);
+  Serial.println("shower");
+  updateIconList(shower, 1);
+  strip.show();
+  delay(1000);
+  updateIconList(shower, 0);
+  Serial.println("washer");
+  updateIconList(washer, 1);
+  strip.show();
+  delay(1000);
+  updateIconList(washer, 0);
+  Serial.println("dishwasher");
+  updateIconList(dishwasher, 1);
+  strip.show();
+  delay(1000);
+  updateIconList(dishwasher, 0);
+  // tryUpdateLevels();
+  // if (updatedLevels) {
+  //   updatedLevels = false; // reset flag
+  //   memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
+  //   updateIcons();
+  // }
 }
