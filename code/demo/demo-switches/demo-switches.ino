@@ -10,6 +10,7 @@ InputLevels levels = {
 };
 
 void setup() {
+  pinMode(RAIN_PIN, INPUT_PULLUP);
   Serial.begin(115200);
   delay(200);
   setupCan();
@@ -40,12 +41,17 @@ void loop() {
       SWITCH(SHOWER_PIN).level,
     };
     sendInputLevels(0, levels);
-    Serial.println("================================================================");
-    Serial.print("rain: "); Serial.println(SWITCH(RAIN_PIN).level);
-    Serial.print("toilet: "); Serial.println(SWITCH(TOILET_PIN).level);
-    Serial.print("washer: "); Serial.println(SWITCH(WASHER_PIN).level);
-    Serial.print("dishwasher: "); Serial.println(SWITCH(DISHWASHER_PIN).level);
-    Serial.print("shower: "); Serial.println(SWITCH(SHOWER_PIN).level);
-    Serial.println("\n");
+    //Serial.println("================================================================");
+    if(levels.rainFlow > 0){Serial.println(0);}
+    if(levels.toiletFlow > 0){Serial.println(1);}
+    if(levels.washerFlow > 0){Serial.println(2);}
+    if(levels.dishWasherFlow > 0){Serial.println(3);}
+    if(levels.showerFlow > 0){Serial.println(4);}
+    // //Serial.print("rain: "); Serial.println(SWITCH(RAIN_PIN).level);
+    // Serial.print("toilet: "); Serial.println(SWITCH(TOILET_PIN).level);
+    // Serial.print("washer: "); Serial.println(SWITCH(WASHER_PIN).level);
+    // Serial.print("dishwasher: "); Serial.println(SWITCH(DISHWASHER_PIN).level);
+    // Serial.print("shower: "); Serial.println(SWITCH(SHOWER_PIN).level);
+    // Serial.println("\n");
   }
 }

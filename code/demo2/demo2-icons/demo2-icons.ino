@@ -187,30 +187,30 @@ void setup() {
 
 
 void loop() {
-  Serial.println("toilet");
-  updateIconList(toilet, 1);
-  strip.show();
-  delay(1000);
-  updateIconList(toilet, 0);
-  Serial.println("shower");
-  updateIconList(shower, 1);
-  strip.show();
-  delay(1000);
-  updateIconList(shower, 0);
-  Serial.println("washer");
-  updateIconList(washer, 1);
-  strip.show();
-  delay(1000);
-  updateIconList(washer, 0);
-  Serial.println("dishwasher");
-  updateIconList(dishwasher, 1);
-  strip.show();
-  delay(1000);
-  updateIconList(dishwasher, 0);
-  // tryUpdateLevels();
-  // if (updatedLevels) {
-  //   updatedLevels = false; // reset flag
-  //   memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
-  //   updateIcons();
-  // }
+  // Serial.println("toilet");
+  // updateIconList(toilet, 1);
+  // strip.show();
+  // delay(1000);
+  // updateIconList(toilet, 0);
+  // Serial.println("shower");
+  // updateIconList(shower, 1);
+  // strip.show();
+  // delay(1000);
+  // updateIconList(shower, 0);
+  // Serial.println("washer");
+  // updateIconList(washer, 1);
+  // strip.show();
+  // delay(1000);
+  // updateIconList(washer, 0);
+  // Serial.println("dishwasher");
+  // updateIconList(dishwasher, 1);
+  // strip.show();
+  // delay(1000);
+  // updateIconList(dishwasher, 0);
+  tryUpdateLevels();
+  if (updatedLevels) {
+    updatedLevels = false; // reset flag
+    memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
+    updateIcons();
+  }
 }

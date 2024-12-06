@@ -183,26 +183,26 @@ void drawBg(OctoWS2811 &strip, int index) {
 
 
 void drawPixel(OctoWS2811 &strip, int index, int type, float alpha) {
-  color_t c;
-  if (type & FlowType::RAIN) {
-    c = { 0, 0, 255 };
-  }
-  if (type & FlowType::TOILET) {
-    c = { 255, 0, 0 };
-    // c = alphaBlend(c, { 255, 0, 0 }, 0.5);
-  }
-  if (type & FlowType::WASHER) {
-    c = { 0, 255, 0 };
-    // c = alphaBlend(c, { 0, 255, 0 }, 0.5);
-  }
-  if (type & FlowType::DISHWASHER) {
-    c = { 255, 0, 255 };
-    // c = alphaBlend(c, { 255, 0, 255 }, 0.5);
-  }
-  if (type & FlowType::SHOWER) {
-    c = { 255, 255, 0 };
-    // c = alphaBlend(c, { 255, 255, 0 }, 0.5);
-  }
+  color_t c = { 255, 255, 255 };
+  // if (type & FlowType::RAIN) {
+  //   c = { 0, 0, 255 };
+  // }
+  // if (type & FlowType::TOILET) {
+  //   c = { 255, 0, 0 };
+  //   // c = alphaBlend(c, { 255, 0, 0 }, 0.5);
+  // }
+  // if (type & FlowType::WASHER) {
+  //   c = { 0, 255, 0 };
+  //   // c = alphaBlend(c, { 0, 255, 0 }, 0.5);
+  // }
+  // if (type & FlowType::DISHWASHER) {
+  //   c = { 255, 0, 255 };
+  //   // c = alphaBlend(c, { 255, 0, 255 }, 0.5);
+  // }
+  // if (type & FlowType::SHOWER) {
+  //   c = { 255, 255, 0 };
+  //   // c = alphaBlend(c, { 255, 255, 0 }, 0.5);
+  // }
   c = alphaBlend(bgColor(index), c, alpha);
   strip.setPixel(index, c.r, c.g, c.b);
 }

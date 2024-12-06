@@ -1,6 +1,6 @@
 #pragma once
 
-#define RAIN_PIN 0
+#define RAIN_PIN 14
 #define TOILET_PIN 1
 #define WASHER_PIN 2
 #define DISHWASHER_PIN 3

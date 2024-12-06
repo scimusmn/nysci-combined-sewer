@@ -15,7 +15,7 @@ void processInputLevels(uint8_t src, InputLevels update) {
 typedef OctoWS2811 LedStrip_t;
 #define LEDS_PER_STRIP 60*4
 #define NUM_PINS 3
-uint8_t ledPins[] = { 8, 7, 13 };
+uint8_t ledPins[] = { 14, 8, 7 };
 DMAMEM int displayMemory[LEDS_PER_STRIP * NUM_PINS * 3 / 4];
 LedStrip_t strip(LEDS_PER_STRIP, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, NUM_PINS, ledPins);
 
@@ -129,8 +129,16 @@ void setup() {
 
 
 void loop() {
+  static unsigned long time = 0;
+  static bool k = true;
   if (flag) {
     flag = false;
     updateIcons();
+    time = millis();
+    digitalWrite(13, HIGH);
+  }
+
+  if (millis() - time > 100) {
+    digitalWrite(13, LOW);
   }
 }
