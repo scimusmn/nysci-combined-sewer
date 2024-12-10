@@ -184,7 +184,7 @@
         1.0,
         2.5,
         3.0,
-        7.125
+        7.0
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -514,7 +514,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "production/led_segment-gerber/",
+      "plot": "../led_segment gbr/",
       "pos_files": "production/led_segment-gerber/",
       "specctra_dsn": "",
       "step": "",
