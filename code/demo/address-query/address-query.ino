@@ -5,10 +5,10 @@ SerialController serialController;
 
 
 // the leds
-#define STRIP_LEN 300
+#define STRIP_LEN 280
 DMAMEM int displayMemory[STRIP_LEN*6];
 byte pinList[] = { 2, 3, 4, 5, 6, 7, 8, 9 };
-OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, pinList, 8);
+OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, 8, pinList);
 
 struct span_t {
   int start;
@@ -49,7 +49,7 @@ void setup() {
 
 
 void loop() {
-  Serial.println("loop");
+  // Serial.println("loop");
   serialController.update();
 
   for (int i=0; i<strip.numPixels(); i++) {
