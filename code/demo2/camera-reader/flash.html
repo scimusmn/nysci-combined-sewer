@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script>
+      function blink(value, delay, bits=8, index=0) {
+        if (index >= bits) {
+          return;
+        }
+        const bit = (value >> index) & 0x01
+        console.log(index, bit)
+        if (bit === 1) {
+          document.body.style.background = "#ffffff";
+        } else {
+          document.body.style.background = "#000000";
+        }
+        setTimeout(() => blink(value, delay, bits, index+1), delay);
+      }
+      window.onload = () => {
+        blink(0x95, 1000);
+      }
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
