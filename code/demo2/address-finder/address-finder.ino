@@ -74,8 +74,8 @@ void setup() {
 */
 
 void loop() {
-  #define SHOW_TIME 1000
-  #define BLANK_TIME 100
+  #define SHOW_TIME 990
+  #define BLANK_TIME 10
   delay(SHOW_TIME);
   for (int i=0; i<11; i++) {
     showBit(i); delay(SHOW_TIME); blank(); delay(BLANK_TIME);
