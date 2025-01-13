@@ -14,6 +14,8 @@ struct PipeSource {
 struct PipeFlow {
   unsigned int offset;
   unsigned int length;
+  unsigned int count;
+  bool gradient;
   Pipe *src;
   struct PipeFlow *next;
 };
@@ -21,7 +23,7 @@ struct PipeFlow {
 
 class Pipe {
   public:
-  Pipe(OctoWS2811 &strip, size_t start, size_t end);
+  Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end);
 
   // attach a pipe as input to this pipe
   void attachInput(Pipe *pipe);
@@ -32,12 +34,13 @@ class Pipe {
   void endFlow();
 
   // getters for pipe output
-  unsigned int outputIsFlowing();
+  unsigned int outputCount();
 
   void update();
   void render();
 
   protected:
+  int pipeId;
   OctoWS2811 &strip;
   size_t start;
   size_t end;
@@ -51,7 +54,7 @@ class Pipe {
   void removeInputFlow();
 
   bool isFlowing = false;
-  bool outputFlowing = false;
+  unsigned int outputFlowing = 0;
   unsigned int flowCount = 0;
   unsigned int selfLength = 0;
 

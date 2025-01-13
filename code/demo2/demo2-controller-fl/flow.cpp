@@ -2,8 +2,8 @@
 #include <OctoWS2811.h>
 
 // (constructor)
-Pipe::Pipe(OctoWS2811 &strip, size_t start, size_t end) 
-  : strip(strip), start(start), end(end) {
+Pipe::Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end) 
+  : pipeId(pipeId), strip(strip), start(start), end(end) {
 }
 
 
@@ -28,7 +28,7 @@ void Pipe::endFlow() {
 
 
 
-unsigned int Pipe::outputIsFlowing() {
+unsigned int Pipe::outputCount() {
   return outputFlowing;
 }
 
@@ -37,7 +37,7 @@ unsigned int Pipe::outputIsFlowing() {
 void Pipe::processFlow(PipeFlow *flow) {
   if (flow == nullptr) { return; }
   if (flow->offset + flow->length >= llabs(end - start)) {
-    outputFlowing = true;
+    outputFlowing += flow->count;
   }
 }
 
@@ -45,11 +45,7 @@ void Pipe::processFlow(PipeFlow *flow) {
 unsigned int countInputFlows(PipeSource *sources) {
   unsigned int flowCount = 0;
   for (PipeSource *source = sources; source != nullptr; source = source->next) {
-    if (
-      source->pipe->outputIsFlowing()
-    ) {
-      flowCount += 1;
-    }
+    flowCount += source->pipe->outputCount();
   }
   return flowCount;
 }
@@ -72,31 +68,38 @@ void Pipe::updateInput() {
     flowCount += 1;
   }
 
+  if (flowCount != this->flowCount) {
+    Serial.print(this->flowCount); Serial.print(" -> "); Serial.println(flowCount);
+  }
+
+
   if (flowCount == 0) {
     // move any existing input flow to this->flows
     removeInputFlow();
   } else {
     // add a new flow if count has increased;
-    if (flowCount > this->flowCount) {
+    if (flowCount != this->flowCount) {
+      Serial.print("adding new flow "); Serial.println(flowCount);
       removeInputFlow();
       inputFlow = new PipeFlow;
       inputFlow->offset = 0;
       inputFlow->length = speed;
+      inputFlow->count = flowCount;
+      inputFlow->gradient = flowCount > this->flowCount;
     } else {
       if (inputFlow != nullptr) {
-        inputFlow->length += speed;
+        inputFlow->length += 1;
       }
     }
-
-    this->flowCount = flowCount;
   }
+  this->flowCount = flowCount;
 }
 
 
 // update all flows and outputs
 void Pipe::update() {
   // bool outputWasFlowing = outputFlowing;
-  outputFlowing = false;
+  outputFlowing = 0;
 
   // input flow
   updateInput();
@@ -198,6 +201,9 @@ void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow *flow) {
       double x = flow->length - i;
       x -= 20;
       double alpha = x < 0 ? 1.0 : exp(-x/20);
+      if (!flow->gradient) {
+        alpha = 0;
+      }
       //double alpha = 1.0;
       drawPixel(strip, x0+move, alpha);
     }

@@ -13,8 +13,8 @@
 #define SEGMENT11 290, 331
 #define SEGMENT12 280, 290
 #define SEGMENT13 331, 375
-#define SEGMENT14 731, 789
-#define SEGMENT15 789, 831
+#define SEGMENT14 731, 788
+#define SEGMENT15 788, 831
 #define SEGMENT16 391, 431
 #define SEGMENT17 383, 391
 #define SEGMENT18 431, 457
@@ -49,7 +49,7 @@ void createPipes(
   #define STARTEND_(number) SEGMENT ## number
   #define STARTEND(number) STARTEND_(number)
   #define PIPE(number) \
-    Pipe * pipe ## number = new Pipe(strip, STARTEND(number)); \
+    Pipe * pipe ## number = new Pipe(number, strip, STARTEND(number)); \
     *pipes = pushPipe(pipe ## number, *pipes);
   #define TPIPE(number, type) \
     PIPE(number) \
@@ -63,7 +63,7 @@ void createPipes(
   TPIPE(4, dishwashers);
   PIPE(5);
   pipe5->attachInput(pipe3);
-  pipe5->attachInput(pipe5);
+  pipe5->attachInput(pipe4);
 
   TPIPE(6, dishwashers);
   TPIPE(8, showers);
