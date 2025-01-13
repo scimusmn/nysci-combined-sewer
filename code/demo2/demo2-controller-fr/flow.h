@@ -2,16 +2,6 @@
 #include <OctoWS2811.h>
 
 
-typedef enum {
-  NO_FLOW = 0,
-  RAIN = 0x1,
-  TOILET = 0x2,
-  WASHER = 0x4,
-  DISHWASHER = 0x8,
-  SHOWER = 0x10,
-} FlowType;
-
-
 class Pipe;
 
 
@@ -22,7 +12,6 @@ struct PipeSource {
 
 
 struct PipeFlow {
-  unsigned int type;
   unsigned int offset;
   unsigned int length;
   Pipe *src;
@@ -38,13 +27,12 @@ class Pipe {
   void attachInput(Pipe *pipe);
 
   // begin a new flow originating at the start of this pipe
-  void startFlow(FlowType type, unsigned int rate);
+  void startFlow();
   // finish the current flow
   void endFlow();
 
   // getters for pipe output
-  unsigned int getOutputType();
-  unsigned long getOutputTime();
+  unsigned int outputIsFlowing();
 
   void update();
   void render();
@@ -57,14 +45,14 @@ class Pipe {
   struct PipeSource *sources = nullptr;
   struct PipeFlow *flows = nullptr;
   unsigned int speed = 1;
-  unsigned int outputType = FlowType::NO_FLOW;
-  unsigned long outputStartTime = 0;
   PipeFlow *outputFlow;
 
   struct PipeFlow *inputFlow = nullptr;
-  unsigned long inputTime = 0;
+  void removeInputFlow();
 
-  FlowType selfType = FlowType::NO_FLOW;
+  bool isFlowing = false;
+  bool outputFlowing = false;
+  unsigned int flowCount = 0;
   unsigned int selfLength = 0;
 
   void processFlow(PipeFlow *flow);

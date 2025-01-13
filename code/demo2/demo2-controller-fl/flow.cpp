@@ -17,22 +17,19 @@ void Pipe::attachInput(Pipe *pipe) {
 
 
 // create a self-flow
-void Pipe::startFlow(FlowType type, unsigned int rate) {
-  selfType = type;
+void Pipe::startFlow() {
+  isFlowing = true;
 }
 
 // end a self-flow
 void Pipe::endFlow() {
-  selfType = NO_FLOW;
+  isFlowing = false;
 }
 
 
-// getters for the pipe outputs
-unsigned int Pipe::getOutputType() {
-  return outputType;
-}
-unsigned long Pipe::getOutputTime() {
-  return outputStartTime;
+
+unsigned int Pipe::outputIsFlowing() {
+  return outputFlowing;
 }
 
 
@@ -40,76 +37,65 @@ unsigned long Pipe::getOutputTime() {
 void Pipe::processFlow(PipeFlow *flow) {
   if (flow == nullptr) { return; }
   if (flow->offset + flow->length >= llabs(end - start)) {
-    outputType = flow->type;
-    outputFlow = flow;
+    outputFlowing = true;
   }
 }
 
 
-FlowType collectFlowType(PipeSource *sources, FlowType start, unsigned long *time) {
-  FlowType type = start;
-  *time = 0;
+unsigned int countInputFlows(PipeSource *sources) {
+  unsigned int flowCount = 0;
   for (PipeSource *source = sources; source != nullptr; source = source->next) {
     if (
-      source->pipe->getOutputType() != NO_FLOW && 
-      source->pipe->getOutputTime() > *time 
+      source->pipe->outputIsFlowing()
     ) {
-      type = source->pipe->getOutputType();
-      *time = source->pipe->getOutputTime();
+      flowCount += 1;
     }
   }
-  return type;
+  return flowCount;
+}
+
+
+
+void Pipe::removeInputFlow() {
+  if (inputFlow != nullptr) {
+    inputFlow->next = flows;
+    flows = inputFlow;
+    inputFlow = nullptr;
+  }
 }
 
 
 // create/update the input flow
 void Pipe::updateInput() {
-  unsigned long time;
-  unsigned int type = collectFlowType(sources, selfType, &time);
+  unsigned int flowCount = countInputFlows(sources);
+  if (isFlowing) {
+    flowCount += 1;
+  }
 
-  if (type == FlowType::NO_FLOW) {
-    if (inputFlow != nullptr) {
-      // move existing input flow to this->flows
-      // inputFlow->offset += speed;
-      inputFlow->next = flows;
-      flows = inputFlow;
-      inputFlow = nullptr;
-    }
+
+  if (flowCount == 0) {
+    // move any existing input flow to this->flows
+    removeInputFlow();
   } else {
-    if (inputFlow != nullptr) {
-      if (inputFlow->type == type && inputTime == time) {
-        // extend existing flow
-        inputFlow->length += speed;
-      } else {
-        // move existing input flow to this->flows
-        // inputFlow->offset += speed;
-        inputFlow->next = flows;
-        flows = inputFlow;
-        // create new input flow
-        inputFlow = new PipeFlow;
-        inputFlow->type = type;
-        inputFlow->offset = 0;
-        inputFlow->length = speed;
-        inputTime = time;
-      }
-    } else {
-      // create new input flow
+    // add a new flow if count has increased;
+    if (flowCount > this->flowCount) {
+      removeInputFlow();
       inputFlow = new PipeFlow;
-      inputFlow->type = type;
       inputFlow->offset = 0;
       inputFlow->length = speed;
-      inputTime = time;
+    } else {
+      inputFlow->length += speed;
     }
+
+    this->flowCount = flowCount;
   }
 }
 
 
 // update all flows and outputs
 void Pipe::update() {
-  FlowType oldOutputType = outputType;
-  PipeFlow *oldOutputFlow = outputFlow;
-  outputFlow = nullptr;
-  outputType = NO_FLOW;
+  // bool outputWasFlowing = outputFlowing;
+  outputFlowing = false;
 
   // input flow
   updateInput();
@@ -132,10 +118,6 @@ void Pipe::update() {
       prev = &(flow->next);
       flow = flow->next;
     }
-  }
-
-  if (outputType != oldOutputType || outputFlow != oldOutputFlow) {
-    outputStartTime = millis();
   }
 }
 
@@ -182,7 +164,7 @@ void drawBg(OctoWS2811 &strip, int index) {
 }
 
 
-void drawPixel(OctoWS2811 &strip, int index, int type, float alpha) {
+void drawPixel(OctoWS2811 &strip, int index, float alpha) {
   color_t c = { 255, 255, 255 };
   // if (type & FlowType::RAIN) {
   //   c = { 0, 0, 255 };
@@ -216,7 +198,7 @@ void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow *flow) {
       x -= 20;
       double alpha = x < 0 ? 1.0 : exp(-x/20);
       //double alpha = 1.0;
-      drawPixel(strip, x0+move, flow->type, alpha);
+      drawPixel(strip, x0+move, alpha);
     }
   }
 }

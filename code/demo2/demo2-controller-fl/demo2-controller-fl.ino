@@ -27,7 +27,8 @@ void tryUpdateLevels() {
   static unsigned int index = 0;
   if (millis() > time) {
     updatedLevels = true;
-    time = millis() + 1000 + (rand() % 4000);
+    // time = millis() + 1000 + (rand() % 4000);
+    time = millis() + 2000;
     switch (index) {
       case 0:
         nextLevels.toiletFlow = invert(nextLevels.toiletFlow);
@@ -44,7 +45,8 @@ void tryUpdateLevels() {
       default:
         break;
     };
-    index = rand() % 4;
+    // index = rand() % 4;
+    index = 0;
   }
 }
 
@@ -68,9 +70,9 @@ PipeSource *showers = nullptr;
 
 
 // helper functions to manage creating & removing flows
-void startFlow(PipeSource *source, FlowType type) {
+void startFlow(PipeSource *source) {
   for (; source != nullptr; source = source->next) {
-    source->pipe->startFlow(type, 1);
+    source->pipe->startFlow();
   }
 }
 void endFlow(PipeSource *source) {
@@ -115,7 +117,7 @@ void loop() {
 
     // update rain flows
     if (levels.rainFlow > 0) {
-      startFlow(rains, RAIN);
+      startFlow(rains);
     } else {
       endFlow(rains);
     }
@@ -123,28 +125,28 @@ void loop() {
 
     // update toilet flows
     if (levels.toiletFlow > 0) {
-      startFlow(toilets, TOILET);
+      startFlow(toilets);
     } else {
       endFlow(toilets);
     }
 
     // update washer flows
     if (levels.washerFlow > 0) {
-      startFlow(washers, WASHER);
+      startFlow(washers);
     } else {
       endFlow(washers);
     }
 
     // update dishwasher flows
     if (levels.dishWasherFlow > 0) {
-      startFlow(dishwashers, DISHWASHER);
+      startFlow(dishwashers);
     } else {
       endFlow(dishwashers);
     }
 
     // update shower flows
     if (levels.showerFlow > 0) {
-      startFlow(showers, SHOWER);
+      startFlow(showers);
     } else {
       endFlow(showers);
     }

@@ -1,32 +1,27 @@
-FRAME_COUNT = 8
-FRAME_LEN = 1000
+FRAME_COUNT = 11 
+FRAME_LEN = 1100
 import cv2 as cv
 import numpy as np
 
 camera = cv.VideoCapture(0, cv.CAP_DSHOW)
 
+while True:
+  ret, frame = camera.read()
+  cv.imshow("window", frame)
+  if cv.waitKey(1) != -1:
+    break
+
 frames = []
 
 for count in range(0, FRAME_COUNT):
-  print(count)
   ret, frame = camera.read()
   frames.append(frame)
   cv.imshow("window", frame)
   cv.waitKey(FRAME_LEN)
 
 
-def threshold(frame, lowLevel, highLevel):
-  hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-  v = hsv[::1, ::1, 2]
-  ret, low = cv.threshold(v, lowLevel, 1, cv.THRESH_BINARY)
-  print(low)
-  ret, high = cv.threshold(v, highLevel, 255, cv.THRESH_BINARY)
-  gray = np.multiply(v, low)
-  gray = np.maximum(gray, high) 
-  return gray
 
-
-
+# convert each pixel to a binary number; return that and the ignore mask
 def binary(frames, low, high):
   h, w, _ = frames[0].shape
   shape = (h, w)
@@ -35,6 +30,7 @@ def binary(frames, low, high):
   ignore = np.zeros(shape, np.dtype(bool))
   shift = 0
   for f in frames:
+    window = "frame " + str(shift)
     brightness = cv.cvtColor(f, cv.COLOR_BGR2HSV)[::1, ::1, 2]
     oneMask = np.zeros(shape, np.dtype(bool))
     oneMask[brightness > high] = True
@@ -42,16 +38,14 @@ def binary(frames, low, high):
     nonZeroMask[brightness > low] = True
     mask = np.zeros(shape, dtype)
     mask[oneMask] = 1
+    # cv.imshow(window, 255*mask);
     mask = np.left_shift(mask, shift)
     binary = np.bitwise_or(mask, binary)
     shift += 1
     ignore[np.logical_and(np.logical_not(oneMask), nonZeroMask)] = True
   return (binary, ignore)
-
-
  
  
-
 levels = (30, 200)
 toSample = False
 samplePoint = (0, 0)
@@ -67,7 +61,7 @@ def drawPreview(wait=-1):
   preview[ignore] = [ 0, 0, 255 ];
   cv.imshow("preview", preview)
   return cv.waitKey(1)
- 
+
 def setLow(x):
   global levels
   _, hi = levels
