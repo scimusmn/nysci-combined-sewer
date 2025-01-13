@@ -1,6 +1,9 @@
 #pragma once
 #include <OctoWS2811.h>
 
+#define N_FLOWS 8
+#define N_INPUTS 8
+
 
 class Pipe;
 
@@ -16,6 +19,7 @@ struct PipeFlow {
   unsigned int length;
   unsigned int count;
   bool gradient;
+  bool active = true;
   Pipe *src;
   struct PipeFlow *next;
 };
@@ -45,20 +49,22 @@ class Pipe {
   size_t start;
   size_t end;
 
-  struct PipeSource *sources = nullptr;
-  struct PipeFlow *flows = nullptr;
-  unsigned int speed = 1;
-  PipeFlow *outputFlow;
+  Pipe *sources[N_INPUTS];
+  PipeFlow movingFlows[N_FLOWS];
+  PipeFlow inputFlow;
 
-  struct PipeFlow *inputFlow = nullptr;
-  void removeInputFlow();
+  // struct PipeSource *sources = nullptr;
+  // struct PipeFlow *flows = nullptr;
+  unsigned int speed = 1;
+  void convertInputToMovingFlow();
+  void insertFlow(PipeFlow f);
 
   bool isFlowing = false;
   unsigned int outputFlowing = 0;
   unsigned int flowCount = 0;
   unsigned int selfLength = 0;
 
-  void processFlow(PipeFlow *flow);
+  void processFlow(PipeFlow &flow);
   void updateInput();
 };
 

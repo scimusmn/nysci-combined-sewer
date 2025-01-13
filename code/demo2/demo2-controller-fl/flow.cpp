@@ -4,15 +4,26 @@
 // (constructor)
 Pipe::Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end) 
   : pipeId(pipeId), strip(strip), start(start), end(end) {
+  for (int i=0; i<N_INPUTS; i++) {
+    sources[i] = nullptr;
+  }
+  for(int i=0; i<N_FLOWS; i++) {
+    movingFlows[i].active = false;
+  }
+  inputFlow.active = false;
 }
 
 
 // attach another pipe as an input
 void Pipe::attachInput(Pipe *pipe) {
-  struct PipeSource *source = new PipeSource;
-  source->pipe = pipe;
-  source->next = sources;
-  sources = source;
+  for (int i=0; i<N_INPUTS; i++) {
+    if (sources[i] == nullptr) {
+      sources[i] = pipe;
+      return;
+    }
+  }
+  Serial.print("!! WARNING !! no space left to attach input on pipe ");
+  Serial.println(pipeId);
 }
 
 
@@ -27,37 +38,51 @@ void Pipe::endFlow() {
 }
 
 
-
 unsigned int Pipe::outputCount() {
   return outputFlowing;
 }
 
 
 // update the output type/rate from a flow
-void Pipe::processFlow(PipeFlow *flow) {
-  if (flow == nullptr) { return; }
-  if (flow->offset + flow->length >= llabs(end - start)) {
-    outputFlowing += flow->count;
+void Pipe::processFlow(PipeFlow &flow) {
+  if (flow.active) {
+    if (flow.offset + flow.length >= llabs(end - start)) {
+      outputFlowing += flow.count;
+    }
   }
 }
 
 
-unsigned int countInputFlows(PipeSource *sources) {
-  unsigned int flowCount = 0;
-  for (PipeSource *source = sources; source != nullptr; source = source->next) {
-    flowCount += source->pipe->outputCount();
+unsigned int countInputFlows(Pipe **sources) {
+  unsigned int count = 0;
+  for (int i=0; i<N_INPUTS; i++) {
+    if (sources[i] == nullptr) {
+      break;
+    } else {
+      count += sources[i]->outputCount();
+    }
   }
-  return flowCount;
+  return count;
 }
 
 
-
-void Pipe::removeInputFlow() {
-  if (inputFlow != nullptr) {
-    inputFlow->next = flows;
-    flows = inputFlow;
-    inputFlow = nullptr;
+void Pipe::convertInputToMovingFlow() {
+  if (inputFlow.active) {
+    insertFlow(inputFlow);
+    inputFlow.active = false;
   }
+}
+
+
+void Pipe::insertFlow(PipeFlow f) {
+  for (int i=0; i<N_FLOWS; i++) {
+    if (!movingFlows[i].active) {
+      movingFlows[i] = f;
+      return;
+    }
+  }
+  Serial.print("!! WARNING !! no space left to insert flow on pipe ");
+  Serial.println(pipeId);
 }
 
 
@@ -75,20 +100,20 @@ void Pipe::updateInput() {
 
   if (flowCount == 0) {
     // move any existing input flow to this->flows
-    removeInputFlow();
+    convertInputToMovingFlow();
   } else {
     // add a new flow if count has increased;
     if (flowCount != this->flowCount) {
       Serial.print("adding new flow "); Serial.println(flowCount);
-      removeInputFlow();
-      inputFlow = new PipeFlow;
-      inputFlow->offset = 0;
-      inputFlow->length = speed;
-      inputFlow->count = flowCount;
-      inputFlow->gradient = flowCount > this->flowCount;
+      convertInputToMovingFlow();
+      inputFlow.offset = 0;
+      inputFlow.length = speed;
+      inputFlow.count = flowCount;
+      inputFlow.gradient = flowCount > this->flowCount;
+      inputFlow.active = true;
     } else {
-      if (inputFlow != nullptr) {
-        inputFlow->length += 1;
+      if (inputFlow.active) {
+        inputFlow.length += 1;
       }
     }
   }
@@ -106,21 +131,15 @@ void Pipe::update() {
   processFlow(inputFlow);
 
   // internal flows
-  PipeFlow *flow = flows;
-  PipeFlow **prev = &flows;
-  while (flow != nullptr) {
-    flow->offset += 1;
-    if (flow->offset >= llabs(end - start)) {
-      // remove flow
-      *prev = flow->next;
-      PipeFlow *next = flow->next;
-      delete flow;
-      flow = next;
-    } else {
-      // process & move on
-      processFlow(flow);
-      prev = &(flow->next);
-      flow = flow->next;
+  for (int i=0; i<N_FLOWS; i++) {
+    PipeFlow &flow = movingFlows[i];
+    if (flow.active) {
+      flow.offset += 1;
+      if (flow.offset >= llabs(end - start)) {
+        flow.active = false;
+      } else {
+        processFlow(flow);
+      }
     }
   }
 }
@@ -193,15 +212,15 @@ void drawPixel(OctoWS2811 &strip, int index, float alpha) {
   strip.setPixel(index, c.r, c.g, c.b);
 }
 
-void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow *flow) {
-  if (flow == nullptr) { return; }
-  for (int i=0; i<flow->length; i++) {
-    int move = step * (i + flow->offset);
+void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow &flow) {
+  if (!flow.active) { return; }
+  for (int i=0; i<flow.length; i++) {
+    int move = step * (i + flow.offset);
     if (x0+move < x1) {
-      double x = flow->length - i;
+      double x = flow.length - i;
       x -= 20;
       double alpha = x < 0 ? 1.0 : exp(-x/20);
-      if (!flow->gradient) {
+      if (!flow.gradient) {
         alpha = 0;
       }
       //double alpha = 1.0;
@@ -220,8 +239,8 @@ void Pipe::render() {
     strip.setPixel(i, 0);
     // drawBg(strip, i);
   }
-  for (PipeFlow *flow = flows; flow != nullptr; flow = flow->next) {
-    drawFlow(strip, x0, x1, step, flow);
+  for (int i=0; i<N_FLOWS; i++) {
+    drawFlow(strip, x0, x1, step, movingFlows[i]);
   }
 
   drawFlow(strip, x0, x1, step, inputFlow);

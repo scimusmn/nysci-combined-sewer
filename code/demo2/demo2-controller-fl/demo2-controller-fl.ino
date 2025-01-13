@@ -46,7 +46,7 @@ void tryUpdateLevels() {
         break;
     };
     // index = rand() % 4;
-    index = 3;
+    index = 2;
   }
 }
 
