@@ -27,8 +27,8 @@ void tryUpdateLevels() {
   static unsigned int index = 0;
   if (millis() > time) {
     updatedLevels = true;
-    // time = millis() + 1000 + (rand() % 4000);
-    time = millis() + 2000;
+    time = millis() + 1000 + (rand() % 4000);
+    // time = millis() + 2000;
     switch (index) {
       case 0:
         nextLevels.toiletFlow = invert(nextLevels.toiletFlow);
@@ -45,8 +45,8 @@ void tryUpdateLevels() {
       default:
         break;
     };
-    // index = rand() % 4;
-    index = 2;
+    index = rand() % 4;
+    // index = 2;
   }
 }
 

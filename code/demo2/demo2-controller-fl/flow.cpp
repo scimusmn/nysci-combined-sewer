@@ -93,9 +93,9 @@ void Pipe::updateInput() {
     flowCount += 1;
   }
 
-  if (flowCount != this->flowCount) {
-    Serial.print(this->flowCount); Serial.print(" -> "); Serial.println(flowCount);
-  }
+  // if (flowCount != this->flowCount) {
+  //   Serial.print(this->flowCount); Serial.print(" -> "); Serial.println(flowCount);
+  // }
 
 
   if (flowCount == 0) {
@@ -104,7 +104,7 @@ void Pipe::updateInput() {
   } else {
     // add a new flow if count has increased;
     if (flowCount != this->flowCount) {
-      Serial.print("adding new flow "); Serial.println(flowCount);
+      // Serial.print("adding new flow "); Serial.println(flowCount);
       convertInputToMovingFlow();
       inputFlow.offset = 0;
       inputFlow.length = speed;
