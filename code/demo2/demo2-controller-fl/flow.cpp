@@ -72,7 +72,6 @@ void Pipe::updateInput() {
     flowCount += 1;
   }
 
-
   if (flowCount == 0) {
     // move any existing input flow to this->flows
     removeInputFlow();
@@ -84,7 +83,9 @@ void Pipe::updateInput() {
       inputFlow->offset = 0;
       inputFlow->length = speed;
     } else {
-      inputFlow->length += speed;
+      if (inputFlow != nullptr) {
+        inputFlow->length += speed;
+      }
     }
 
     this->flowCount = flowCount;
