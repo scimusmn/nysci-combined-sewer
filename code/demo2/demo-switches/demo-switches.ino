@@ -43,7 +43,7 @@ void loop() {
     Serial.println("================================================================");
     Serial.print("rain: "); Serial.println(SWITCH(RAIN_PIN).level);
     Serial.print("toilet: "); Serial.println(SWITCH(TOILET_PIN).level);
-    Serial.print("washer: "); Serial.println(SWITCH(WASHER_PIN).level);
+    Serial.print("laundry: "); Serial.println(SWITCH(WASHER_PIN).level);
     Serial.print("dishwasher: "); Serial.println(SWITCH(DISHWASHER_PIN).level);
     Serial.print("shower: "); Serial.println(SWITCH(SHOWER_PIN).level);
     Serial.println("\n");
