@@ -1,13 +1,18 @@
 #include <OctoWS2811.h>
 #include "messages.h"
 
-
-void processInputLevels(uint8_t src, InputLevels levels) {}
-
-
 InputLevels levels;
 InputLevels nextLevels = { 1, 1, 1, 1, 1 };
+//InputLevels nextLevels = { 0, 0, 0, 0, 0 };
 bool updatedLevels = true;
+
+
+void processInputLevels(uint8_t src, InputLevels levels) {
+  //Serial.println("new levels!");
+  memcpy(&nextLevels, &levels, sizeof(InputLevels));
+  updatedLevels = true;
+}
+
 
 
 int invert(int x) {
@@ -207,8 +212,9 @@ void loop() {
   // strip.show();
   // delay(1000);
   // updateIconList(dishwasher, 0);
-  tryUpdateLevels();
+  //tryUpdateLevels();
   if (updatedLevels) {
+    Serial.println("UPDATED LEVELS");
     updatedLevels = false; // reset flag
     memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
     updateIcons();
