@@ -1,11 +1,15 @@
 #define SMM_IMPLEMENTATION
 #include "smm.h"
 #include "messages.h"
+#include "rain.h"
 
 #define LEVEL_TIMEOUT 5000
 
-#define RAIN_PIN 16
-#define TOILET_PIN 17
+// #define RAIN_PIN 16
+// #define TOILET_PIN 17
+#define TOILET_PIN 16
+#define RAIN_PIN 17
+
 #define WASHER_PIN 14
 #define DISHWASHER_PIN 18
 #define SHOWER_PIN 15
@@ -75,10 +79,12 @@ void setup() {
   setupCan();
   Serial.println("[switches] boot!");
   smm::setup();
+  setupRain();
 }
 
 
 void loop() {
+  updateRain(levels.rainFlow);
   updateSwitches();
   // Serial.println("[switches] update!");
   if (LevelSwitch::updateFlag) {

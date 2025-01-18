@@ -799,14 +799,8 @@ static IntervalTimer smm::SwitchInterruptManager::timer;
 #endif
 
 
-#define DEBUG(msg) Serial.println(msg); for(int i=0; i<100; i++) {}
-
-
 void smm::SwitchInterruptManager::Setup() {
   if (SetupDone) { return; }
-  Serial.begin(9600);
-  delay(200);
-  DEBUG("a");
   SetupDone = true;
   #ifdef SMM_ARCH_TEENSY4
     timer.begin(Poll, SMM_SWITCHES_POLL_RATE);
@@ -817,7 +811,6 @@ void smm::SwitchInterruptManager::Setup() {
       "This architecture is not currently supported by smm::Switch!"
     );
   #endif
-  DEBUG("b");
 }
 void smm::SwitchInterruptManager::SetPollRate(unsigned long us) {
   #ifdef SMM_ARCH_TEENSY4
