@@ -15,7 +15,7 @@ OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, 
 // InputLevels levels, nextLevels;
 InputLevels levels;
 InputLevels nextLevels = { 1, 1, 1, 1, 1 };
-bool updatedLevels = true;
+bool updatedLevels = false;
 
 
 int invert(int x) {
@@ -82,6 +82,16 @@ void endFlow(PipeSource *source) {
 }
 
 
+void blink(unsigned long time) {
+  memset(displayMemory, 255, sizeof(displayMemory));
+  strip.show();
+  delay(time);
+  memset(displayMemory, 0, sizeof(displayMemory));
+  strip.show();
+  delay(time);
+}
+
+
 void setup() {
   srand(0);
   Serial.begin(15200);
@@ -89,7 +99,7 @@ void setup() {
   setupCan();
   Serial.println("[pipes] boot!");
   strip.begin();
-  memset(displayMemory, 0, sizeof(displayMemory));
+  blink(200); blink(200); blink(200);
   strip.show();
   createPipes(
     strip, 
@@ -101,7 +111,6 @@ void setup() {
 
 
 void loop() {
-  tryUpdateLevels();
   // update flows if a CAN msg was received
   if (updatedLevels) {
     updatedLevels = false; // reset flag
