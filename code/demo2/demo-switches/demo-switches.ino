@@ -85,11 +85,19 @@ void loop() {
     LevelSwitch::updateFlag = false;
     sendInputLevels(0, levels);
     Serial.println("================================================================");
+<<<<<<< HEAD
     Serial.print("rain: "); Serial.println(levels.rainFlow);
     Serial.print("toilet: "); Serial.println(levels.toiletFlow);
     Serial.print("washer: "); Serial.println(levels.washerFlow);
     Serial.print("dishwasher: "); Serial.println(levels.dishWasherFlow);
     Serial.print("shower: "); Serial.println(levels.showerFlow);
+=======
+    Serial.print("rain: "); Serial.println(SWITCH(RAIN_PIN).level);
+    Serial.print("toilet: "); Serial.println(SWITCH(TOILET_PIN).level);
+    Serial.print("laundry: "); Serial.println(SWITCH(WASHER_PIN).level);
+    Serial.print("dishwasher: "); Serial.println(SWITCH(DISHWASHER_PIN).level);
+    Serial.print("shower: "); Serial.println(SWITCH(SHOWER_PIN).level);
+>>>>>>> b1a31ea7aca45be24c2b067e1105a71a851b043c
     Serial.println("\n");
   }
 }

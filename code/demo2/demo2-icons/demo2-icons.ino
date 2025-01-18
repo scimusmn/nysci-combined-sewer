@@ -1,13 +1,18 @@
 #include <OctoWS2811.h>
 #include "messages.h"
 
-
-void processInputLevels(uint8_t src, InputLevels levels) {}
-
-
 InputLevels levels;
 InputLevels nextLevels = { 1, 1, 1, 1, 1 };
+//InputLevels nextLevels = { 0, 0, 0, 0, 0 };
 bool updatedLevels = true;
+
+
+void processInputLevels(uint8_t src, InputLevels levels) {
+  //Serial.println("new levels!");
+  memcpy(&nextLevels, &levels, sizeof(InputLevels));
+  updatedLevels = true;
+}
+
 
 
 int invert(int x) {
@@ -111,27 +116,47 @@ void setupIcons() {
   washer->next = nullptr;
   dishwasher->next = nullptr;
   // cr
-  Icon *cr0 = new Icon(1740, 1800, shower);
-  Icon *cr1 = new Icon(1680, 1740, toilet);
-  Icon *cr2 = new Icon(1860, 1920, washer);
-  Icon *cr3 = new Icon(1800, 1860, dishwasher);
-  Icon *cr4 = new Icon(2160, 2220, shower);
-  Icon *cr5 = new Icon(2100, 2160, toilet);
-  Icon *cr6 = new Icon(2280, 2340, washer);
-  Icon *cr7 = new Icon(2220, 2280, dishwasher);
+  Icon *cr0 = new Icon(0, 58, dishwasher);
+  Icon *cr1 = new Icon(59, 116, shower);
+  Icon *cr2 = new Icon(117, 174, toilet);
+  Icon *cr4 = new Icon(420, 480, toilet);
+  Icon *cr5 = new Icon(481, 538, shower);
+  Icon *cr6 = new Icon(539, 596, dishwasher);
+  Icon *cr7 = new Icon(597, 655, dishwasher);
 
   // fr
-  Icon *fr0 = new Icon(1020, 1080, washer);
-  Icon *fr1 = new Icon(960, 1020, dishwasher);
-  Icon *fr2 = new Icon(900, 960, shower);
-  Icon *fr3 = new Icon(840, 900, toilet);
-  Icon *fr4 = new Icon(1619, 1678, washer);
-  Icon *fr5 = new Icon(1559, 1618, dishwasher);
-  Icon *fr6 = new Icon(1499, 1558, shower);
-  Icon *fr7 = new Icon(1440, 1499, toilet);
-  Icon *fr8 = new Icon(1381, 1439, dishwasher);
-  Icon *fr9 = new Icon(1321, 1380, dishwasher);
-  Icon *fr10 = new Icon(1260, 1320, toilet);
+  Icon *fr0 = new Icon(656, 713, shower);
+  Icon *fr1 = new Icon(714, 840, toilet);
+  Icon *fr2 = new Icon(841, 900, dishwasher);
+  Icon *fr3 = new Icon(900, 960, washer);
+  Icon *fr4 = new Icon(960, 1020, shower);
+  Icon *fr5 = new Icon(1020, 1080, toilet);
+  Icon *fr6 = new Icon(1080, 1140, toilet);
+  Icon *fr7 = new Icon(1140, 1200, toilet);
+
+
+  // cr
+  // Icon *cr0 = new Icon(1740, 1800, shower);
+  // Icon *cr1 = new Icon(1680, 1740, toilet);
+  // Icon *cr2 = new Icon(1860, 1920, washer);
+  // Icon *cr3 = new Icon(1800, 1860, dishwasher);
+  // Icon *cr4 = new Icon(2160, 2220, shower);
+  // Icon *cr5 = new Icon(2100, 2160, toilet);
+  // Icon *cr6 = new Icon(2280, 2340, washer);
+  // Icon *cr7 = new Icon(2220, 2280, dishwasher);
+
+  // // fr
+  // Icon *fr0 = new Icon(1020, 1080, washer);
+  // Icon *fr1 = new Icon(960, 1020, dishwasher);
+  // Icon *fr2 = new Icon(900, 960, shower);
+  // Icon *fr3 = new Icon(840, 900, toilet);
+  // Icon *fr4 = new Icon(1619, 1678, washer);
+  // Icon *fr5 = new Icon(1559, 1618, dishwasher);
+  // Icon *fr6 = new Icon(1499, 1558, shower);
+  // Icon *fr7 = new Icon(1440, 1499, toilet);
+  // Icon *fr8 = new Icon(1381, 1439, dishwasher);
+  // Icon *fr9 = new Icon(1321, 1380, dishwasher);
+  // Icon *fr10 = new Icon(1260, 1320, toilet);
 }
 
 
@@ -207,8 +232,9 @@ void loop() {
   // strip.show();
   // delay(1000);
   // updateIconList(dishwasher, 0);
-  tryUpdateLevels();
+  //tryUpdateLevels();
   if (updatedLevels) {
+    Serial.println("UPDATED LEVELS");
     updatedLevels = false; // reset flag
     memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
     updateIcons();
