@@ -7,6 +7,8 @@
 #define NUM_RAINDROPS 4 
 #define DROP_COUNT_SLEW_TIME 1000
 #define DROP_ADVANCE_INTERVAL 4
+#define MIN_SPEED 2
+#define MAX_SPEED 3
 
 
 
@@ -28,6 +30,7 @@ struct RainDrop {
       // ran off the end
       position = 0;
       active = false;
+      speed = random(MIN_SPEED, MAX_SPEED+1);
     } else {
       // render drop
       for (int x=0; x<RAINDROP_SIZE; x++) {
@@ -62,8 +65,8 @@ class RainGroup {
   RainGroup(OctoWS2811 &strip, unsigned int group)
   : strip(strip), group(group) {
     for (int i=0; i<NUM_RAINDROPS; i++) {
+      raindrops[i].speed = random(MIN_SPEED, MAX_SPEED+1);
       raindrops[i].start = STRIP_LENGTH * group;
-      raindrops[i].speed = random(2, 4);
     }
   }
 
@@ -125,7 +128,6 @@ void updateRain(int level) {
     } else if (RainGroup::currentDropCount > RainGroup::targetDropCount) {
       RainGroup::currentDropCount -= 1;
     }
-    Serial.println(RainGroup::currentDropCount);
   }
 
   // insert new drops if needed
