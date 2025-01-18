@@ -33,7 +33,7 @@ struct RainDrop {
       speed = random(MIN_SPEED, MAX_SPEED+1);
     } else {
       // render drop
-      for (int x=0; x<RAINDROP_SIZE; x++) {
+      for (int x=0; x<RAINDROP_SIZE+MAX_SPEED; x++) {
         int pixel = position - x;
         if(pixel >= 0 && pixel < STRIP_LENGTH) {
           leds.setPixel(pixel+start, color[x]/10, color[x]/10, color[x]);
@@ -45,17 +45,17 @@ struct RainDrop {
   }
 
   // shared drop colors
-  static int color[RAINDROP_SIZE];
+  static int color[RAINDROP_SIZE+MAX_SPEED];
   static void setupColor() {
     for(int x = 0; x < RAINDROP_SIZE; x++){
       color[x] = 255 * exp(-0.5*x); 
     }
-    color[RAINDROP_SIZE - 3] = 0;
-    color[RAINDROP_SIZE - 2] = 0;
-    color[RAINDROP_SIZE - 1] = 0;
+    for (int i=0; i<MAX_SPEED; i++) {
+      color[RAINDROP_SIZE - i -1] = 0;
+    }
   }
 };
-int RainDrop::color[RAINDROP_SIZE];
+int RainDrop::color[RAINDROP_SIZE+MAX_SPEED];
 
 
 
