@@ -76,16 +76,6 @@ void createPipes(
   PipeSource **showers,
   PipeSource **constant
 ) {
-  #define STARTEND_(number) SEGMENT ## number
-  #define STARTEND(number) STARTEND_(number)
-  #define PIPE(number) \
-    Pipe * pipe ## number = new Pipe(strip, STARTEND(number)); \
-    *pipes = pushPipe(pipe ## number, *pipes);
-  #define TPIPE(number, type) \
-    PIPE(number) \
-    *type = pushPipe(pipe ## number, *type); \
-   
-    
     TPIPE(0, toilets);
     TPIPE(1, showers);
     PIPE(2);
