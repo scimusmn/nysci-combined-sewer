@@ -21,7 +21,7 @@
 #define SEGMENT18 643, 676 
 #define SEGMENT19 514, 554 
 #define SEGMENT20 697, 728 
-#define SEGMENT21 1076,1109 //1109, 1076 
+#define SEGMENT21 1109, 1076 
 #define SEGMENT22 1046, 1076 
 #define SEGMENT23 869, 924
 #define SEGMENT24 955, 924 
@@ -46,7 +46,8 @@ void createPipes(
   PipeSource **toilets,
   PipeSource **washers,
   PipeSource **dishwashers,
-  PipeSource **showers
+  PipeSource **showers,
+  PipeSource **constant
 ) {
   #define STARTEND_(number) SEGMENT ## number
   #define STARTEND(number) STARTEND_(number)
@@ -113,7 +114,7 @@ void createPipes(
   pipe29->attachInput(pipe28);
   pipe29->attachInput(pipe20);
 
-  PIPE(23);
+  TPIPE(23, constant);
   PIPE(22);
   pipe22->attachInput(pipe23);
   PIPE(21);

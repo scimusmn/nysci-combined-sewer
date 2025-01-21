@@ -65,7 +65,10 @@ class Pipe {
   unsigned int selfLength = 0;
 
   void processFlow(PipeFlow &flow);
+  void drawFlow(PipeFlow &flow);
   void updateInput();
+  unsigned int stripIndex(unsigned int i);
+  unsigned int length();
 };
 
 
@@ -76,5 +79,6 @@ void createPipes(
   PipeSource **toilets,
   PipeSource **sinks,
   PipeSource **washers,
-  PipeSource **showers
+  PipeSource **showers,
+  PipeSource **constant
 );

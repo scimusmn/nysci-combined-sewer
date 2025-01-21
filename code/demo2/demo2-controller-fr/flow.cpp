@@ -212,11 +212,11 @@ void drawPixel(OctoWS2811 &strip, int index, float alpha) {
   strip.setPixel(index, c.r, c.g, c.b);
 }
 
-void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow &flow) {
+void Pipe::drawFlow(PipeFlow &flow) {
   if (!flow.active) { return; }
   for (int i=0; i<flow.length; i++) {
-    int move = step * (i + flow.offset);
-    if (x0+move < x1) {
+    int idx = i + flow.offset;
+    if (idx < length()) {
       double x = flow.length - i;
       x -= 20;
       double alpha = x < 0 ? 1.0 : exp(-x/20);
@@ -224,7 +224,7 @@ void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow &flow) {
         alpha = 0;
       }
       //double alpha = 1.0;
-      drawPixel(strip, x0+move, alpha);
+      drawPixel(strip, stripIndex(idx), alpha);
     }
   }
 }
@@ -232,16 +232,31 @@ void drawFlow(OctoWS2811 &strip, int x0, int x1, int step, PipeFlow &flow) {
 
 // render the pipe flows (to memory)
 void Pipe::render() {
-  unsigned int step = end > start ? 1 : -1;
-  unsigned int x0 = end > start ? start : end;
-  unsigned int x1 = end > start ? end : start;
-  for (int i = x0; i != x1; i += step) {
-    strip.setPixel(i, 0);
+  for (int i = 0; i != length(); i++) {
+    strip.setPixel(stripIndex(i), 0);
     // drawBg(strip, i);
   }
   for (int i=0; i<N_FLOWS; i++) {
-    drawFlow(strip, x0, x1, step, movingFlows[i]);
+    drawFlow(movingFlows[i]);
   }
 
-  drawFlow(strip, x0, x1, step, inputFlow);
+  drawFlow(inputFlow);
+}
+
+
+unsigned int Pipe::stripIndex(unsigned int i) {
+  if (start < end) {
+    return start+i;
+  } else {
+    return start-i;
+  }
+}
+
+
+unsigned int Pipe::length() {
+  if (start < end) {
+    return end - start;
+  } else {
+    return start - end;
+  }
 }
