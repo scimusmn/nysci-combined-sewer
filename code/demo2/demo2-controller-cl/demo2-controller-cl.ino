@@ -117,7 +117,7 @@ void loop() {
 
     // update rain flows
     if (levels.rainFlow > 0) {
-      startFlow(rains, RAIN);
+      startFlow(rains);
     } else {
       endFlow(rains);
     }
@@ -125,28 +125,28 @@ void loop() {
 
     // update toilet flows
     if (levels.toiletFlow > 0) {
-      startFlow(toilets, TOILET);
+      startFlow(toilets);
     } else {
       endFlow(toilets);
     }
 
     // update washer flows
     if (levels.washerFlow > 0) {
-      startFlow(washers, WASHER);
+      startFlow(washers);
     } else {
       endFlow(washers);
     }
 
     // update dishwasher flows
     if (levels.dishWasherFlow > 0) {
-      startFlow(dishwashers, DISHWASHER);
+      startFlow(dishwashers);
     } else {
       endFlow(dishwashers);
     }
 
     // update shower flows
     if (levels.showerFlow > 0) {
-      startFlow(showers, SHOWER);
+      startFlow(showers);
     } else {
       endFlow(showers);
     }
