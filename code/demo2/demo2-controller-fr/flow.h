@@ -1,6 +1,9 @@
 #pragma once
 #include <OctoWS2811.h>
 
+#define N_FLOWS 8
+#define N_INPUTS 8
+
 
 class Pipe;
 
@@ -14,6 +17,9 @@ struct PipeSource {
 struct PipeFlow {
   unsigned int offset;
   unsigned int length;
+  unsigned int count;
+  bool gradient;
+  bool active = true;
   Pipe *src;
   struct PipeFlow *next;
 };
@@ -21,7 +27,7 @@ struct PipeFlow {
 
 class Pipe {
   public:
-  Pipe(OctoWS2811 &strip, size_t start, size_t end);
+  Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end);
 
   // attach a pipe as input to this pipe
   void attachInput(Pipe *pipe);
@@ -32,30 +38,33 @@ class Pipe {
   void endFlow();
 
   // getters for pipe output
-  unsigned int outputIsFlowing();
+  unsigned int outputCount();
 
   void update();
   void render();
 
   protected:
+  int pipeId;
   OctoWS2811 &strip;
   size_t start;
   size_t end;
 
-  struct PipeSource *sources = nullptr;
-  struct PipeFlow *flows = nullptr;
-  unsigned int speed = 1;
-  PipeFlow *outputFlow;
+  Pipe *sources[N_INPUTS];
+  PipeFlow movingFlows[N_FLOWS];
+  PipeFlow inputFlow;
 
-  struct PipeFlow *inputFlow = nullptr;
-  void removeInputFlow();
+  // struct PipeSource *sources = nullptr;
+  // struct PipeFlow *flows = nullptr;
+  unsigned int speed = 1;
+  void convertInputToMovingFlow();
+  void insertFlow(PipeFlow f);
 
   bool isFlowing = false;
-  bool outputFlowing = false;
+  unsigned int outputFlowing = 0;
   unsigned int flowCount = 0;
   unsigned int selfLength = 0;
 
-  void processFlow(PipeFlow *flow);
+  void processFlow(PipeFlow &flow);
   void updateInput();
 };
 

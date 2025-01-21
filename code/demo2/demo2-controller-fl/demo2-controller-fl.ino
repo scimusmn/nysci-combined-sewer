@@ -5,7 +5,7 @@
 
 
 // the leds
-#define STRIP_LEN 280
+#define STRIP_LEN 290
 byte pins[8] = { 2, 3, 4, 5, 6, 7, 8, 9 };
 DMAMEM int displayMemory[STRIP_LEN*6];
 OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, 8, pins);
@@ -14,7 +14,8 @@ OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, 
 // globals for storing incoming CAN data
 // InputLevels levels, nextLevels;
 InputLevels levels;
-InputLevels nextLevels = { 1, 1, 1, 1, 1 };
+//InputLevels nextLevels = { 1, 1, 1, 1, 1 };
+InputLevels nextLevels = { 0, 0, 0, 0, 0 };
 bool updatedLevels = true;
 
 
