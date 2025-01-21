@@ -73,7 +73,8 @@ void createPipes(
   PipeSource **toilets,
   PipeSource **washers,
   PipeSource **dishwashers,
-  PipeSource **showers
+  PipeSource **showers,
+  PipeSource **constant
 ) {
   #define STARTEND_(number) SEGMENT ## number
   #define STARTEND(number) STARTEND_(number)

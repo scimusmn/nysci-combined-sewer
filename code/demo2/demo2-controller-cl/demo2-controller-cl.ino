@@ -65,6 +65,7 @@ PipeSource *toilets = nullptr;
 PipeSource *washers = nullptr;
 PipeSource *dishwashers = nullptr;
 PipeSource *showers = nullptr;
+PipeSource *constant = nullptr;
 
 
 // helper functions to manage creating & removing flows
@@ -93,7 +94,8 @@ void setup() {
     strip, 
     &allPipes, &rains, 
     &toilets, &washers, 
-    &dishwashers, &showers
+    &dishwashers, &showers,
+    &constant
   );
 }
 
