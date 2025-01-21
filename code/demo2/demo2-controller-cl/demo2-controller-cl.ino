@@ -69,9 +69,9 @@ PipeSource *constant = nullptr;
 
 
 // helper functions to manage creating & removing flows
-void startFlow(PipeSource *source, FlowType type) {
+void startFlow(PipeSource *source) {
   for (; source != nullptr; source = source->next) {
-    source->pipe->startFlow(type, 1);
+    source->pipe->startFlow();
   }
 }
 void endFlow(PipeSource *source) {
