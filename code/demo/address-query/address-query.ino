@@ -5,7 +5,7 @@ SerialController serialController;
 
 
 // the leds
-#define STRIP_LEN 280
+#define STRIP_LEN 420
 DMAMEM int displayMemory[STRIP_LEN*6];
 byte pinList[] = { 2, 3, 4, 5, 6, 7, 8, 9 };
 OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, 8, pinList);
