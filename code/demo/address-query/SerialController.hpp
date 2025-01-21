@@ -1,7 +1,7 @@
 #ifndef SERIAL_CONTROLLER_HPP
 #define SERIAL_CONTROLLER_HPP
 
-#define MAX_STRING_LEN 128
+#define MAX_STRING_LEN 290
 
 #include <Arduino.h>
 
