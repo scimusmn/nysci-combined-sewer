@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <OctoWS2811.h>
 #include "messages.h"
+#include <stdlib.h>
+#include <OctoWS2811.h>
+#include "messages.h"
 #include "flow.h"
 
 

@@ -241,6 +241,27 @@ void Pipe::render() {
   }
 
   drawFlow(inputFlow);
+<<<<<<< HEAD
+}
+
+
+unsigned int Pipe::stripIndex(unsigned int i) {
+  if (start < end) {
+    return start+i;
+  } else {
+    return start-i;
+  }
+}
+
+
+unsigned int Pipe::length() {
+  if (start < end) {
+    return end - start;
+  } else {
+    return start - end;
+  }
+=======
+>>>>>>> FR_Update
 }
 
 

@@ -92,4 +92,8 @@ void createPipes(
 #define TPIPE(number, type) \
   PIPE(number) \
   *type = pushPipe(pipe ## number, *type); \
+<<<<<<< HEAD
  
+=======
+ 
+>>>>>>> FR_Update
