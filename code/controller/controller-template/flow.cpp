@@ -105,7 +105,7 @@ void Pipe::updateInput() {
     // add a new flow if count has increased;
     if (flowCount != this->flowCount) {
       // Serial.print("adding new flow "); Serial.println(flowCount);
-      unsigned int oldLen = inputFlow.length;
+      unsigned int gradOff = inputFlow.length + inputFlow.gradientOffset;
       convertInputToMovingFlow();
       inputFlow.offset = 0;
       inputFlow.length = speed;
@@ -114,7 +114,7 @@ void Pipe::updateInput() {
         // new input flow, show gradient
         inputFlow.gradientOffset = 0;
       } else {
-        inputFlow.gradientOffset = oldLen;
+        inputFlow.gradientOffset = gradOff;
       }
       inputFlow.active = true;
     } else {
@@ -227,7 +227,7 @@ void Pipe::drawFlow(PipeFlow &flow) {
   for (unsigned int i=0; i<flow.length; i++) {
     unsigned int idx = i + flow.offset;
     if (idx < length()) {
-      double x = flow.length - i + flow.gradientOffset;
+      double x = flow.length + flow.gradientOffset - i;
       x -= 20;
       double alpha = x < 0 ? 1.0 : exp(-x/20);
       //double alpha = 1.0;
