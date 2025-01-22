@@ -119,7 +119,11 @@ void Pipe::updateInput() {
       inputFlow.active = true;
     } else {
       if (inputFlow.active) {
-        inputFlow.length += 1;
+        if (inputFlow.length < length()) {
+          inputFlow.length += 1;
+        } else if (inputFlow.gradientOffset < 1024) {
+          inputFlow.gradientOffset += 1;
+        }
       }
     }
   }
