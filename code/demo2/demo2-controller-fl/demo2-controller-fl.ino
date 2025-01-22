@@ -68,6 +68,7 @@ PipeSource *toilets = nullptr;
 PipeSource *washers = nullptr;
 PipeSource *dishwashers = nullptr;
 PipeSource *showers = nullptr;
+PipeSource *constant = nullptr;
 
 
 // helper functions to manage creating & removing flows
@@ -83,14 +84,14 @@ void endFlow(PipeSource *source) {
 }
 
 
-void blink(unsigned long time) {
-  memset(displayMemory, 255, sizeof(displayMemory));
-  strip.show();
-  delay(time);
-  memset(displayMemory, 0, sizeof(displayMemory));
-  strip.show();
-  delay(time);
-}
+// void blink(unsigned long time) {
+//   memset(displayMemory, 255, sizeof(displayMemory));
+//   strip.show();
+//   delay(time);
+//   memset(displayMemory, 0, sizeof(displayMemory));
+//   strip.show();
+//   delay(time);
+// }
 
 
 void setup() {
@@ -100,18 +101,21 @@ void setup() {
   setupCan();
   Serial.println("[pipes] boot!");
   strip.begin();
-  blink(200); blink(200); blink(200);
+  //blink(200); blink(200); blink(200);
   strip.show();
   createPipes(
     strip, 
     &allPipes, &rains, 
     &toilets, &washers, 
-    &dishwashers, &showers
+    &dishwashers, &showers,
+    &constant
   );
+  startFlow(constant);
 }
 
 
 void loop() {
+  tryUpdateLevels();
   // update flows if a CAN msg was received
   if (updatedLevels) {
     updatedLevels = false; // reset flag

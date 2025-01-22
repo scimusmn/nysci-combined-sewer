@@ -1,33 +1,41 @@
 #include "flow.h"
 
-#define SEGMENT1 938, 977
-#define SEGMENT2 928, 938
-#define SEGMENT3 977, 1023
-#define SEGMENT4 840, 927
-#define SEGMENT5 1023, 1098
-#define SEGMENT6 655, 686
-#define SEGMENT7 609, 654
-#define SEGMENT8 560, 569
-#define SEGMENT9 569, 609
-//#define SEGMENT10 686, 731
-#define SEGMENT10 686, 730
-#define SEGMENT11 290, 331
-#define SEGMENT12 280, 290
-#define SEGMENT13 331, 375
-#define SEGMENT14 731, 788
-#define SEGMENT15 788, 831
-#define SEGMENT16 391, 431
-#define SEGMENT17 383, 391
-#define SEGMENT18 431, 457
-#define SEGMENT19 376, 383
-#define SEGMENT20 457, 477
-#define SEGMENT21 0, 60
-#define SEGMENT22 477, 519
-#define SEGMENT23 109, 125
-#define SEGMENT24 60, 68
-#define SEGMENT25 68, 109
-#define SEGMENT26 519, 529
-#define SEGMENT27 125, 183
+#define SEGMENT1 0, 84 // //
+#define SEGMENT2 87, 97 // //
+#define SEGMENT3 98, 137 // //
+#define SEGMENT4 137, 182 // //
+#define SEGMENT5 182, 257 // //
+#define SEGMENT6 291, 299 // //
+#define SEGMENT7 299, 338 // //
+#define SEGMENT8 338, 383 // //
+#define SEGMENT9 385, 416 // //
+#define SEGMENT10 416, 460 // //
+#define SEGMENT11 461, 518 // //
+#define SEGMENT12 581, 590 // //
+#define SEGMENT13 590, 628 // //
+#define SEGMENT14 628, 675 // //
+#define SEGMENT15 518, 560 // //
+#define SEGMENT16 870, 928 // //
+#define SEGMENT17 675, 683 // //
+#define SEGMENT18 683, 691 // //
+#define SEGMENT19 691, 731 // //
+#define SEGMENT20 731, 757 // //
+#define SEGMENT21 757, 776 // //
+#define SEGMENT22 776, 817 // //
+#define SEGMENT23 938, 977 // //
+#define SEGMENT24 930, 938 // //
+#define SEGMENT25 977, 995 // //
+#define SEGMENT26 995, 1053 // //
+#define SEGMENT27 817, 826 //  //
+#define SEGMENT28 1160, 1241 // //
+#define SEGMENT29 1241, 1279 // //
+#define SEGMENT30 1391, 1420 // //
+#define SEGMENT31 1335, 1391 // //
+#define SEGMENT32 1335, 1279 // //
+#define SEGMENT33 1450, 1532 // //
+#define SEGMENT34 1532, 1581 //
+#define SEGMENT35 1581, 1624 //
+
 
 
 PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
@@ -45,7 +53,8 @@ void createPipes(
   PipeSource **toilets,
   PipeSource **washers,
   PipeSource **dishwashers,
-  PipeSource **showers
+  PipeSource **showers,
+  PipeSource **constant
 ) {
   #define STARTEND_(number) SEGMENT ## number
   #define STARTEND(number) STARTEND_(number)
@@ -56,61 +65,77 @@ void createPipes(
     PIPE(number) \
     *type = pushPipe(pipe ## number, *type); \
   
-  TPIPE(1, toilets);
+  TPIPE(3, toilets); //
   TPIPE(2, showers);
-  PIPE(3);
-  pipe3->attachInput(pipe1);
-  pipe3->attachInput(pipe2);
-  TPIPE(4, dishwashers);
+  PIPE(4);
+  pipe4->attachInput(pipe3);
+  pipe4->attachInput(pipe2);
+  TPIPE(1, dishwashers);
   PIPE(5);
-  pipe5->attachInput(pipe3);
   pipe5->attachInput(pipe4);
+  pipe5->attachInput(pipe1);
 
-  TPIPE(6, dishwashers);
-  TPIPE(8, showers);
-  TPIPE(9, toilets);
-  PIPE(7);
-  pipe7->attachInput(pipe8);
-  pipe7->attachInput(pipe9);
+  TPIPE(9, dishwashers); //
+  TPIPE(6, showers);
+  TPIPE(7, toilets);
+  PIPE(8);
+  pipe8->attachInput(pipe6);
+  pipe8->attachInput(pipe7);
   PIPE(10);
+  pipe10->attachInput(pipe9);
   pipe10->attachInput(pipe5);
-  pipe10->attachInput(pipe6);
-  pipe10->attachInput(pipe7);
+  pipe10->attachInput(pipe8);
 
-  TPIPE(11, toilets);
+  TPIPE(13, toilets); //
   TPIPE(12, showers);
-  PIPE(13);
-  pipe13->attachInput(pipe11);
-  pipe13->attachInput(pipe12);
-  TPIPE(14, dishwashers);
+  PIPE(14);
+  pipe14->attachInput(pipe13);
+  pipe14->attachInput(pipe12);
+  TPIPE(11, dishwashers);
   PIPE(15);
   pipe15->attachInput(pipe10);
-  pipe15->attachInput(pipe13);
+  pipe15->attachInput(pipe11);
   pipe15->attachInput(pipe14);
 
-  TPIPE(16, toilets);
-  TPIPE(17, showers);
-  PIPE(18);
-  pipe18->attachInput(pipe16);
-  pipe18->attachInput(pipe17);
-  TPIPE(19, washers);
+  TPIPE(19, toilets); //
+  TPIPE(18, showers);
   PIPE(20);
-  pipe20->attachInput(pipe18);
   pipe20->attachInput(pipe19);
-  TPIPE(21, dishwashers);
+  pipe20->attachInput(pipe18);
+  TPIPE(17, washers);
+  PIPE(21);
+  pipe21->attachInput(pipe17);
+  pipe21->attachInput(pipe20);
+  TPIPE(16, dishwashers);
   PIPE(22);
   pipe22->attachInput(pipe15);
-  pipe22->attachInput(pipe20);
+  pipe22->attachInput(pipe16);
   pipe22->attachInput(pipe21);
 
+  TPIPE(23, toilets);
   TPIPE(24, toilets);
-  TPIPE(25, toilets);
-  PIPE(23);
-  pipe23->attachInput(pipe24);
-  pipe23->attachInput(pipe25);
-  PIPE(26);
-  pipe26->attachInput(pipe22);
-  pipe26->attachInput(pipe23);
+  PIPE(25);
+  pipe25->attachInput(pipe23);
+  pipe25->attachInput(pipe24);
   PIPE(27);
-  pipe27->attachInput(pipe26);
+  pipe27->attachInput(pipe22);
+  pipe27->attachInput(pipe25);
+  PIPE(26);
+  pipe26->attachInput(pipe27);
+
+  TPIPE(28, constant);
+  PIPE(29);
+  pipe29->attachInput(pipe28);
+  PIPE(30);
+  pipe30->attachInput(pipe29);
+
+  TPIPE(31, rains);
+  TPIPE(32,rains);
+  TPIPE(33,constant);
+  PIPE(34);
+  pipe34->attachInput(pipe33);
+  pipe34->attachInput(pipe26);
+  PIPE(35);
+  pipe35->attachInput(pipe31);
+  pipe35->attachInput(pipe34);
 }

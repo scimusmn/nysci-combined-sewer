@@ -63,7 +63,11 @@
 #define SEGMENT470 772, 795
 #define SEGMENT480 706, 723
 #define SEGMENT490 870, 920
+<<<<<<< HEAD
 #define SEGMENT500 925, 920
+=======
+#define SEGMENT500 920, 925
+>>>>>>> FR_Update
 
 
 PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
@@ -91,6 +95,7 @@ void createPipes(
     pipe20->attachInput(pipe10);
     PIPE(30);
     pipe30->attachInput(pipe20);
+<<<<<<< HEAD
 
     TPIPE(40, showers);
     TPIPE(50, toilets);
@@ -203,5 +208,117 @@ void createPipes(
     //pipe500->attachInput(pipe490);
 
     //TPIPE()
+=======
+>>>>>>> FR_Update
+
+    TPIPE(40, showers);
+    TPIPE(50, toilets);
+    PIPE(60);
+    pipe60->attachInput(pipe40);
+    pipe60->attachInput(pipe50);
+    PIPE(70);
+    pipe70->attachInput(pipe60);
+
+    TPIPE(80, washers);
+    TPIPE(90, dishwashers);
+    PIPE(100);
+    pipe100->attachInput(pipe80);
+    pipe100->attachInput(pipe90);
+    PIPE(110);
+    pipe110->attachInput(pipe100);
+    pipe110->attachInput(pipe30);
+
+    TPIPE(120, showers);
+    TPIPE(130, toilets);
+    PIPE(140);
+    pipe140->attachInput(pipe120);
+    pipe140->attachInput(pipe130);
+    PIPE(150);
+    pipe150->attachInput(pipe140);
+    pipe150->attachInput(pipe70);
+    PIPE(160);
+    pipe160->attachInput(pipe150);
+
+    TPIPE(170, toilets);
+    TPIPE(180, showers);
+    PIPE(190);
+    pipe190->attachInput(pipe170);
+    pipe190->attachInput(pipe190);
+    TPIPE(200, washers);
+    PIPE(210);
+    pipe210->attachInput(pipe190);
+    pipe210->attachInput(pipe200);
+    pipe210->attachInput(pipe110);
+
+    TPIPE(220, dishwashers);
+    PIPE(230);
+    pipe230->attachInput(pipe220);
+    pipe230->attachInput(pipe160);
+
+    TPIPE(240, dishwashers);
+    TPIPE(250, washers);
+    PIPE(260);
+    pipe260->attachInput(pipe240);
+    pipe260->attachInput(pipe250);
+    pipe260->attachInput(pipe210);
+
+    PIPE(265);
+    pipe265->attachInput(pipe260);
+
+    TPIPE(270, showers);
+    TPIPE(280, toilets);
+    PIPE(290);
+    pipe290->attachInput(pipe270);
+    pipe290->attachInput(pipe280);
+    PIPE(300);
+    pipe300->attachInput(pipe290);
+    pipe300->attachInput(pipe230);
+    PIPE(310);
+    pipe310->attachInput(pipe300);
+
+    TPIPE(320, dishwashers);
+    TPIPE(330, washers);
+    PIPE(340);
+    pipe340->attachInput(pipe320);
+    pipe340->attachInput(pipe330);
+    PIPE(350);
+    pipe350->attachInput(pipe340);
+    pipe350->attachInput(pipe265);
+
+    TPIPE(360, toilets);
+    TPIPE(370, showers);
+    PIPE(380);
+    pipe380->attachInput(pipe360);
+    pipe380->attachInput(pipe370);
+    PIPE(390);
+    pipe390->attachInput(pipe380);
+    pipe390->attachInput(pipe310);
+
+    TPIPE(400, washers);
+    TPIPE(410, washers);
+    PIPE(420);
+    pipe420->attachInput(pipe400);
+    pipe420->attachInput(pipe410);
+    TPIPE(430, washers);
+    PIPE(440);
+    pipe440->attachInput(pipe420);
+    pipe440->attachInput(pipe430);
+    pipe440->attachInput(pipe350);
+
+    PIPE(445);
+    pipe445->attachInput(pipe440);
+
+    TPIPE(450, washers);
+    TPIPE(460, washers);
+    PIPE(470);
+    pipe470->attachInput(pipe450);
+    pipe470->attachInput(pipe460);
+    PIPE(480);
+    pipe480->attachInput(pipe470);
+    pipe480->attachInput(pipe390);
+    PIPE(490);
+    pipe480->attachInput(pipe480);
+    PIPE(500);
+    pipe500->attachInput(pipe490);
 
 }
