@@ -105,11 +105,17 @@ void Pipe::updateInput() {
     // add a new flow if count has increased;
     if (flowCount != this->flowCount) {
       // Serial.print("adding new flow "); Serial.println(flowCount);
+      unsigned int oldLen = inputFlow.length;
       convertInputToMovingFlow();
       inputFlow.offset = 0;
       inputFlow.length = speed;
       inputFlow.count = flowCount;
-      inputFlow.gradient = flowCount > this->flowCount;
+      if (flowCount > this->flowCount) {
+        // new input flow, show gradient
+        inputFlow.gradientOffset = 0;
+      } else {
+        inputFlow.gradientOffset = oldLen;
+      }
       inputFlow.active = true;
     } else {
       if (inputFlow.active) {
@@ -176,7 +182,11 @@ color_t bgColor(int index) {
   double x = ((double)index) / 30.0;
   double t = ((double)millis()) / 1000.0;
   double level = 0.5 + (0.5 * sin((x - t)));
-  return { 0, 128 * level, (200 * level) + 32 };
+  return { 
+    0, 
+    static_cast<uint8_t>(128 * level), 
+    static_cast<uint8_t>((200 * level) + 32)
+  };
   // return { 0, 0, 0 };
 }
 
@@ -214,15 +224,12 @@ void drawPixel(OctoWS2811 &strip, int index, float alpha) {
 
 void Pipe::drawFlow(PipeFlow &flow) {
   if (!flow.active) { return; }
-  for (int i=0; i<flow.length; i++) {
-    int idx = i + flow.offset;
+  for (unsigned int i=0; i<flow.length; i++) {
+    unsigned int idx = i + flow.offset;
     if (idx < length()) {
-      double x = flow.length - i;
+      double x = flow.length - i + flow.gradientOffset;
       x -= 20;
       double alpha = x < 0 ? 1.0 : exp(-x/20);
-      if (!flow.gradient) {
-        alpha = 0;
-      }
       //double alpha = 1.0;
       drawPixel(strip, stripIndex(idx), alpha);
     }
@@ -232,7 +239,7 @@ void Pipe::drawFlow(PipeFlow &flow) {
 
 // render the pipe flows (to memory)
 void Pipe::render() {
-  for (int i = 0; i != length(); i++) {
+  for (unsigned int i = 0; i != length(); i++) {
     strip.setPixel(stripIndex(i), 0);
     // drawBg(strip, i);
   }

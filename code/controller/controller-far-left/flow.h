@@ -18,7 +18,7 @@ struct PipeFlow {
   unsigned int offset;
   unsigned int length;
   unsigned int count;
-  bool gradient;
+  unsigned int gradientOffset;
   bool active = true;
   Pipe *src;
   struct PipeFlow *next;

@@ -154,7 +154,7 @@ void controllerLoop() {
   }
 
   // wait for update to finish
-  while (strip.busy()) {}
+  // while (strip.busy()) {}
 
   // update & render all pipes
   for (PipeSource *source = allPipes; source != nullptr; source = source->next) {
@@ -164,4 +164,5 @@ void controllerLoop() {
 
   // display
   strip.show();
+  delay(10);
 }//*/

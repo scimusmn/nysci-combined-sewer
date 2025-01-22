@@ -1,4 +1,5 @@
 #include "flow.h"
+
 #include <OctoWS2811.h>
 
 // (constructor)
@@ -176,7 +177,11 @@ color_t bgColor(int index) {
   double x = ((double)index) / 30.0;
   double t = ((double)millis()) / 1000.0;
   double level = 0.5 + (0.5 * sin((x - t)));
-  return { 0, 128 * level, (200 * level) + 32 };
+  return { 
+    0, 
+    static_cast<uint8_t>(128 * level), 
+    static_cast<uint8_t>((200 * level) + 32)
+  };
   // return { 0, 0, 0 };
 }
 
@@ -214,8 +219,8 @@ void drawPixel(OctoWS2811 &strip, int index, float alpha) {
 
 void Pipe::drawFlow(PipeFlow &flow) {
   if (!flow.active) { return; }
-  for (int i=0; i<flow.length; i++) {
-    int idx = i + flow.offset;
+  for (unsigned int i=0; i<flow.length; i++) {
+    unsigned int idx = i + flow.offset;
     if (idx < length()) {
       double x = flow.length - i;
       x -= 20;
@@ -232,7 +237,7 @@ void Pipe::drawFlow(PipeFlow &flow) {
 
 // render the pipe flows (to memory)
 void Pipe::render() {
-  for (int i = 0; i != length(); i++) {
+  for (unsigned int i = 0; i != length(); i++) {
     strip.setPixel(stripIndex(i), 0);
     // drawBg(strip, i);
   }

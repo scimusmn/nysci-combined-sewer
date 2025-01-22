@@ -5,7 +5,8 @@
 
 
 // the leds
-#define STRIP_LEN 280
+#define STRIP_LEN 29
+0
 byte pins[8] = { 2, 3, 4, 5, 6, 7, 8, 9 };
 DMAMEM int displayMemory[STRIP_LEN*6];
 OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, 8, pins);
@@ -65,12 +66,13 @@ PipeSource *toilets = nullptr;
 PipeSource *washers = nullptr;
 PipeSource *dishwashers = nullptr;
 PipeSource *showers = nullptr;
+PipeSource *constants = nullptr;
 
 
 // helper functions to manage creating & removing flows
-void startFlow(PipeSource *source, FlowType type) {
+void startFlow(PipeSource *source) {
   for (; source != nullptr; source = source->next) {
-    source->pipe->startFlow(type, 1);
+    source->pipe->startFlow();
   }
 }
 void endFlow(PipeSource *source) {
@@ -93,8 +95,10 @@ void setup() {
     strip, 
     &allPipes, &rains, 
     &toilets, &washers, 
-    &dishwashers, &showers
+    &dishwashers, &showers,
+    &constants
   );
+  startFlow(constants);
 }
 
 
@@ -115,7 +119,7 @@ void loop() {
 
     // update rain flows
     if (levels.rainFlow > 0) {
-      startFlow(rains, RAIN);
+      startFlow(rains);
     } else {
       endFlow(rains);
     }
@@ -123,28 +127,28 @@ void loop() {
 
     // update toilet flows
     if (levels.toiletFlow > 0) {
-      startFlow(toilets, TOILET);
+      startFlow(toilets);
     } else {
       endFlow(toilets);
     }
 
     // update washer flows
     if (levels.washerFlow > 0) {
-      startFlow(washers, WASHER);
+      startFlow(washers);
     } else {
       endFlow(washers);
     }
 
     // update dishwasher flows
     if (levels.dishWasherFlow > 0) {
-      startFlow(dishwashers, DISHWASHER);
+      startFlow(dishwashers);
     } else {
       endFlow(dishwashers);
     }
 
     // update shower flows
     if (levels.showerFlow > 0) {
-      startFlow(showers, SHOWER);
+      startFlow(showers);
     } else {
       endFlow(showers);
     }
