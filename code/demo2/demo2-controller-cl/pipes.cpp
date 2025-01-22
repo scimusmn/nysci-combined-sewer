@@ -63,7 +63,7 @@
 #define SEGMENT470 772, 795
 #define SEGMENT480 706, 723
 #define SEGMENT490 870, 920
-#define SEGMENT500 920, 925
+#define SEGMENT500 925, 920
 
 
 PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
@@ -198,8 +198,10 @@ void createPipes(
     pipe480->attachInput(pipe470);
     pipe480->attachInput(pipe390);
     PIPE(490);
-    pipe480->attachInput(pipe480);
-    PIPE(500);
-    pipe500->attachInput(pipe490);
+    pipe490->attachInput(pipe480);
+    TPIPE(500, constant);
+    //pipe500->attachInput(pipe490);
+
+    //TPIPE()
 
 }
