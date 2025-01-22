@@ -14,8 +14,8 @@ OctoWS2811 strip(STRIP_LEN, displayMemory, nullptr, WS2811_RGB | WS2811_800kHz, 
 // globals for storing incoming CAN data
 // InputLevels levels, nextLevels;
 InputLevels levels;
-InputLevels nextLevels = { 1, 1, 1, 1, 1 };
-bool updatedLevels = true;
+InputLevels nextLevels = { 0, 0, 0, 0, 0 };
+bool updatedLevels = false;
 
 
 int invert(int x) {
