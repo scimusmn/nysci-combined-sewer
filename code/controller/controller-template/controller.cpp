@@ -102,7 +102,7 @@ void controllerSetup() {
 
 
 void controllerLoop() {
-  tryUpdateLevels();
+  // tryUpdateLevels();
   // update flows if a CAN msg was received
   if (updatedLevels) {
     updatedLevels = false; // reset flag
