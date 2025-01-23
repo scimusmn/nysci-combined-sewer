@@ -57,6 +57,13 @@ void processInputLevels(uint8_t src, InputLevels newLevels) {
 }
 
 
+void processPipeOutput(uint8_t src, PipeOutput output) {
+  Serial.print("rx output! node: "); Serial.print(src);
+  Serial.print(", pipe: "); Serial.print(output.pipeId);
+  Serial.print(", count: "); Serial.println(output.count);
+}
+
+
 // pipe lists
 // allPipes contains every pipe; the rest contain only specific ones
 PipeSource *allPipes = nullptr;
@@ -81,11 +88,11 @@ void endFlow(PipeSource *source) {
 }
 
 
-void controllerSetup() {
+void controllerSetup(uint8_t canBusId) {
   srand(0);
   Serial.begin(15200);
   delay(1000);
-  setupCan();
+  setupCan(canBusId);
   Serial.println("[pipes] boot!");
   strip.begin();
   memset(displayMemory, 0, sizeof(displayMemory));
@@ -101,8 +108,10 @@ void controllerSetup() {
 }
 
 
-void controllerLoop() {
-  // tryUpdateLevels();
+void controllerLoop(bool debug=false) {
+  if (debug) {
+    tryUpdateLevels();
+  }
   // update flows if a CAN msg was received
   if (updatedLevels) {
     updatedLevels = false; // reset flag

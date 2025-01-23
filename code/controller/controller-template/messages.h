@@ -2,7 +2,12 @@
 #include <FlexCAN_T4.h>
 
 
-#define INPUT_LEVELS_MSG 0
+typedef enum : uint8_t {
+  PIPE_OUTPUT,
+  PIPE_OVERFLOW,
+  INPUT_LEVELS,
+} MessageType;
+
 
 // struct to store input level information
 typedef struct {
@@ -12,20 +17,26 @@ typedef struct {
   uint8_t dishWasherFlow;
   uint8_t showerFlow;
 } InputLevels;
-// callback for receiving input level data
+
+
+typedef struct {
+  unsigned int pipeId;
+  unsigned int count;
+} PipeOutput;
+
+// callbacks for receiving data
 // MUST BE USER DEFINED
 // src: the id of the source node
-// levels: the new levels
 void processInputLevels(uint8_t src, InputLevels levels);
+void processPipeOutput(uint8_t src, PipeOutput output);
 // transmit input levels via CAN bus
-void sendInputLevels(uint8_t src, InputLevels levels);
+void sendCanBusInputLevels(InputLevels levels);
+void sendCanBusPipeOutput(PipeOutput output);
 
 
 // function to set up the CAN bus
 // MUST BE CALLED BEFORE DOING ANY OTHER CAN STUFF
-void setupCan();
+void setupCan(uint8_t id);
 
 // send generic data
-void sendMessage(uint8_t type, uint8_t nodeId, void *data);
-// process generic CAN message (used internally)
-void processMessage(const CAN_message_t &msg);
+void sendMessage(MessageType type, void *data);

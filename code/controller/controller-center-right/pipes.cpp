@@ -88,6 +88,7 @@ void createPipes(
   PIPE(180);
   PIPE(190);
   PIPE(200);
+  pipe180->setAsOutput();
   pipe180->attachInput(pipe130);
   pipe180->attachInput(pipe190);
   pipe190->attachInput(pipe141);

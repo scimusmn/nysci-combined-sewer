@@ -32,13 +32,16 @@ class Pipe {
   // attach a pipe as input to this pipe
   void attachInput(Pipe *pipe);
 
+  // set whether the pipe should output CAN PipeOutput messages
+  void setAsOutput(bool out=false);
+
   // begin a new flow originating at the start of this pipe
-  void startFlow();
+  void startFlow(unsigned int count=1);
   // finish the current flow
   void endFlow();
 
   // getters for pipe output
-  unsigned int outputCount();
+  unsigned int getOutputCount();
 
   void update();
   void render();
@@ -59,10 +62,11 @@ class Pipe {
   void convertInputToMovingFlow();
   void insertFlow(PipeFlow f);
 
-  bool isFlowing = false;
-  unsigned int outputFlowing = 0;
-  unsigned int flowCount = 0;
-  unsigned int selfLength = 0;
+  unsigned int selfInputCount = 0;
+  unsigned int totalInputCount = 0;
+  unsigned int outputCount = 0;
+
+  bool canOutput = false;
 
   void processFlow(PipeFlow &flow);
   void drawFlow(PipeFlow &flow);

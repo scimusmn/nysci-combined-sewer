@@ -1,4 +1,5 @@
 #include "flow.h"
+#include "messages.h"
 #include <OctoWS2811.h>
 
 // (constructor)
@@ -27,19 +28,26 @@ void Pipe::attachInput(Pipe *pipe) {
 }
 
 
+// set whether the pipe should output CAN PipeOutput messages
+void Pipe::setAsOutput(bool out) {
+  canOutput = out;
+  Serial.print("set as output "); Serial.println(pipeId);
+}
+
+
 // create a self-flow
-void Pipe::startFlow() {
-  isFlowing = true;
+void Pipe::startFlow(unsigned int count) {
+  selfInputCount = count;
 }
 
 // end a self-flow
 void Pipe::endFlow() {
-  isFlowing = false;
+  selfInputCount = 0;
 }
 
 
-unsigned int Pipe::outputCount() {
-  return outputFlowing;
+unsigned int Pipe::getOutputCount() {
+  return outputCount;
 }
 
 
@@ -47,7 +55,7 @@ unsigned int Pipe::outputCount() {
 void Pipe::processFlow(PipeFlow &flow) {
   if (flow.active) {
     if (flow.offset + flow.length >= llabs(end - start)) {
-      outputFlowing += flow.count;
+      outputCount += flow.count;
     }
   }
 }
@@ -59,7 +67,7 @@ unsigned int countInputFlows(Pipe **sources) {
     if (sources[i] == nullptr) {
       break;
     } else {
-      count += sources[i]->outputCount();
+      count += sources[i]->getOutputCount();
     }
   }
   return count;
@@ -74,6 +82,7 @@ void Pipe::convertInputToMovingFlow() {
 }
 
 
+// add a new moving flow
 void Pipe::insertFlow(PipeFlow f) {
   for (int i=0; i<N_FLOWS; i++) {
     if (!movingFlows[i].active) {
@@ -88,10 +97,7 @@ void Pipe::insertFlow(PipeFlow f) {
 
 // create/update the input flow
 void Pipe::updateInput() {
-  unsigned int flowCount = countInputFlows(sources);
-  if (isFlowing) {
-    flowCount += 1;
-  }
+  unsigned int flowCount = selfInputCount + countInputFlows(sources);
 
   // if (flowCount != this->flowCount) {
   //   Serial.print(this->flowCount); Serial.print(" -> "); Serial.println(flowCount);
@@ -103,14 +109,14 @@ void Pipe::updateInput() {
     convertInputToMovingFlow();
   } else {
     // add a new flow if count has increased;
-    if (flowCount != this->flowCount) {
+    if (flowCount != this->totalInputCount) {
       // Serial.print("adding new flow "); Serial.println(flowCount);
       unsigned int gradOff = inputFlow.length + inputFlow.gradientOffset;
       convertInputToMovingFlow();
       inputFlow.offset = 0;
       inputFlow.length = speed;
       inputFlow.count = flowCount;
-      if (flowCount > this->flowCount) {
+      if (flowCount > this->totalInputCount) {
         // new input flow, show gradient
         inputFlow.gradientOffset = 0;
       } else {
@@ -120,21 +126,21 @@ void Pipe::updateInput() {
     } else {
       if (inputFlow.active) {
         if (inputFlow.length < length()) {
-          inputFlow.length += 1;
+          inputFlow.length += speed;
         } else if (inputFlow.gradientOffset < 1024) {
-          inputFlow.gradientOffset += 1;
+          inputFlow.gradientOffset += speed;
         }
       }
     }
   }
-  this->flowCount = flowCount;
+  this->totalInputCount = flowCount;
 }
 
 
 // update all flows and outputs
 void Pipe::update() {
-  // bool outputWasFlowing = outputFlowing;
-  outputFlowing = 0;
+  unsigned int oldOutputCount = outputCount;
+  outputCount = 0;
 
   // input flow
   updateInput();
@@ -151,6 +157,13 @@ void Pipe::update() {
         processFlow(flow);
       }
     }
+  }
+  if (canOutput) {
+    Serial.println(pipeId);
+  }
+  if ((outputCount != oldOutputCount) && canOutput) {
+    Serial.println(outputCount);
+    sendCanBusPipeOutput({ static_cast<unsigned int>(pipeId), outputCount });
   }
 }
 
@@ -203,25 +216,6 @@ void drawBg(OctoWS2811 &strip, int index) {
 
 void drawPixel(OctoWS2811 &strip, int index, float alpha) {
   color_t c = { 255, 255, 255 };
-  // if (type & FlowType::RAIN) {
-  //   c = { 0, 0, 255 };
-  // }
-  // if (type & FlowType::TOILET) {
-  //   c = { 255, 0, 0 };
-  //   // c = alphaBlend(c, { 255, 0, 0 }, 0.5);
-  // }
-  // if (type & FlowType::WASHER) {
-  //   c = { 0, 255, 0 };
-  //   // c = alphaBlend(c, { 0, 255, 0 }, 0.5);
-  // }
-  // if (type & FlowType::DISHWASHER) {
-  //   c = { 255, 0, 255 };
-  //   // c = alphaBlend(c, { 255, 0, 255 }, 0.5);
-  // }
-  // if (type & FlowType::SHOWER) {
-  //   c = { 255, 255, 0 };
-  //   // c = alphaBlend(c, { 255, 255, 0 }, 0.5);
-  // }
   c = alphaBlend(bgColor(index), c, alpha);
   strip.setPixel(index, c.r, c.g, c.b);
 }

@@ -3,23 +3,7 @@
 static FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> MsgCan;
 
 
-void setupCan() {
-  MsgCan.begin();
-  MsgCan.setBaudRate(1000000);
-  MsgCan.setMaxMB(16);
-  MsgCan.enableFIFO();
-  MsgCan.enableFIFOInterrupt();
-  MsgCan.onReceive(processMessage);
-}
-
-
-void sendMessage(uint8_t type, uint8_t nodeId, void *data, size_t sz) {
-  CAN_message_t msg;
-  msg.id = (type << 4) | nodeId;
-  memcpy(msg.buf, data, sz);
-  msg.len = sz;
-  MsgCan.write(msg);
-}
+static uint8_t selfId = 0xff;
 
 
 void processMessage(const CAN_message_t &msg) {
@@ -28,12 +12,20 @@ void processMessage(const CAN_message_t &msg) {
   Serial.println(type);
   uint8_t src = msg.id & 0xf;
   switch(type) {
-  case INPUT_LEVELS_MSG:
-    InputLevels levels;
-    memcpy(&levels, msg.buf, sizeof(InputLevels));
-    processInputLevels(src, levels);
+  case PIPE_OUTPUT:
+    do {
+      PipeOutput output;
+      memcpy(&output, msg.buf, sizeof(PipeOutput));
+      processPipeOutput(src, output);
+    } while(0);
     break;
-
+  case INPUT_LEVELS:
+    do {
+      InputLevels levels;
+      memcpy(&levels, msg.buf, sizeof(InputLevels));
+      processInputLevels(src, levels);
+    } while(0);
+    break;
   default:
     // do nothing
     Serial.print("WARNING: unknown message type: "); Serial.println(type);
@@ -43,6 +35,34 @@ void processMessage(const CAN_message_t &msg) {
 
 
 
-void sendInputLevels(uint8_t src, InputLevels levels) {
-  sendMessage(INPUT_LEVELS_MSG, src, &levels, sizeof(InputLevels));
+void setupCan(uint8_t id) {
+  selfId = id;
+  MsgCan.begin();
+  MsgCan.setBaudRate(1000000);
+  MsgCan.setMaxMB(16);
+  MsgCan.enableFIFO();
+  MsgCan.enableFIFOInterrupt();
+  MsgCan.onReceive(processMessage);
+}
+
+
+void sendMessage(MessageType type, void *data, size_t sz) {
+  CAN_message_t msg;
+  msg.id = (type << 4) | selfId;
+  memcpy(msg.buf, data, sz);
+  msg.len = sz;
+  MsgCan.write(msg);
+}
+
+
+
+
+void sendCanBusInputLevels(uint8_t src, InputLevels levels) {
+  sendMessage(INPUT_LEVELS, &levels, sizeof(InputLevels));
+}
+
+
+void sendCanBusPipeOutput(PipeOutput output) {
+  Serial.print("pipe output! "); Serial.print(output.pipeId); Serial.print(": "); Serial.println(output.count);
+  sendMessage(PIPE_OUTPUT, &output, sizeof(PipeOutput));
 }
