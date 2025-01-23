@@ -81,13 +81,19 @@ void createPipes(
   PIPE(141);
   pipe141->attachInput(pipe140);
 
-  TPIPE(150, constants);
-  TPIPE(160, constants);
-  TPIPE(170, constants);
+  PIPE(150);
+  PIPE(160);
+  PIPE(170);
+  pipe150->setAsOutput();
+  pipe150->attachInput(pipe130);
+  pipe150->attachInput(pipe160);
+  pipe160->attachInput(pipe141);
+  pipe160->attachInput(pipe170);
+
 
   PIPE(180);
   PIPE(190);
-  PIPE(200);
+  TPIPE(200, constants);
   pipe180->setAsOutput();
   pipe180->attachInput(pipe130);
   pipe180->attachInput(pipe190);

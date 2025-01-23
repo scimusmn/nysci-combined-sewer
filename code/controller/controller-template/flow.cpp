@@ -201,7 +201,7 @@ color_t bgColor(int index) {
   double level = 0.5 + (0.5 * sin((x - t)));
   return { 
     0, 
-    static_cast<uint8_t>(128 * level), 
+    static_cast<uint8_t>(128 * level),
     static_cast<uint8_t>((200 * level) + 32)
   };
   // return { 0, 0, 0 };
@@ -215,7 +215,7 @@ void drawBg(OctoWS2811 &strip, int index) {
 
 
 void drawPixel(OctoWS2811 &strip, int index, float alpha) {
-  color_t c = { 255, 255, 255 };
+  color_t c = { 0, 255, 128 };
   c = alphaBlend(bgColor(index), c, alpha);
   strip.setPixel(index, c.r, c.g, c.b);
 }

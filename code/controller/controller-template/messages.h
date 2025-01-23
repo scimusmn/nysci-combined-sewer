@@ -3,9 +3,9 @@
 
 
 typedef enum : uint8_t {
+  INPUT_LEVELS,
   PIPE_OUTPUT,
   PIPE_OVERFLOW,
-  INPUT_LEVELS,
 } MessageType;
 
 
