@@ -5,5 +5,5 @@ void setup() {
 }
 
 void loop() {
-  controllerLoop(false);
+  controllerLoop(true);
 }

@@ -11,3 +11,6 @@ popd
 pushd controller-center-right
 call update.bat
 popd
+pushd controller-center-left-sewer
+call update.bat
+popd

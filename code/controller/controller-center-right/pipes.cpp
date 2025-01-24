@@ -45,6 +45,8 @@ void createPipes(
   PipeSource **showers,
   PipeSource **constants
 ) {
+  Pipe *vpipe;
+
   TPIPE(00, showers);
   TPIPE(10, toilets);
   PIPE(20);
@@ -85,11 +87,14 @@ void createPipes(
   PIPE(160);
   PIPE(170);
   pipe150->setAsOutput();
+  VPIPE(16);
   pipe150->attachInput(pipe130);
-  pipe150->attachInput(pipe160);
-  pipe160->attachInput(pipe141);
-  pipe160->attachInput(pipe170);
-
+  pipe150->attachInput(vpipe);
+  vpipe->attachInput(pipe160);
+  VPIPE(12);
+  pipe160->attachInput(vpipe);
+  vpipe->attachInput(pipe141);
+  vpipe->attachInput(pipe170);
 
   PIPE(180);
   PIPE(190);

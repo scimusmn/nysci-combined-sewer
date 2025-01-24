@@ -49,6 +49,21 @@ void tryUpdateLevels() {
 }
 
 
+
+
+// pipe lists
+// allPipes contains every pipe; the rest contain only specific ones
+PipeSource *allPipes = nullptr;
+PipeSource *rains = nullptr;
+PipeSource *toilets = nullptr;
+PipeSource *washers = nullptr;
+PipeSource *dishwashers = nullptr;
+PipeSource *showers = nullptr;
+PipeSource *constants = nullptr;
+
+
+
+
 // process an incoming InputLevels CAN msg
 void processInputLevels(uint8_t src, InputLevels newLevels) {
   Serial.println("new levels!");
@@ -61,18 +76,13 @@ void processPipeOutput(uint8_t src, PipeOutput output) {
   Serial.print("rx output! node: "); Serial.print(src);
   Serial.print(", pipe: "); Serial.print(output.pipeId);
   Serial.print(", count: "); Serial.println(output.count);
+  for (PipeSource *source = allPipes; source != nullptr; source = source->next) {
+    source->pipe->updateCanInput(src, output);
+  }
 }
 
 
-// pipe lists
-// allPipes contains every pipe; the rest contain only specific ones
-PipeSource *allPipes = nullptr;
-PipeSource *rains = nullptr;
-PipeSource *toilets = nullptr;
-PipeSource *washers = nullptr;
-PipeSource *dishwashers = nullptr;
-PipeSource *showers = nullptr;
-PipeSource *constants = nullptr;
+
 
 
 // helper functions to manage creating & removing flows

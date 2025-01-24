@@ -13,6 +13,8 @@ Pipe::Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end)
   }
   inputFlow.active = false;
 }
+VirtualPipe::VirtualPipe(OctoWS2811 &strip, unsigned int length)
+  : Pipe(-1, strip, 0, 0), len(length) {}
 
 
 // attach another pipe as an input
@@ -27,11 +29,15 @@ void Pipe::attachInput(Pipe *pipe) {
   Serial.println(pipeId);
 }
 
+void Pipe::attachCanInput(uint8_t node, unsigned int pipeId) {
+  canInputId = node;
+  canInputPipe = pipeId;
+}
+
 
 // set whether the pipe should output CAN PipeOutput messages
 void Pipe::setAsOutput(bool out) {
   canOutput = out;
-  Serial.print("set as output "); Serial.println(pipeId);
 }
 
 
@@ -54,7 +60,7 @@ unsigned int Pipe::getOutputCount() {
 // update the output type/rate from a flow
 void Pipe::processFlow(PipeFlow &flow) {
   if (flow.active) {
-    if (flow.offset + flow.length >= llabs(end - start)) {
+    if (flow.offset + flow.length >= length()) {
       outputCount += flow.count;
     }
   }
@@ -95,9 +101,16 @@ void Pipe::insertFlow(PipeFlow f) {
 }
 
 
+void Pipe::updateCanInput(uint8_t srcId, PipeOutput output) {
+  if ((srcId == canInputId) && (output.pipeId == canInputPipe)) {
+    canInputFlow = output.count;
+  }
+}
+
+
 // create/update the input flow
 void Pipe::updateInput() {
-  unsigned int flowCount = selfInputCount + countInputFlows(sources);
+  unsigned int flowCount = selfInputCount + canInputFlow + countInputFlows(sources);
 
   // if (flowCount != this->flowCount) {
   //   Serial.print(this->flowCount); Serial.print(" -> "); Serial.println(flowCount);
@@ -150,16 +163,13 @@ void Pipe::update() {
   for (int i=0; i<N_FLOWS; i++) {
     PipeFlow &flow = movingFlows[i];
     if (flow.active) {
-      flow.offset += 1;
-      if (flow.offset >= llabs(end - start)) {
+      flow.offset += speed;
+      if (flow.offset >= length()) {
         flow.active = false;
       } else {
         processFlow(flow);
       }
     }
-  }
-  if (canOutput) {
-    Serial.println(pipeId);
   }
   if ((outputCount != oldOutputCount) && canOutput) {
     Serial.println(outputCount);
@@ -265,3 +275,9 @@ unsigned int Pipe::length() {
     return start - end;
   }
 }
+
+
+unsigned int VirtualPipe::length() {
+  return len;
+}
+void VirtualPipe::render() {}
