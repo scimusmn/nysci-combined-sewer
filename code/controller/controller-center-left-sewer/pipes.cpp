@@ -20,23 +20,14 @@ PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
 }
 
 
-void createPipes(
-  OctoWS2811 &strip,
-  PipeSource **pipes,
-  PipeSource **rains,
-  PipeSource **toilets,
-  PipeSource **washers,
-  PipeSource **dishwashers,
-  PipeSource **showers,
-  PipeSource **constant
-) {
+void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   Pipe *vpipe;
   PIPE(0);
   PIPE(1);
   pipe1->attachInput(pipe0);
 
   PIPE(2);
-  VPIPE(14);
+  vpipe = new VirtualPipe(strip, 14);
   vpipe->attachCanInput(3, 150);
   pipe2->attachInput(vpipe);
 

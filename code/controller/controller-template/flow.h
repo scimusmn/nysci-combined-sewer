@@ -15,6 +15,18 @@ struct PipeSource {
 };
 
 
+struct PipeCollections {
+  PipeSource *pipes;
+  PipeSource *rains;
+  PipeSource *toilets;
+  PipeSource *sinks;
+  PipeSource *washers;
+  PipeSource *dishwashers;
+  PipeSource *showers;
+  PipeSource *constant;
+};
+
+
 struct PipeFlow {
   unsigned int offset;
   unsigned int length;
@@ -94,26 +106,14 @@ class VirtualPipe : public Pipe {
 };
 
 
-void createPipes(
-  OctoWS2811 &strip,
-  PipeSource **pipes,
-  PipeSource **rains,
-  PipeSource **toilets,
-  PipeSource **sinks,
-  PipeSource **washers,
-  PipeSource **showers,
-  PipeSource **constant
-);
+void createPipes(OctoWS2811 &strip, PipeCollections *pipes);
 
 
 #define STARTEND_(number) SEGMENT ## number
 #define STARTEND(number) STARTEND_(number)
 #define PIPE(number) \
   Pipe * pipe ## number = new Pipe(number, strip, STARTEND(number)); \
-  *pipes = pushPipe(pipe ## number, *pipes);
+  pipes->pipes = pushPipe(pipe ## number, pipes->pipes);
 #define TPIPE(number, type) \
   PIPE(number) \
-  *type = pushPipe(pipe ## number, *type);
-#define VPIPE(len) \
-  vpipe = new VirtualPipe(strip, len); \
-  *pipes = pushPipe(vpipe, *pipes);
+  pipes->type = pushPipe(pipe ## number, pipes->type);

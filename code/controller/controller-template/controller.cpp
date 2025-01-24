@@ -48,21 +48,8 @@ void tryUpdateLevels() {
   }
 }
 
-
-
-
 // pipe lists
-// allPipes contains every pipe; the rest contain only specific ones
-PipeSource *allPipes = nullptr;
-PipeSource *rains = nullptr;
-PipeSource *toilets = nullptr;
-PipeSource *washers = nullptr;
-PipeSource *dishwashers = nullptr;
-PipeSource *showers = nullptr;
-PipeSource *constants = nullptr;
-
-
-
+PipeCollections pipes;
 
 // process an incoming InputLevels CAN msg
 void processInputLevels(uint8_t src, InputLevels newLevels) {
@@ -71,24 +58,19 @@ void processInputLevels(uint8_t src, InputLevels newLevels) {
   updatedLevels = true;
 }
 
-
 void processPipeOutput(uint8_t src, PipeOutput output) {
   Serial.print("rx output! node: "); Serial.print(src);
   Serial.print(", pipe: "); Serial.print(output.pipeId);
   Serial.print(", count: "); Serial.println(output.count);
-  for (PipeSource *source = allPipes; source != nullptr; source = source->next) {
+  for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
     source->pipe->updateCanInput(src, output);
   }
 }
 
-
-
-
-
 // helper functions to manage creating & removing flows
-void startFlow(PipeSource *source) {
+void startFlow(PipeSource *source, unsigned int count=1) {
   for (; source != nullptr; source = source->next) {
-    source->pipe->startFlow();
+    source->pipe->startFlow(count);
   }
 }
 void endFlow(PipeSource *source) {
@@ -107,14 +89,8 @@ void controllerSetup(uint8_t canBusId) {
   strip.begin();
   memset(displayMemory, 0, sizeof(displayMemory));
   strip.show();
-  createPipes(
-    strip, 
-    &allPipes, &rains, 
-    &toilets, &washers, 
-    &dishwashers, &showers,
-    &constants
-  );
-  startFlow(constants);
+  createPipes(strip, &pipes);
+  startFlow(pipes.constant);
 }
 
 
@@ -137,38 +113,38 @@ void controllerLoop(bool debug=false) {
 
     // update rain flows
     if (levels.rainFlow > 0) {
-      startFlow(rains);
+      startFlow(pipes.rains);
     } else {
-      endFlow(rains);
+      endFlow(pipes.rains);
     }
 
 
     // update toilet flows
     if (levels.toiletFlow > 0) {
-      startFlow(toilets);
+      startFlow(pipes.toilets);
     } else {
-      endFlow(toilets);
+      endFlow(pipes.toilets);
     }
 
     // update washer flows
     if (levels.washerFlow > 0) {
-      startFlow(washers);
+      startFlow(pipes.washers);
     } else {
-      endFlow(washers);
+      endFlow(pipes.washers);
     }
 
     // update dishwasher flows
     if (levels.dishWasherFlow > 0) {
-      startFlow(dishwashers);
+      startFlow(pipes.dishwashers);
     } else {
-      endFlow(dishwashers);
+      endFlow(pipes.dishwashers);
     }
 
     // update shower flows
     if (levels.showerFlow > 0) {
-      startFlow(showers);
+      startFlow(pipes.showers);
     } else {
-      endFlow(showers);
+      endFlow(pipes.showers);
     }
   }
 
@@ -176,7 +152,7 @@ void controllerLoop(bool debug=false) {
   while (strip.busy()) {}
 
   // update & render all pipes
-  for (PipeSource *source = allPipes; source != nullptr; source = source->next) {
+  for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
     source->pipe->update();
     source->pipe->render();
   }
