@@ -30,14 +30,26 @@ void Pipe::attachInput(Pipe *pipe) {
 }
 
 void Pipe::attachCanInput(uint8_t node, unsigned int pipeId) {
-  canInputId = node;
-  canInputPipe = pipeId;
+  useCanInput = true;
+  canInput.node = node;
+  canInput.pipeId = pipeId;
+  canInput.overflowing = false;
 }
 
 
 // set whether the pipe should output CAN PipeOutput messages
 void Pipe::setAsOutput(bool out) {
   canOutput = out;
+}
+
+
+void Pipe::setOverflowThreshold(unsigned int thresh) {
+  overflowThreshold = thresh;
+}
+
+
+void Pipe::setOutputOverflowing(bool overflow) {
+  outputOverflowing = overflow;
 }
 
 
@@ -102,10 +114,20 @@ void Pipe::insertFlow(PipeFlow f) {
 
 
 void Pipe::updateCanInput(uint8_t srcId, PipeOutput output) {
-  if ((srcId == canInputId) && (output.pipeId == canInputPipe)) {
+  if (!useCanInput) { return; }
+  if ((srcId == canInput.node) && (output.pipeId == canInput.pipeId)) {
     canInputFlow = output.count;
   }
 }
+
+void Pipe::updateCanOverflow(PipeOverflow o) {
+  if (!canOutput) { return; }
+  if ((o.node == selfNodeId()) && (o.pipeId == pipeId)) {
+    outputOverflowing = o.overflowing;
+  }
+}
+
+
 
 
 // create/update the input flow
@@ -171,12 +193,71 @@ void Pipe::update() {
       }
     }
   }
+
   if ((outputCount != oldOutputCount) && canOutput) {
-    Serial.println(outputCount);
     sendCanBusPipeOutput({ static_cast<unsigned int>(pipeId), outputCount });
   }
+
+  updateOverflow();
 }
 
+
+bool Pipe::isOverflowed() {
+  return overflowLevel > 0;
+}
+
+
+
+void Pipe::updateOverflow() {
+  if (outputOverflowing || (overflowThreshold && (outputCount > overflowThreshold))) {
+    if (overflowLevel < length()) {
+      overflowLevel += overflowRate;
+    }
+  } else { // no longer overflowing!
+    bool inputsOverflowed = false;
+    for (int i=0; i<N_INPUTS; i++) {
+      if (sources[i] == nullptr) { break; }
+      else {
+        inputsOverflowed = inputsOverflowed || sources[i]->isOverflowed();
+      }
+    }
+    if (!inputsOverflowed) {
+      if (overflowLevel > 1) {
+        overflowLevel -= overflowRate;
+      } else {
+        overflowLevel = 0;
+      }
+    }
+  }
+
+  Serial.print(pipeId); Serial.print(": "); Serial.println(overflowLevel);
+
+  // update inputs
+  if (inputOverflowing != (overflowLevel > length())) {
+    inputOverflowing = overflowLevel > length();
+
+    for (int i=0; i<N_INPUTS; i++) {
+      if (sources[i] == nullptr) {
+        break;
+      } else {
+        sources[i]->setOutputOverflowing(inputOverflowing);
+      }
+    }
+  
+    if (useCanInput) {
+      Serial.print("send can overflow on "); Serial.print(canInput.node); Serial.print(":"); Serial.println(canInput.pipeId);
+      canInput.overflowing = inputOverflowing;
+      sendCanBusPipeOverflow(canInput);
+    }
+  }
+} 
+
+
+/* ================================================================ *\
+ *                                                                  *
+ *                            RENDERING                             *
+ *                                                                  *
+ * ================================================================ */
 
 typedef struct {
   uint8_t r = 0;
@@ -217,6 +298,10 @@ color_t bgColor(int index) {
   // return { 0, 0, 0 };
 }
 
+color_t leaderColor(int index) {
+  return { 0, 255, 128 };
+}
+
 
 void drawBg(OctoWS2811 &strip, int index) {
   color_t c = bgColor(index);
@@ -225,8 +310,7 @@ void drawBg(OctoWS2811 &strip, int index) {
 
 
 void drawPixel(OctoWS2811 &strip, int index, float alpha) {
-  color_t c = { 0, 255, 128 };
-  c = alphaBlend(bgColor(index), c, alpha);
+  color_t c = alphaBlend(bgColor(index), leaderColor(index), alpha);
   strip.setPixel(index, c.r, c.g, c.b);
 }
 
@@ -256,6 +340,14 @@ void Pipe::render() {
   }
 
   drawFlow(inputFlow);
+
+  if (overflowLevel != 0) {
+    for (int i=0; i<static_cast<int>(fmin(overflowLevel, length())); i++) {
+      unsigned int idx = length() - i - 1;
+      color_t c = leaderColor(idx);
+      strip.setPixel(stripIndex(idx), c.r, c.g, c.b);
+    }
+  }
 }
 
 

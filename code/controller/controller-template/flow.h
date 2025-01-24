@@ -49,6 +49,12 @@ class Pipe {
   // set whether the pipe should output CAN PipeOutput messages
   void setAsOutput(bool out=true);
 
+  // set a pipe's overflow threshold (0 means it will never overflow)
+  void setOverflowThreshold(unsigned int thresh);
+
+  // tell the pipe an output is overflowing
+  void setOutputOverflowing(bool overflow);
+
   // begin a new flow originating at the start of this pipe
   void startFlow(unsigned int count=1);
   // finish the current flow
@@ -56,6 +62,11 @@ class Pipe {
 
   // be alerted to new CAN PIPE_OUTPUT messages, only listening to the ones set by attachCanInput
   void updateCanInput(uint8_t node, PipeOutput output);
+
+  // check if our CAN output is overflowing
+  void updateCanOverflow(PipeOverflow o);
+
+  bool isOverflowed();
 
   // getters for pipe output
   unsigned int getOutputCount();
@@ -82,15 +93,22 @@ class Pipe {
   unsigned int selfInputCount = 0;
   unsigned int totalInputCount = 0;
   unsigned int outputCount = 0;
+  
+  unsigned int overflowThreshold = 0;
+  bool outputOverflowing = false;
+  double overflowLevel = 0;
+  double overflowRate = 0.1;
+  bool inputOverflowing = false;
 
   bool canOutput = false;
-  int canInputId = -1;
-  int canInputPipe = -1;
+  bool useCanInput = false;
+  PipeOverflow canInput;
   unsigned int canInputFlow = 0;
 
   void processFlow(PipeFlow &flow);
   void drawFlow(PipeFlow &flow);
   void updateInput();
+  void updateOverflow();
   unsigned int stripIndex(unsigned int i);
   virtual unsigned int length();
 };

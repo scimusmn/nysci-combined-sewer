@@ -46,4 +46,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe8->attachInput(pipe4);
   pipe7->attachInput(pipe5);
   pipe8->attachInput(pipe5);
+
+  pipe7->setOverflowThreshold(6);
+  pipe8->setOverflowThreshold(6);
 }

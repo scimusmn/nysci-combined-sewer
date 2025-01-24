@@ -19,6 +19,13 @@ void processMessage(const CAN_message_t &msg) {
       processPipeOutput(src, output);
     } while(0);
     break;
+  case PIPE_OVERFLOW:
+    do {
+      PipeOverflow overflow;
+      memcpy(&overflow, msg.buf, sizeof(PipeOverflow));
+      processPipeOverflow(overflow);
+    } while(0);
+    break;
   case INPUT_LEVELS:
     do {
       InputLevels levels;
@@ -63,6 +70,15 @@ void sendCanBusInputLevels(uint8_t src, InputLevels levels) {
 
 
 void sendCanBusPipeOutput(PipeOutput output) {
-  Serial.print("pipe output! "); Serial.print(output.pipeId); Serial.print(": "); Serial.println(output.count);
   sendMessage(PIPE_OUTPUT, &output, sizeof(PipeOutput));
+}
+
+
+void sendCanBusPipeOverflow(PipeOverflow o) {
+  sendMessage(PIPE_OVERFLOW, &o, sizeof(PipeOverflow));
+}
+
+
+uint8_t selfNodeId() {
+  return selfId;
 }

@@ -67,6 +67,13 @@ void processPipeOutput(uint8_t src, PipeOutput output) {
   }
 }
 
+void processPipeOverflow(PipeOverflow o) {
+  Serial.print("rx pipe overflow "); Serial.print(o.node); Serial.print(":"); Serial.println(o.pipeId);
+  for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
+    source->pipe->updateCanOverflow(o);
+  }
+}
+
 // helper functions to manage creating & removing flows
 void startFlow(PipeSource *source, unsigned int count=1) {
   for (; source != nullptr; source = source->next) {
