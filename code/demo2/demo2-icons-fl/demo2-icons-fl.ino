@@ -69,6 +69,8 @@ struct IconList {
 #define ICON_COLOR 0xffffff
 class Icon {
   public:
+  unsigned long time = 3000; //Added a 3 second delay (untested)
+
   Icon(size_t begin, size_t end, IconList *list=nullptr) 
     : begin(begin), end(end) {
     if (list != nullptr) {
@@ -84,10 +86,13 @@ class Icon {
     for (int i=begin; i<end; i++) {
       strip.setPixel(i, ICON_COLOR);
     }
+    time = time + millis();
   }
   void hide() {
-    for (int i=begin; i<end; i++) {
-      strip.setPixel(i, 0);
+    if(millis()>=time){
+      for (int i=begin; i<end; i++) {
+        strip.setPixel(i, 0);
+      }
     }
   }
 

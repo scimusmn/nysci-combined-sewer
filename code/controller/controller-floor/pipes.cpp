@@ -53,7 +53,8 @@ void createPipes(
   PipeSource **washers,
   PipeSource **dishwashers,
   PipeSource **showers,
-  PipeSource **constant
+  PipeSource **constant,
+  PipeSource **overflow
 ) {
   #define STARTEND_(number) SEGMENT ## number
   #define STARTEND(number) STARTEND_(number)
@@ -96,8 +97,8 @@ void createPipes(
 
 
 
-  TPIPE(40,constant);
-  TPIPE(30,constant);
+  TPIPE(40,overflow);
+  TPIPE(30,overflow);
 
   PIPE(50);
   pipe50->attachInput(pipe30);
