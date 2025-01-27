@@ -1,7 +1,7 @@
 #include "controller.h"
 
 void setup() {
-  controllerSetup(2);
+  controllerSetup(5);
 }
 
 void loop() {

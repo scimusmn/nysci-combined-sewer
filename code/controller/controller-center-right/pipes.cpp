@@ -89,10 +89,11 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
 
   PIPE(180);
   PIPE(190);
-  TPIPE(200, constant);
+  PIPE(200);
   pipe180->setAsOutput();
   pipe180->attachInput(pipe130);
   pipe180->attachInput(pipe190);
   pipe190->attachInput(pipe141);
   pipe190->attachInput(pipe200);
+  pipe200->attachCanInput(4, 270);
 }

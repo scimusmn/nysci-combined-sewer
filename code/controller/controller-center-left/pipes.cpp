@@ -66,16 +66,7 @@ PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
 }
 
 
-void createPipes(
-  OctoWS2811 &strip,
-  PipeSource **pipes,
-  PipeSource **rains,
-  PipeSource **toilets,
-  PipeSource **washers,
-  PipeSource **dishwashers,
-  PipeSource **showers,
-  PipeSource **constant
-) {
+void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     TPIPE(0, toilets);
     TPIPE(1, showers);
     PIPE(2);
@@ -174,6 +165,7 @@ void createPipes(
     pipe44->attachInput(pipe42);
     pipe44->attachInput(pipe43);
     pipe44->attachInput(pipe35);
+    pipe44->setAsOutput();
 
     TPIPE(45, washers);
     TPIPE(46, washers);
@@ -184,8 +176,9 @@ void createPipes(
     pipe48->attachInput(pipe47);
     pipe48->attachInput(pipe39);
     PIPE(49);
-    pipe48->attachInput(pipe48);
-    PIPE(50);
-    pipe50->attachInput(pipe49);
+    pipe49->attachInput(pipe48);
+    pipe49->setAsOutput();
+    // PIPE(50);
+    // pipe50->attachInput(pipe49);
 
 }

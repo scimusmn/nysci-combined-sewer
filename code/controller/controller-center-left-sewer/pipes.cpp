@@ -33,12 +33,15 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
 
   PIPE(3);
   PIPE(4);
+  pipe3->attachCanInput(1,330);
   pipe4->attachInput(pipe3);
+  pipe4->attachCanInput(2,44);
 
   PIPE(5);
   PIPE(6);
   pipe6->attachCanInput(3, 180);
   pipe5->attachInput(pipe6);
+  pipe5->attachCanInput(2, 49);
 
   PIPE(7);
   PIPE(8);
@@ -46,7 +49,8 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe8->attachInput(pipe4);
   pipe7->attachInput(pipe5);
   pipe8->attachInput(pipe5);
+  pipe8->setAsOutput();
 
-  pipe7->setOverflowThreshold(6);
-  pipe8->setOverflowThreshold(6);
+  // pipe7->setOverflowThreshold(6);
+  // pipe8->setOverflowThreshold(6);
 }

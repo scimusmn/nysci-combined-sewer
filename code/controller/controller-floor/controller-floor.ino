@@ -1,9 +1,9 @@
 #include "controller.h"
 
 void setup() {
-  controllerSetup();
+  controllerSetup(6);
 }
 
 void loop() {
-  controllerLoop();
+  controllerLoop(false);
 }

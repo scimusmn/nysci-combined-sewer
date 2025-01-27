@@ -45,28 +45,12 @@ PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
 }
 
 
-void createPipes(
-  OctoWS2811 &strip,
-  PipeSource **pipes,
-  PipeSource **rains,
-  PipeSource **toilets,
-  PipeSource **washers,
-  PipeSource **dishwashers,
-  PipeSource **showers,
-  PipeSource **constant,
-  PipeSource **overflow
-) {
-  #define STARTEND_(number) SEGMENT ## number
-  #define STARTEND(number) STARTEND_(number)
-  #define PIPE(number) \
-    Pipe * pipe ## number = new Pipe(number, strip, STARTEND(number)); \
-    *pipes = pushPipe(pipe ## number, *pipes);
-  #define TPIPE(number, type) \
-    PIPE(number) \
-    *type = pushPipe(pipe ## number, *type); \
-  
-  TPIPE(10,constant);
-  TPIPE(20,constant);
+void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
+  Pipe *vpipe;
+  PIPE(10);
+  PIPE(20);
+  pipe10->attachCanInput(5,8);
+  pipe20->attachCanInput(5,8);
 
   PIPE(100);
   pipe100->attachInput(pipe20);
@@ -97,8 +81,8 @@ void createPipes(
 
 
 
-  TPIPE(40,overflow);
-  TPIPE(30,overflow);
+  PIPE(40);
+  PIPE(30);
 
   PIPE(50);
   pipe50->attachInput(pipe30);
