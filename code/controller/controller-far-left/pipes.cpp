@@ -1,40 +1,47 @@
 #include "flow.h"
 
-#define SEGMENT1 0, 84 // //
-#define SEGMENT2 87, 97 // //
-#define SEGMENT3 98, 137 // //
-#define SEGMENT4 137, 182 // //
-#define SEGMENT5 182, 257 // //
-#define SEGMENT6 291, 299 // //
-#define SEGMENT7 299, 338 // //
-#define SEGMENT8 338, 383 // //
-#define SEGMENT9 385, 416 // //
-#define SEGMENT10 416, 460 // //
-#define SEGMENT11 461, 518 // //
-#define SEGMENT12 581, 590 // //
-#define SEGMENT13 590, 628 // //
-#define SEGMENT14 628, 675 // //
-#define SEGMENT15 518, 560 // //
-#define SEGMENT16 870, 928 // //
-#define SEGMENT17 675, 683 // //
-#define SEGMENT18 683, 691 // //
-#define SEGMENT19 691, 731 // //
-#define SEGMENT20 731, 757 // //
-#define SEGMENT21 757, 776 // //
-#define SEGMENT22 776, 817 // //
-#define SEGMENT23 938, 977 // //
-#define SEGMENT24 930, 938 // //
-#define SEGMENT25 977, 995 // //
-#define SEGMENT26 995, 1053 // //
-#define SEGMENT27 817, 826 //  //
-#define SEGMENT28 1160, 1241 // //
-#define SEGMENT29 1241, 1279 // //
-#define SEGMENT30 1391, 1420 // //
-#define SEGMENT31 1335, 1391 // //
-#define SEGMENT32 1335, 1279 // //
-#define SEGMENT33 1450, 1532 // //
-#define SEGMENT34 1532, 1581 //
-#define SEGMENT35 1581, 1624 //
+#define SEGMENT0 98, 137 // //
+#define SEGMENT10 87, 97 // //
+#define SEGMENT20 0, 84 // //
+#define SEGMENT30 137, 182 // //
+#define SEGMENT40 182, 257 // //
+
+#define SEGMENT50 385, 416 // //
+#define SEGMENT60 291, 299 // //
+#define SEGMENT70 299, 338 // //
+#define SEGMENT80 338, 383 // //
+#define SEGMENT90 416, 460 // //
+
+#define SEGMENT100 590, 628 // //
+#define SEGMENT110 581, 590 // //
+#define SEGMENT120 461, 518 // //
+#define SEGMENT130 628, 675 // //
+#define SEGMENT140 518, 560 // //
+
+#define SEGMENT150 691, 731 // //
+#define SEGMENT160 683, 691 // //
+#define SEGMENT170 675, 683 // //
+#define SEGMENT180 870, 928 // //
+#define SEGMENT190 731, 757 // //
+#define SEGMENT200 757, 776 // //
+#define SEGMENT210 776, 817 // //
+
+#define SEGMENT220 930, 938 // //
+#define SEGMENT230 938, 977 // //
+#define SEGMENT240 817, 826 //  //
+#define SEGMENT241 995, 1053 // //
+#define SEGMENT250 977, 995 // //
+
+#define SEGMENT260 1160, 1241 // //
+#define SEGMENT270 1241, 1279 // //
+#define SEGMENT280 1391, 1420 // //
+
+#define SEGMENT290 1335, 1391 // //
+#define SEGMENT300 1335, 1279 // //
+
+#define SEGMENT310 1450, 1532 // //
+#define SEGMENT320 1532, 1581 //
+#define SEGMENT330 1581, 1624 //
 
 
 
@@ -56,77 +63,77 @@ void createPipes(
   PipeSource **showers,
   PipeSource **constant
 ) {
-  TPIPE(3, toilets); //
-  TPIPE(2, showers);
-  PIPE(4);
-  pipe4->attachInput(pipe3);
-  pipe4->attachInput(pipe2);
-  TPIPE(1, dishwashers);
-  PIPE(5);
-  pipe5->attachInput(pipe4);
-  pipe5->attachInput(pipe1);
-
-  TPIPE(9, dishwashers); //
-  TPIPE(6, showers);
-  TPIPE(7, toilets);
-  PIPE(8);
-  pipe8->attachInput(pipe6);
-  pipe8->attachInput(pipe7);
-  PIPE(10);
-  pipe10->attachInput(pipe9);
-  pipe10->attachInput(pipe5);
-  pipe10->attachInput(pipe8);
-
-  TPIPE(13, toilets); //
-  TPIPE(12, showers);
-  PIPE(14);
-  pipe14->attachInput(pipe13);
-  pipe14->attachInput(pipe12);
-  TPIPE(11, dishwashers);
-  PIPE(15);
-  pipe15->attachInput(pipe10);
-  pipe15->attachInput(pipe11);
-  pipe15->attachInput(pipe14);
-
-  TPIPE(19, toilets); //
-  TPIPE(18, showers);
-  PIPE(20);
-  pipe20->attachInput(pipe19);
-  pipe20->attachInput(pipe18);
-  TPIPE(17, washers);
-  PIPE(21);
-  pipe21->attachInput(pipe17);
-  pipe21->attachInput(pipe20);
-  TPIPE(16, dishwashers);
-  PIPE(22);
-  pipe22->attachInput(pipe15);
-  pipe22->attachInput(pipe16);
-  pipe22->attachInput(pipe21);
-
-  TPIPE(23, toilets);
-  TPIPE(24, toilets);
-  PIPE(25);
-  pipe25->attachInput(pipe23);
-  pipe25->attachInput(pipe24);
-  PIPE(27);
-  pipe27->attachInput(pipe22);
-  pipe27->attachInput(pipe25);
-  PIPE(26);
-  pipe26->attachInput(pipe27);
-
-  TPIPE(28, constant);
-  PIPE(29);
-  pipe29->attachInput(pipe28);
+  TPIPE(0, toilets); //
+  TPIPE(10, showers);
   PIPE(30);
-  pipe30->attachInput(pipe29);
+  pipe30->attachInput(pipe0);
+  pipe30->attachInput(pipe10);
+  TPIPE(20, dishwashers);
+  PIPE(40);
+  pipe40->attachInput(pipe30);
+  pipe40->attachInput(pipe20);
 
-  TPIPE(31, rains);
-  TPIPE(32,rains);
-  TPIPE(33,constant);
-  PIPE(34);
-  pipe34->attachInput(pipe33);
-  pipe34->attachInput(pipe26);
-  PIPE(35);
-  pipe35->attachInput(pipe31);
-  pipe35->attachInput(pipe34);
+  TPIPE(50, dishwashers); //
+  TPIPE(60, showers);
+  TPIPE(70, toilets);
+  PIPE(80);
+  pipe80->attachInput(pipe60);
+  pipe80->attachInput(pipe70);
+  PIPE(90);
+  pipe90->attachInput(pipe50);
+  pipe90->attachInput(pipe40);
+  pipe90->attachInput(pipe80);
+
+  TPIPE(100, toilets); //
+  TPIPE(110, showers);
+  PIPE(130);
+  pipe130->attachInput(pipe100);
+  pipe130->attachInput(pipe110);
+  TPIPE(120, dishwashers);
+  PIPE(140);
+  pipe140->attachInput(pipe90);
+  pipe140->attachInput(pipe120);
+  pipe140->attachInput(pipe130);
+
+  TPIPE(150, toilets); //
+  TPIPE(160, showers);
+  PIPE(190);
+  pipe190->attachInput(pipe150);
+  pipe190->attachInput(pipe160);
+  TPIPE(170, washers);
+  PIPE(200);
+  pipe200->attachInput(pipe170);
+  pipe200->attachInput(pipe190);
+  TPIPE(180, dishwashers);
+  PIPE(210);
+  pipe210->attachInput(pipe140);
+  pipe210->attachInput(pipe180);
+  pipe210->attachInput(pipe200);
+
+  TPIPE(230, toilets);
+  TPIPE(220, toilets);
+  PIPE(250);
+  pipe250->attachInput(pipe230);
+  pipe250->attachInput(pipe220);
+  PIPE(240);
+  pipe240->attachInput(pipe210);
+  pipe240->attachInput(pipe250);
+  PIPE(241);
+  pipe241->attachInput(pipe240);
+
+  TPIPE(260, constant);
+  PIPE(270);
+  pipe270->attachInput(pipe260);
+  PIPE(280);
+  pipe280->attachInput(pipe270);
+
+  TPIPE(290, rains);
+  TPIPE(300,rains);
+  TPIPE(310,constant);
+  PIPE(320);
+  pipe320->attachInput(pipe310);
+  pipe320->attachInput(pipe241);
+  PIPE(330);
+  pipe330->attachInput(pipe290);
+  pipe330->attachInput(pipe320);
 }

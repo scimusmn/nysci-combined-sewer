@@ -119,14 +119,14 @@ void setupIcons() {
   Icon *fr0 = new Icon(0, 60, toilet); //
   Icon *fr1 = new Icon(60, 120, shower); //
   Icon *fr2 = new Icon(120, 180, dishwasher); //
-  Icon *fr4 = new Icon(180, 240, washer); //
-  Icon *fr5 = new Icon(600, 659, toilet); //
-  Icon *fr6 = new Icon(659, 718, shower); //
-  Icon *fr7 = new Icon(719, 778, dishwasher); //
-  Icon *fr8 = new Icon(778, 838, washer);
-  Icon *fr9 = new Icon(420, 480, toilet); //
-  Icon *fr10 = new Icon(481, 540, dishwasher); //
-  Icon *fr11 = new Icon(540, 599, dishwasher); //
+  Icon *fr3 = new Icon(180, 240, washer); //
+  Icon *fr4 = new Icon(600, 659, toilet); //
+  Icon *fr5 = new Icon(659, 718, shower); //
+  Icon *fr6 = new Icon(719, 778, dishwasher); //
+  Icon *fr7 = new Icon(778, 838, washer);
+  Icon *fr8 = new Icon(420, 480, toilet); //
+  Icon *fr9 = new Icon(481, 540, dishwasher); //
+  Icon *fr10 = new Icon(540, 599, dishwasher); //
 }
 
 
