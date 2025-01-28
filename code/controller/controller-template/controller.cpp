@@ -53,7 +53,7 @@ PipeCollections pipes;
 
 void toggleOverflow() {
   static unsigned long time = 0;
-  static bool overflowing = false;
+  static bool overflowing = true;
   if (millis() > time) {
     Serial.print("overflow: "); Serial.println(overflowing);
     time = millis() + 30000;
@@ -68,15 +68,15 @@ void toggleOverflow() {
 
 // process an incoming InputLevels CAN msg
 void processInputLevels(uint8_t src, InputLevels newLevels) {
-  Serial.println("new levels!");
+  // Serial.println("new levels!");
   memcpy(&nextLevels, &newLevels, sizeof(InputLevels));
   updatedLevels = true;
 }
 
 void processPipeOutput(uint8_t src, CanPipeOutput output) {
-  Serial.print("rx output! node: "); Serial.print(src);
-  Serial.print(", pipe: "); Serial.print(output.pipeId);
-  Serial.print(", count: "); Serial.println(output.count);
+  // Serial.print("rx output! node: "); Serial.print(src);
+  // Serial.print(", pipe: "); Serial.print(output.pipeId);
+  // Serial.print(", count: "); Serial.println(output.count);
   for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
     source->pipe->updateCanInput(src, output);
   }
@@ -90,9 +90,9 @@ void processPipeOverflow(uint8_t src, CanPipeOverflow o) {
 }
 
 // helper functions to manage creating & removing flows
-void startFlow(PipeSource *source, unsigned int count=1) {
+void startFlow(PipeSource *source, unsigned int level=0) {
   for (; source != nullptr; source = source->next) {
-    source->pipe->startFlow(count);
+    source->pipe->startFlow(1, level);
   }
 }
 void endFlow(PipeSource *source) {
@@ -134,41 +134,11 @@ void controllerLoop(bool debug=false) {
     Serial.print("shower: "); Serial.println(levels.showerFlow);
     Serial.println("\n");
 
-    // update rain flows
-    if (levels.rainFlow > 0) {
-      startFlow(pipes.rains);
-    } else {
-      endFlow(pipes.rains);
-    }
-
-
-    // update toilet flows
-    if (levels.toiletFlow > 0) {
-      startFlow(pipes.toilets);
-    } else {
-      endFlow(pipes.toilets);
-    }
-
-    // update washer flows
-    if (levels.washerFlow > 0) {
-      startFlow(pipes.washers);
-    } else {
-      endFlow(pipes.washers);
-    }
-
-    // update dishwasher flows
-    if (levels.dishWasherFlow > 0) {
-      startFlow(pipes.dishwashers);
-    } else {
-      endFlow(pipes.dishwashers);
-    }
-
-    // update shower flows
-    if (levels.showerFlow > 0) {
-      startFlow(pipes.showers);
-    } else {
-      endFlow(pipes.showers);
-    }
+    startFlow(pipes.rains, levels.rainFlow);
+    startFlow(pipes.toilets, levels.toiletFlow);
+    startFlow(pipes.washers, levels.washerFlow);
+    startFlow(pipes.dishwashers, levels.dishWasherFlow);
+    startFlow(pipes.showers, levels.showerFlow);
   }
 
   // wait for update to finish

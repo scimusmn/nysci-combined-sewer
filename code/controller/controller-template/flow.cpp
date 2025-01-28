@@ -94,7 +94,9 @@ void PipeInput::updateCanInput(uint8_t srcNode, CanPipeOutput output) {
 void PipeInput::updateCanOverflow(uint8_t srcNode, CanPipeOverflow overflow) {
   if (!useCan) { return; }
   if ((srcNode == canNode) && (overflow.pipeId == canPipe)) {
-    canDrained = overflow.action == CanPipeOverflow::Action::IS_DRAINED;
+    if (overflow.action == CanPipeOverflow::Action::IS_DRAINED) {
+      canDrained = true;
+    }
   }
 }
 
@@ -130,6 +132,11 @@ void PipeInput::setOverflowing() {
     if (localSource[i] == nullptr) { break; }
     localSource[i]->setOverflowing();
   }
+
+  if (useCan) {
+    sendCanBusPipeOverflow({ canPipe, canNode, CanPipeOverflow::Action::SET_OVERFLOWING });
+    canDrained = false;
+  }
 }
 
 
@@ -137,6 +144,10 @@ void PipeInput::setDraining() {
   for (int i=0; i<N_INPUTS; i++) {
     if (localSource[i] == nullptr) { break; }
     localSource[i]->setDraining();
+  }
+
+  if (useCan) {
+    sendCanBusPipeOverflow({ canPipe, canNode, CanPipeOverflow::Action::SET_DRAINING });
   }
 }
 
@@ -181,9 +192,14 @@ void PipeOutput::setCanOutput() {
 void PipeOutput::updateCanOverflow(Pipe *pipe, CanPipeOverflow overflow) {
   if (!useCan) { return; }
   if ((overflow.node == selfNodeId()) && (overflow.pipeId == pipeId)) {
+    Serial.print(CanPipeOverflow::Action::SET_OVERFLOWING); Serial.print(" ");
+    Serial.print(CanPipeOverflow::Action::SET_DRAINING); Serial.print(" ");
+    Serial.println(overflow.action);
     if (overflow.action == CanPipeOverflow::Action::SET_OVERFLOWING) {
+      Serial.println("overflowing");
       pipe->setOverflowing();
     } else if (overflow.action == CanPipeOverflow::Action::SET_DRAINING) {
+      Serial.println("draining");
       pipe->setDraining();
     }
   }
@@ -192,7 +208,7 @@ void PipeOutput::updateCanOverflow(Pipe *pipe, CanPipeOverflow overflow) {
 
 void PipeOutput::sendDrained() {
   if (useCan) {
-    sendCanBusPipeOverflow({ selfNodeId(), pipeId, CanPipeOverflow::Action::IS_DRAINED });
+    sendCanBusPipeOverflow({ pipeId, selfNodeId(), CanPipeOverflow::Action::IS_DRAINED });
   }
 }
 
@@ -253,9 +269,18 @@ void Pipe::setAsOutput(bool out) {
 }
 
 
+void Pipe::setActivationLevel(unsigned int level) {
+  activationLevel = level;
+}
+
+
 // create a self-flow
-void Pipe::startFlow(unsigned int count) {
-  input.selfCount = count;
+void Pipe::startFlow(unsigned int count, unsigned int level) {
+  if (level >= activationLevel) {
+    input.selfCount = count;
+  } else {
+    input.selfCount = 0;
+  }
 }
 
 // end a self-flow
@@ -396,7 +421,7 @@ void Pipe::render() {
 
   renderer.drawFlow(inputFlow);
   renderer.drawOverflow(overflowLevel);
-  Serial.print(pipeId); Serial.print(": "); Serial.println(overflowLevel);
+  // Serial.print(pipeId); Serial.print(": "); Serial.println(overflowLevel);
 }
 
 
