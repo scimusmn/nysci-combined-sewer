@@ -56,7 +56,7 @@ void toggleOverflow() {
   static bool overflowing = false;
   if (millis() > time) {
     Serial.print("overflow: "); Serial.println(overflowing);
-    time = millis() + 8000;
+    time = millis() + 30000;
     if (overflowing) {
       pipes.pipes->next->next->pipe->setOverflowing();
     } else {

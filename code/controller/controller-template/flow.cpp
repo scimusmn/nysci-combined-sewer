@@ -146,10 +146,17 @@ bool PipeInput::drained() {
   if (useCan) {
     drained = canDrained;
   }
-  for (int i=0; i<N_INPUTS; i++) {
-    if (localSource[i] == nullptr) { break; }
-    drained = drained && localSource[i]->drained();
+  int count = 0;
+  for (; count<N_INPUTS; count++) {
+    if (localSource[count] == nullptr) { break; }
+    drained = drained && localSource[count]->drained();
   }
+
+  //if (count == 0) {
+  //  if (useCan) {
+  //    return canDrained;
+  //  } else {
+  //    return 
   return drained;
 }
 
@@ -349,7 +356,7 @@ void Pipe::updateOverflow() {
     overflowLevel += 0.1;
     if (overflowLevel > length) {
       overflowLevel = length;
-      overflowing = false;
+      // overflowing = false;
       input.setOverflowing();
     }
   } else if (draining) {
