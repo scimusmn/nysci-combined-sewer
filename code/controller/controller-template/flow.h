@@ -56,6 +56,7 @@ class PipeInput {
   bool useCan = false;
   uint8_t canNode;
   unsigned int canPipe;
+  bool canDrained = true;
 
   unsigned int selfCount = 0;
   unsigned int canCount = 0;
@@ -69,33 +70,13 @@ class PipeInput {
   void attachInput(Pipe *pipe, unsigned int pipeId);
   void attachCanInput(uint8_t node, unsigned int pipeId);
   void updateCanInput(uint8_t srcNode, CanPipeOutput output);
+  void updateCanOverflow(uint8_t srcNode, CanPipeOverflow o);
   unsigned int countFlows(unsigned int pipeId);
   bool countIncreased();
   bool countChanged();
-};
-
-
-typedef struct {
-  uint8_t r = 0;
-  uint8_t g = 0;
-  uint8_t b = 0;
-} color_t;
-
-
-// handles pipe drawing
-struct PipeRenderer {
-  public:
-  PipeRenderer(OctoWS2811 &strip, size_t start, size_t end);
-  void drawFlow(PipeFlow &flow);
-  void clear();
-
-  protected:
-  OctoWS2811 &strip;
-  size_t start, end;
-
-  size_t stripIndex(unsigned int i);
-  size_t length();
-  void drawPixel(int index, color_t color);
+  void setOverflowing();
+  void setDraining();
+  bool drained();
 };
 
 
@@ -104,6 +85,8 @@ class PipeOutput {
   public:
   PipeOutput(unsigned int id, size_t length);
   void setCanOutput();
+  void updateCanOverflow(Pipe *pipe, CanPipeOverflow o);
+  void sendDrained();
   unsigned int count();
   void consumeFlow(PipeFlow &flow);
   void flush();
@@ -118,6 +101,31 @@ class PipeOutput {
   bool useCan = false;
 };
 
+
+
+typedef struct {
+  uint8_t r = 0;
+  uint8_t g = 0;
+  uint8_t b = 0;
+} color_t;
+
+
+// handles pipe drawing
+struct PipeRenderer {
+  public:
+  PipeRenderer(OctoWS2811 &strip, size_t start, size_t end);
+  void drawFlow(PipeFlow &flow);
+  void drawOverflow(double overflowLevel);
+  void clear();
+
+  protected:
+  OctoWS2811 &strip;
+  size_t start, end;
+
+  size_t stripIndex(unsigned int i);
+  size_t length();
+  void drawPixel(int index, color_t color);
+};
 
 
 
@@ -137,8 +145,16 @@ class Pipe {
   void endFlow();
   // be alerted to new CAN PIPE_OUTPUT messages, only listening to the ones set by attachCanInput
   void updateCanInput(uint8_t node, CanPipeOutput output);
+  void updateCanOverflow(uint8_t srcNode, CanPipeOverflow overflow);
   // getters for pipe output
   unsigned int getOutputCount();
+  // setter for overflowing
+  void setOverflowing();
+  // setter for draining
+  void setDraining();
+  // check if pipe's overflow is empty
+  bool drained();
+
 
   void update();
   virtual void render();
@@ -152,9 +168,14 @@ class Pipe {
   PipeFlow movingFlows[N_FLOWS];
   InputFlow inputFlow;
   unsigned int speed = 1;
+  bool overflowing = false;
+  bool draining = false;
+  double overflowLevel = 0;
+
   void convertInputToMovingFlow();
   void insertFlow(PipeFlow *f);
   void updateInput();
+  void updateOverflow();
 };
 
 

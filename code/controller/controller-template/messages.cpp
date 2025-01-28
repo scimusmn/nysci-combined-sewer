@@ -23,7 +23,7 @@ void processMessage(const CAN_message_t &msg) {
     do {
       CanPipeOverflow overflow;
       memcpy(&overflow, msg.buf, sizeof(CanPipeOverflow));
-      processPipeOverflow(overflow);
+      processPipeOverflow(src, overflow);
     } while(0);
     break;
   case INPUT_LEVELS:

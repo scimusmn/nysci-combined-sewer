@@ -85,8 +85,16 @@ void PipeInput::attachCanInput(uint8_t node, unsigned int pipeId) {
 
 // process incoming PIPE_OUTPUT can messages
 void PipeInput::updateCanInput(uint8_t srcNode, CanPipeOutput output) {
+  if (!useCan) { return; }
   if ((srcNode == canNode) && (output.pipeId == canPipe)) {
     canCount = output.count;
+  }
+}
+
+void PipeInput::updateCanOverflow(uint8_t srcNode, CanPipeOverflow overflow) {
+  if (!useCan) { return; }
+  if ((srcNode == canNode) && (overflow.pipeId == canPipe)) {
+    canDrained = overflow.action == CanPipeOverflow::Action::IS_DRAINED;
   }
 }
 
@@ -103,7 +111,7 @@ unsigned int PipeInput::countFlows(unsigned int pipeId) {
   changed = (newCount != prevCount);
   increased = (newCount > prevCount);
   prevCount = newCount;
-  Serial.print(pipeId); Serial.print("[in]: "); Serial.println(newCount);
+  // Serial.print(pipeId); Serial.print("[in]: "); Serial.println(newCount);
   return newCount;
 }
 
@@ -114,6 +122,35 @@ bool PipeInput::countIncreased() {
 
 bool PipeInput::countChanged() {
   return changed;
+}
+
+
+void PipeInput::setOverflowing() {
+  for (int i=0; i<N_INPUTS; i++) {
+    if (localSource[i] == nullptr) { break; }
+    localSource[i]->setOverflowing();
+  }
+}
+
+
+void PipeInput::setDraining() {
+  for (int i=0; i<N_INPUTS; i++) {
+    if (localSource[i] == nullptr) { break; }
+    localSource[i]->setDraining();
+  }
+}
+
+
+bool PipeInput::drained() {
+  bool drained = true;
+  if (useCan) {
+    drained = canDrained;
+  }
+  for (int i=0; i<N_INPUTS; i++) {
+    if (localSource[i] == nullptr) { break; }
+    drained = drained && localSource[i]->drained();
+  }
+  return drained;
 }
 
 
@@ -134,6 +171,26 @@ void PipeOutput::setCanOutput() {
 }
 
 
+void PipeOutput::updateCanOverflow(Pipe *pipe, CanPipeOverflow overflow) {
+  if (!useCan) { return; }
+  if ((overflow.node == selfNodeId()) && (overflow.pipeId == pipeId)) {
+    if (overflow.action == CanPipeOverflow::Action::SET_OVERFLOWING) {
+      pipe->setOverflowing();
+    } else if (overflow.action == CanPipeOverflow::Action::SET_DRAINING) {
+      pipe->setDraining();
+    }
+  }
+}
+
+
+void PipeOutput::sendDrained() {
+  if (useCan) {
+    sendCanBusPipeOverflow({ selfNodeId(), pipeId, CanPipeOverflow::Action::IS_DRAINED });
+  }
+}
+
+
+
 unsigned int PipeOutput::count() {
   return m_count;
 }
@@ -148,7 +205,7 @@ void PipeOutput::consumeFlow(PipeFlow &flow) {
 
 
 void PipeOutput::flush() {
-  Serial.print(pipeId); Serial.print("[out]: "); Serial.println(m_count);
+  // Serial.print(pipeId); Serial.print("[out]: "); Serial.println(m_count);
   if ((m_count != prevCount) && useCan) {
     sendCanBusPipeOutput({pipeId, m_count});
   }
@@ -204,6 +261,24 @@ unsigned int Pipe::getOutputCount() {
   return output.count();
 }
 
+void Pipe::setOverflowing() {
+  overflowing = true;
+  draining = false;
+}
+
+void Pipe::setDraining() {
+  overflowing = false;
+  if (overflowLevel < length) {
+    draining = true;
+  } else {
+    input.setDraining();
+  }
+}
+
+bool Pipe::drained() {
+  return (!overflowing) && (overflowLevel == 0);
+}
+
 
 void Pipe::convertInputToMovingFlow() {
   if (inputFlow.active) {
@@ -228,6 +303,11 @@ void Pipe::insertFlow(PipeFlow *f) {
 
 void Pipe::updateCanInput(uint8_t srcId, CanPipeOutput output) {
   input.updateCanInput(srcId, output);
+}
+
+void Pipe::updateCanOverflow(uint8_t srcNode, CanPipeOverflow overflow) {
+  input.updateCanOverflow(srcNode, overflow);
+  output.updateCanOverflow(this, overflow);
 }
 
 
@@ -260,6 +340,29 @@ void Pipe::updateInput() {
 }
 
 
+void Pipe::updateOverflow() {
+  if (overflowLevel > 0 && input.drained() && !overflowing) {
+    draining = true;
+  }
+
+  if (overflowing) {
+    overflowLevel += 0.1;
+    if (overflowLevel > length) {
+      overflowLevel = length;
+      overflowing = false;
+      input.setOverflowing();
+    }
+  } else if (draining) {
+    overflowLevel -= 1;
+    if (overflowLevel < 0) {
+      overflowLevel = 0;
+      draining = false;
+      output.sendDrained();
+    }
+  } 
+}
+
+
 // update all flows and outputs
 void Pipe::update() {
   output.m_count = 0;
@@ -274,6 +377,7 @@ void Pipe::update() {
   }
 
   output.flush();
+  updateOverflow();
 }
 
 
@@ -284,6 +388,8 @@ void Pipe::render() {
   }
 
   renderer.drawFlow(inputFlow);
+  renderer.drawOverflow(overflowLevel);
+  Serial.print(pipeId); Serial.print(": "); Serial.println(overflowLevel);
 }
 
 
@@ -367,6 +473,13 @@ void PipeRenderer::drawFlow(PipeFlow &flow) {
 
       drawPixel(stripIdx, alphaBlend(tail, leader, alpha));
     }
+  }
+}
+
+
+void PipeRenderer::drawOverflow(double level) {
+  for (int i=0; i<level; i++) {
+    drawPixel(stripIndex(length() - i - 1), leaderColor(0));
   }
 }
 
