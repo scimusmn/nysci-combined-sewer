@@ -25,15 +25,17 @@ typedef struct {
 } CanPipeOutput;
 
 
+
 typedef struct {
-  uint8_t node;
   unsigned int pipeId;
-  enum Action {
+  uint8_t node;
+  enum Action : uint8_t {
     SET_OVERFLOWING,
     SET_DRAINING,
     IS_DRAINED,
   } action;
 } CanPipeOverflow;
+
 
 // callbacks for receiving data
 // MUST BE USER DEFINED

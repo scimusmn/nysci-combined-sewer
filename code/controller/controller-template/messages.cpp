@@ -7,9 +7,9 @@ static uint8_t selfId = 0xff;
 
 
 void processMessage(const CAN_message_t &msg) {
-  Serial.println("rx");
+  // Serial.println("rx");
   uint8_t type = msg.id >> 4;
-  Serial.println(type);
+  // Serial.println(type);
   uint8_t src = msg.id & 0xf;
   switch(type) {
   case PIPE_OUTPUT:
@@ -23,6 +23,9 @@ void processMessage(const CAN_message_t &msg) {
     do {
       CanPipeOverflow overflow;
       memcpy(&overflow, msg.buf, sizeof(CanPipeOverflow));
+      Serial.println(overflow.action);
+      Serial.print("sizes: "); Serial.print(sizeof(CanPipeOverflow)); Serial.print(" ");
+      Serial.println(8*sizeof(uint8_t));
       processPipeOverflow(src, overflow);
     } while(0);
     break;
@@ -50,6 +53,17 @@ void setupCan(uint8_t id) {
   MsgCan.enableFIFO();
   MsgCan.enableFIFOInterrupt();
   MsgCan.onReceive(processMessage);
+
+  // check to ensure our messages fit in one frame
+  if (sizeof(InputLevels) > sizeof(CAN_message_t::buf)) {
+    Serial.println("InputLevels are too large!!");
+  }
+  if (sizeof(CanPipeOutput) > sizeof(CAN_message_t::buf)) {
+    Serial.println("CanPipeOutput are too large!!");
+  }
+  if (sizeof(CanPipeOverflow) > sizeof(CAN_message_t::buf)) {
+    Serial.println("CanPipeOverflow are too large!!");
+  }
 }
 
 
@@ -75,6 +89,9 @@ void sendCanBusPipeOutput(CanPipeOutput output) {
 
 
 void sendCanBusPipeOverflow(CanPipeOverflow o) {
+  Serial.print("tx overflow "); 
+  Serial.print(o.node); Serial.print(":"); Serial.print(o.pipeId);
+  Serial.print(" "); Serial.println(o.action);
   sendMessage(PIPE_OVERFLOW, &o, sizeof(CanPipeOverflow));
 }
 

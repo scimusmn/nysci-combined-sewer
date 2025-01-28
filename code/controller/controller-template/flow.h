@@ -139,8 +139,9 @@ class Pipe {
   void attachCanInput(uint8_t node, unsigned int pipeId);
   // set whether the pipe should output CAN PipeOutput messages
   void setAsOutput(bool out=true);
+  void setActivationLevel(unsigned int level);
   // begin a new flow originating at the start of this pipe
-  void startFlow(unsigned int count=1);
+  void startFlow(unsigned int count=1, unsigned int level=0);
   // finish the current flow
   void endFlow();
   // be alerted to new CAN PIPE_OUTPUT messages, only listening to the ones set by attachCanInput
@@ -171,6 +172,8 @@ class Pipe {
   bool overflowing = false;
   bool draining = false;
   double overflowLevel = 0;
+
+  unsigned int activationLevel = 1;
 
   void convertInputToMovingFlow();
   void insertFlow(PipeFlow *f);
