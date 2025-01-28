@@ -90,7 +90,7 @@ void processPipeOverflow(uint8_t src, CanPipeOverflow o) {
 }
 
 // helper functions to manage creating & removing flows
-void startFlow(PipeSource *source, unsigned int level=0) {
+void startFlow(PipeSource *source, unsigned int level=1) {
   for (; source != nullptr; source = source->next) {
     source->pipe->startFlow(1, level);
   }
