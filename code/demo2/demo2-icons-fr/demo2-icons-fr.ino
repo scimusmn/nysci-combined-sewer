@@ -69,6 +69,7 @@ struct IconList {
 #define ICON_COLOR 0xffffff
 class Icon {
   public:
+  unsigned long time; //Added a 3 second delay
   Icon(size_t begin, size_t end, IconList *list=nullptr) 
     : begin(begin), end(end) {
     if (list != nullptr) {

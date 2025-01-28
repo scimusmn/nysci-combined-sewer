@@ -3,7 +3,7 @@
 
 InputLevels levels;
 //InputLevels nextLevels = { 1, 1, 1, 1, 1 };
-InputLevels nextLevels = { 0, 0, 0, 0, 1 };
+InputLevels nextLevels = { 0, 0, 0, 0, 0};
 bool updatedLevels = true;
 
 
@@ -62,6 +62,22 @@ class Icon;
 struct IconList {
   Icon *icon = nullptr;
   IconList *next = nullptr;
+  void setLevel(unsigned int level);
+  unsigned int timeout = 0;
+  unsigned int level = 0;
+  bool on;
+  void update(unsigned int level) {
+    if (level == 0 && this->level > 0) {
+      if (millis() > timeout) {
+        setLevel(level);
+      }
+    } else if (level != this->level) {
+      if (level == 0) {
+        timeout = millis() + 3000;
+      }
+      setLevel(level);
+    }
+  }
 };
 
 // icon class
@@ -86,19 +102,29 @@ class Icon {
     for (int i=begin; i<end; i++) {
       strip.setPixel(i, ICON_COLOR);
     }
-    time = time + millis();
   }
   void hide() {
-    if(millis()>=time){
-      for (int i=begin; i<end; i++) {
-        strip.setPixel(i, 0);
-      }
+    for (int i=begin; i<end; i++) {
+      strip.setPixel(i, 0);
     }
   }
 
   // protected:
   size_t begin, end;
 };
+
+void IconList::setLevel(unsigned int level) {
+  this->level = level;
+  for (IconList *it = next; it != nullptr; it = it->next) {
+    Icon *icon = it->icon;
+    if (level > 0) {
+      icon->show();
+      Serial.print("show "); Serial.print(icon->begin); Serial.print(", "); Serial.println(icon->end);
+    } else {
+      icon->hide();
+    }
+  }
+}
 
 
 IconList *toilet = new IconList;
@@ -154,23 +180,11 @@ int levelMap(int level, int count) {
   }*/
 }
 
-void updateIconList(IconList *list, int level) {
-  for (IconList *it = list->next; it != nullptr; it = it->next) {
-    Icon *icon = it->icon;
-    if (level > 0) {
-      icon->show();
-      Serial.print("show "); Serial.print(icon->begin); Serial.print(", "); Serial.println(icon->end);
-    } else {
-      icon->hide();
-    }
-  }
-}
-
 void updateIcons() {
-  updateIconList(toilet, levels.toiletFlow);
-  updateIconList(washer, levels.washerFlow);
-  updateIconList(dishwasher, levels.dishWasherFlow);
-  updateIconList(shower, levels.showerFlow);
+  toilet->update(levels.toiletFlow);
+  washer->update(levels.washerFlow);
+  dishwasher->update(levels.dishWasherFlow);
+  shower->update(levels.showerFlow);
   strip.show();
 }
 
@@ -216,6 +230,6 @@ void loop() {
     Serial.println("UPDATED LEVELS");
     updatedLevels = false; // reset flag
     memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
-    updateIcons();
   }
+  updateIcons();
 }
