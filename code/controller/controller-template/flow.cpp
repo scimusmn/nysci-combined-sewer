@@ -2,26 +2,71 @@
 #include "messages.h"
 #include <OctoWS2811.h>
 
-// (constructor)
-Pipe::Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end) 
-  : pipeId(pipeId), strip(strip), start(start), end(end) {
-  for (int i=0; i<N_INPUTS; i++) {
-    sources[i] = nullptr;
+
+size_t stripLength(size_t start, size_t end) {
+  if (start < end) {
+    return end - start;
+  } else {
+    return start - end;
   }
-  for(int i=0; i<N_FLOWS; i++) {
-    movingFlows[i].active = false;
-  }
-  inputFlow.active = false;
 }
-VirtualPipe::VirtualPipe(OctoWS2811 &strip, unsigned int length)
-  : Pipe(-1, strip, 0, 0), len(length) {}
 
 
-// attach another pipe as an input
-void Pipe::attachInput(Pipe *pipe) {
+/****************************************************************\
+ *                                                              *
+ *                         PipeFlow                             *
+ *                                                              *
+\****************************************************************/
+
+
+void PipeFlow::advance(unsigned int maxOffset, unsigned int speed) {
+  if (!active) { return; }
+  offset += speed;
+  if (offset >= maxOffset) {
+    active = false;
+  }
+}
+
+
+void InputFlow::reset(unsigned int count, unsigned int speed) {
+  offset = 0;
+  length = speed;
+  this->count = count;
+  gradientOffset = 0;
+}
+
+
+void InputFlow::advance(unsigned int maxLength, unsigned int speed) {
+  if (!active) { return; }
+  if (this->length < maxLength) {
+    this->length += speed;
+  } else if (gradientOffset < 1024) {
+    gradientOffset += speed;
+  }
+}
+
+
+
+/****************************************************************\
+ *                                                              *
+ *                         PipeInput                           *
+ *                                                              *
+\****************************************************************/
+
+
+// (constructor)
+PipeInput::PipeInput() {
   for (int i=0; i<N_INPUTS; i++) {
-    if (sources[i] == nullptr) {
-      sources[i] = pipe;
+    localSource[i] = nullptr;
+  }
+}
+
+
+// attach a local pipe as an input
+void PipeInput::attachInput(Pipe *pipe, unsigned int pipeId) {
+  for (int i=0; i<N_INPUTS; i++) {
+    if (localSource[i] == nullptr) {
+      localSource[i] = pipe;
       return;
     }
   }
@@ -29,82 +74,150 @@ void Pipe::attachInput(Pipe *pipe) {
   Serial.println(pipeId);
 }
 
+
+// attach a remote pipe as input
+void PipeInput::attachCanInput(uint8_t node, unsigned int pipeId) {
+  useCan = true;
+  canNode = node;
+  canPipe = pipeId;
+}
+
+
+// process incoming PIPE_OUTPUT can messages
+void PipeInput::updateCanInput(uint8_t srcNode, CanPipeOutput output) {
+  if ((srcNode == canNode) && (output.pipeId == canPipe)) {
+    canCount = output.count;
+  }
+}
+
+
+// count the total input flows
+unsigned int PipeInput::countFlows(unsigned int pipeId) {
+  unsigned int localCount = 0;
+  for (int i=0; i<N_INPUTS; i++) {
+    if (localSource[i] == nullptr) { break; }
+    localCount += localSource[i]->getOutputCount();
+  }
+
+  unsigned int newCount = selfCount + canCount + localCount;
+  changed = (newCount != prevCount);
+  increased = (newCount > prevCount);
+  prevCount = newCount;
+  Serial.print(pipeId); Serial.print("[in]: "); Serial.println(newCount);
+  return newCount;
+}
+
+
+bool PipeInput::countIncreased() {
+  return increased;
+}
+
+bool PipeInput::countChanged() {
+  return changed;
+}
+
+
+
+/****************************************************************\
+ *                                                              *
+ *                         PipeOutput                           *
+ *                                                              *
+\****************************************************************/
+
+
+PipeOutput::PipeOutput(unsigned int pipeId, size_t length) 
+: pipeId(pipeId), length(length) {}
+
+
+void PipeOutput::setCanOutput() {
+  useCan = true;
+}
+
+
+unsigned int PipeOutput::count() {
+  return m_count;
+}
+
+
+void PipeOutput::consumeFlow(PipeFlow &flow) {
+  if (!flow.active) { return; }
+  if (flow.offset + flow.length >= length) {
+    m_count += flow.count;
+  }
+}
+
+
+void PipeOutput::flush() {
+  Serial.print(pipeId); Serial.print("[out]: "); Serial.println(m_count);
+  if ((m_count != prevCount) && useCan) {
+    sendCanBusPipeOutput({pipeId, m_count});
+  }
+  prevCount = m_count;
+}
+
+
+
+/****************************************************************\
+ *                                                              *
+ *                           Pipe                               *
+ *                                                              *
+\****************************************************************/
+
+
+// (constructor)
+Pipe::Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end) 
+: length(stripLength(start, end)), pipeId(pipeId),
+  output(pipeId, stripLength(start, end)), renderer(strip, start, end)
+{}
+
+VirtualPipe::VirtualPipe(OctoWS2811 &strip, unsigned int length)
+  : Pipe(-1, strip, 0, 0), len(length) {}
+
+
+void Pipe::attachInput(Pipe *pipe) {
+  input.attachInput(pipe, this->pipeId);
+}
+
 void Pipe::attachCanInput(uint8_t node, unsigned int pipeId) {
-  useCanInput = true;
-  canInput.node = node;
-  canInput.pipeId = pipeId;
-  canInput.overflowing = false;
+  input.attachCanInput(node, pipeId);
 }
 
 
 // set whether the pipe should output CAN PipeOutput messages
 void Pipe::setAsOutput(bool out) {
-  canOutput = out;
-}
-
-
-void Pipe::setOverflowThreshold(unsigned int thresh) {
-  overflowThreshold = thresh;
-}
-
-
-void Pipe::setOutputOverflowing(bool overflow) {
-  outputOverflowing = overflow;
+  output.setCanOutput();
 }
 
 
 // create a self-flow
 void Pipe::startFlow(unsigned int count) {
-  selfInputCount = count;
+  input.selfCount = count;
 }
 
 // end a self-flow
 void Pipe::endFlow() {
-  selfInputCount = 0;
+  input.selfCount = 0;
 }
 
 
 unsigned int Pipe::getOutputCount() {
-  return outputCount;
-}
-
-
-// update the output type/rate from a flow
-void Pipe::processFlow(PipeFlow &flow) {
-  if (flow.active) {
-    if (flow.offset + flow.length >= length()) {
-      outputCount += flow.count;
-    }
-  }
-}
-
-
-unsigned int countInputFlows(Pipe **sources) {
-  unsigned int count = 0;
-  for (int i=0; i<N_INPUTS; i++) {
-    if (sources[i] == nullptr) {
-      break;
-    } else {
-      count += sources[i]->getOutputCount();
-    }
-  }
-  return count;
+  return output.count();
 }
 
 
 void Pipe::convertInputToMovingFlow() {
   if (inputFlow.active) {
-    insertFlow(inputFlow);
+    insertFlow(&inputFlow);
     inputFlow.active = false;
   }
 }
 
 
 // add a new moving flow
-void Pipe::insertFlow(PipeFlow f) {
+void Pipe::insertFlow(PipeFlow *f) {
   for (int i=0; i<N_FLOWS; i++) {
     if (!movingFlows[i].active) {
-      movingFlows[i] = f;
+      movingFlows[i] = *f;
       return;
     }
   }
@@ -113,144 +226,66 @@ void Pipe::insertFlow(PipeFlow f) {
 }
 
 
-void Pipe::updateCanInput(uint8_t srcId, PipeOutput output) {
-  if (!useCanInput) { return; }
-  if ((srcId == canInput.node) && (output.pipeId == canInput.pipeId)) {
-    canInputFlow = output.count;
-  }
+void Pipe::updateCanInput(uint8_t srcId, CanPipeOutput output) {
+  input.updateCanInput(srcId, output);
 }
-
-void Pipe::updateCanOverflow(PipeOverflow o) {
-  if (!canOutput) { return; }
-  if ((o.node == selfNodeId()) && (o.pipeId == pipeId)) {
-    outputOverflowing = o.overflowing;
-  }
-}
-
-
 
 
 // create/update the input flow
 void Pipe::updateInput() {
-  unsigned int flowCount = selfInputCount + canInputFlow + countInputFlows(sources);
-
-  // if (flowCount != this->flowCount) {
-  //   Serial.print(this->flowCount); Serial.print(" -> "); Serial.println(flowCount);
-  // }
-
-
-  if (flowCount == 0) {
+  unsigned int count = input.countFlows(pipeId);
+  if (count == 0) {
     // move any existing input flow to this->flows
     convertInputToMovingFlow();
+    inputFlow.active = false;
   } else {
     // add a new flow if count has increased;
-    if (flowCount != this->totalInputCount) {
-      // Serial.print("adding new flow "); Serial.println(flowCount);
+    if (input.countChanged()) {
       unsigned int gradOff = inputFlow.length + inputFlow.gradientOffset;
       convertInputToMovingFlow();
+      inputFlow.active = true;
       inputFlow.offset = 0;
       inputFlow.length = speed;
-      inputFlow.count = flowCount;
-      if (flowCount > this->totalInputCount) {
+      inputFlow.count = count;
+      if (input.countIncreased()) {
         // new input flow, show gradient
         inputFlow.gradientOffset = 0;
       } else {
         inputFlow.gradientOffset = gradOff;
       }
-      inputFlow.active = true;
     } else {
-      if (inputFlow.active) {
-        if (inputFlow.length < length()) {
-          inputFlow.length += speed;
-        } else if (inputFlow.gradientOffset < 1024) {
-          inputFlow.gradientOffset += speed;
-        }
-      }
+      inputFlow.advance(length, speed);
     }
   }
-  this->totalInputCount = flowCount;
 }
 
 
 // update all flows and outputs
 void Pipe::update() {
-  unsigned int oldOutputCount = outputCount;
-  outputCount = 0;
-
+  output.m_count = 0;
   // input flow
   updateInput();
-  processFlow(inputFlow);
+  output.consumeFlow(inputFlow);
 
   // internal flows
   for (int i=0; i<N_FLOWS; i++) {
-    PipeFlow &flow = movingFlows[i];
-    if (flow.active) {
-      flow.offset += speed;
-      if (flow.offset >= length()) {
-        flow.active = false;
-      } else {
-        processFlow(flow);
-      }
-    }
+    movingFlows[i].advance(length, speed);
+    output.consumeFlow(movingFlows[i]);
   }
 
-  if ((outputCount != oldOutputCount) && canOutput) {
-    sendCanBusPipeOutput({ static_cast<unsigned int>(pipeId), outputCount });
-  }
-
-  updateOverflow();
+  output.flush();
 }
 
 
-bool Pipe::isOverflowed() {
-  return overflowLevel > 0;
+void Pipe::render() {
+  renderer.clear();
+  for (int i=0; i<N_FLOWS; i++) {
+    renderer.drawFlow(movingFlows[i]);
+  }
+
+  renderer.drawFlow(inputFlow);
 }
 
-
-
-void Pipe::updateOverflow() {
-  if (outputOverflowing || (overflowThreshold && (outputCount > overflowThreshold))) {
-    if (overflowLevel < length()) {
-      overflowLevel += overflowRate;
-    }
-  } else { // no longer overflowing!
-    bool inputsOverflowed = false;
-    for (int i=0; i<N_INPUTS; i++) {
-      if (sources[i] == nullptr) { break; }
-      else {
-        inputsOverflowed = inputsOverflowed || sources[i]->isOverflowed();
-      }
-    }
-    if (!inputsOverflowed) {
-      if (overflowLevel > 1) {
-        overflowLevel -= overflowRate;
-      } else {
-        overflowLevel = 0;
-      }
-    }
-  }
-
-  Serial.print(pipeId); Serial.print(": "); Serial.println(overflowLevel);
-
-  // update inputs
-  if (inputOverflowing != (overflowLevel > length())) {
-    inputOverflowing = overflowLevel > length();
-
-    for (int i=0; i<N_INPUTS; i++) {
-      if (sources[i] == nullptr) {
-        break;
-      } else {
-        sources[i]->setOutputOverflowing(inputOverflowing);
-      }
-    }
-  
-    if (useCanInput) {
-      Serial.print("send can overflow on "); Serial.print(canInput.node); Serial.print(":"); Serial.println(canInput.pipeId);
-      canInput.overflowing = inputOverflowing;
-      sendCanBusPipeOverflow(canInput);
-    }
-  }
-} 
 
 
 /* ================================================================ *\
@@ -259,13 +294,13 @@ void Pipe::updateOverflow() {
  *                                                                  *
  * ================================================================ */
 
-typedef struct {
-  uint8_t r = 0;
-  uint8_t g = 0;
-  uint8_t b = 0;
-} color_t;
+
+// (constructor)
+PipeRenderer::PipeRenderer(OctoWS2811 &strip, size_t start, size_t end)
+  : strip(strip), start(start), end(end) {}
 
 
+// lerp for uint8_t values
 uint8_t ulerp(uint8_t a, uint8_t b, float theta) {
   double aa = a;
   double bb = b;
@@ -274,6 +309,8 @@ uint8_t ulerp(uint8_t a, uint8_t b, float theta) {
   return da + db;
 }
 
+
+// lerp for color_t values
 color_t alphaBlend(color_t a, color_t b, float alpha) {
   if (a.r == 0 && a.g == 0 && a.b == 0) {
     return b;
@@ -286,8 +323,8 @@ color_t alphaBlend(color_t a, color_t b, float alpha) {
 }
 
 
-color_t bgColor(int index) {
-  double x = ((double)index) / 30.0;
+color_t bgColor(int stripIndex) {
+  double x = ((double)stripIndex) / 30.0;
   double t = ((double)millis()) / 1000.0;
   double level = 0.5 + (0.5 * sin((x - t)));
   return { 
@@ -303,55 +340,38 @@ color_t leaderColor(int index) {
 }
 
 
-void drawBg(OctoWS2811 &strip, int index) {
-  color_t c = bgColor(index);
+void PipeRenderer::drawPixel(int index, color_t c) {
   strip.setPixel(index, c.r, c.g, c.b);
 }
 
 
-void drawPixel(OctoWS2811 &strip, int index, float alpha) {
-  color_t c = alphaBlend(bgColor(index), leaderColor(index), alpha);
-  strip.setPixel(index, c.r, c.g, c.b);
+void PipeRenderer::clear() {
+  for (int i=0; i<length(); i++) {
+    drawPixel(stripIndex(i), { 0, 0, 0 });
+  }
 }
 
-void Pipe::drawFlow(PipeFlow &flow) {
+
+void PipeRenderer::drawFlow(PipeFlow &flow) {
   if (!flow.active) { return; }
   for (unsigned int i=0; i<flow.length; i++) {
     unsigned int idx = i + flow.offset;
     if (idx < length()) {
+      unsigned int stripIdx = stripIndex(idx);
+      color_t leader = leaderColor(stripIdx);
+      color_t tail = bgColor(stripIdx);
+
       double x = flow.length + flow.gradientOffset - i;
       x -= 20;
       double alpha = x < 0 ? 1.0 : exp(-x/20);
-      //double alpha = 1.0;
-      drawPixel(strip, stripIndex(idx), alpha);
+
+      drawPixel(stripIdx, alphaBlend(tail, leader, alpha));
     }
   }
 }
 
 
-// render the pipe flows (to memory)
-void Pipe::render() {
-  for (unsigned int i = 0; i != length(); i++) {
-    strip.setPixel(stripIndex(i), 0);
-    // drawBg(strip, i);
-  }
-  for (int i=0; i<N_FLOWS; i++) {
-    drawFlow(movingFlows[i]);
-  }
-
-  drawFlow(inputFlow);
-
-  if (overflowLevel != 0) {
-    for (int i=0; i<static_cast<int>(fmin(overflowLevel, length())); i++) {
-      unsigned int idx = length() - i - 1;
-      color_t c = leaderColor(idx);
-      strip.setPixel(stripIndex(idx), c.r, c.g, c.b);
-    }
-  }
-}
-
-
-unsigned int Pipe::stripIndex(unsigned int i) {
+unsigned int PipeRenderer::stripIndex(unsigned int i) {
   if (start < end) {
     return start+i;
   } else {
@@ -360,7 +380,7 @@ unsigned int Pipe::stripIndex(unsigned int i) {
 }
 
 
-unsigned int Pipe::length() {
+unsigned int PipeRenderer::length() {
   if (start < end) {
     return end - start;
   } else {

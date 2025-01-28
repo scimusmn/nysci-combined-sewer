@@ -2,19 +2,21 @@
 #include <OctoWS2811.h>
 #include "messages.h"
 
-#define N_FLOWS 16 
+#define N_FLOWS 32
 #define N_INPUTS 8
 
 
 class Pipe;
 
 
+// linked list for storing collections of pipes
 struct PipeSource {
   Pipe *pipe;
   struct PipeSource *next;
 };
 
 
+// pipe collections created by a mapping `pipes.cpp` file
 struct PipeCollections {
   PipeSource *pipes;
   PipeSource *rains;
@@ -27,15 +29,97 @@ struct PipeCollections {
 };
 
 
+// represents a specific "flow" within a pipe
 struct PipeFlow {
-  unsigned int offset;
-  unsigned int length;
-  unsigned int count;
-  unsigned int gradientOffset;
-  bool active = true;
-  Pipe *src;
-  struct PipeFlow *next;
+  unsigned int offset = 0;
+  unsigned int length = 0;
+  unsigned int count = 0;
+  unsigned int gradientOffset = 0;
+  bool active = false;
+  void advance(unsigned int maxOffset, unsigned int speed);
 };
+
+
+struct InputFlow : public PipeFlow {
+  void reset(unsigned int count, unsigned int speed);
+  void reset();
+  void advance(unsigned int maxOffset, unsigned int speed);
+};
+
+
+// handles the input to a pipe
+class PipeInput {
+  protected:
+  friend class Pipe;
+  Pipe *localSource[N_INPUTS];
+
+  bool useCan = false;
+  uint8_t canNode;
+  unsigned int canPipe;
+
+  unsigned int selfCount = 0;
+  unsigned int canCount = 0;
+  unsigned int prevCount = 0;
+  bool changed = false;
+  bool increased = false;
+
+  
+  public:
+  PipeInput();
+  void attachInput(Pipe *pipe, unsigned int pipeId);
+  void attachCanInput(uint8_t node, unsigned int pipeId);
+  void updateCanInput(uint8_t srcNode, CanPipeOutput output);
+  unsigned int countFlows(unsigned int pipeId);
+  bool countIncreased();
+  bool countChanged();
+};
+
+
+typedef struct {
+  uint8_t r = 0;
+  uint8_t g = 0;
+  uint8_t b = 0;
+} color_t;
+
+
+// handles pipe drawing
+struct PipeRenderer {
+  public:
+  PipeRenderer(OctoWS2811 &strip, size_t start, size_t end);
+  void drawFlow(PipeFlow &flow);
+  void clear();
+
+  protected:
+  OctoWS2811 &strip;
+  size_t start, end;
+
+  size_t stripIndex(unsigned int i);
+  size_t length();
+  void drawPixel(int index, color_t color);
+};
+
+
+// handle the output of a pipe
+class PipeOutput {
+  public:
+  PipeOutput(unsigned int id, size_t length);
+  void setCanOutput();
+  unsigned int count();
+  void consumeFlow(PipeFlow &flow);
+  void flush();
+
+  protected:
+  friend class Pipe;
+
+  unsigned int pipeId;
+  size_t length;
+  unsigned int m_count = 0;
+  unsigned int prevCount = 0;
+  bool useCan = false;
+};
+
+
+
 
 
 class Pipe {
@@ -45,29 +129,14 @@ class Pipe {
   // attach a pipe as input to this pipe
   void attachInput(Pipe *pipe);
   void attachCanInput(uint8_t node, unsigned int pipeId);
-
   // set whether the pipe should output CAN PipeOutput messages
   void setAsOutput(bool out=true);
-
-  // set a pipe's overflow threshold (0 means it will never overflow)
-  void setOverflowThreshold(unsigned int thresh);
-
-  // tell the pipe an output is overflowing
-  void setOutputOverflowing(bool overflow);
-
   // begin a new flow originating at the start of this pipe
   void startFlow(unsigned int count=1);
   // finish the current flow
   void endFlow();
-
   // be alerted to new CAN PIPE_OUTPUT messages, only listening to the ones set by attachCanInput
-  void updateCanInput(uint8_t node, PipeOutput output);
-
-  // check if our CAN output is overflowing
-  void updateCanOverflow(PipeOverflow o);
-
-  bool isOverflowed();
-
+  void updateCanInput(uint8_t node, CanPipeOutput output);
   // getters for pipe output
   unsigned int getOutputCount();
 
@@ -75,42 +144,17 @@ class Pipe {
   virtual void render();
 
   protected:
-  int pipeId;
-  OctoWS2811 &strip;
-  size_t start;
-  size_t end;
-
-  Pipe *sources[N_INPUTS];
+  size_t length;
+  unsigned int pipeId;
+  PipeInput input;
+  PipeOutput output;
+  PipeRenderer renderer;
   PipeFlow movingFlows[N_FLOWS];
-  PipeFlow inputFlow;
-
-  // struct PipeSource *sources = nullptr;
-  // struct PipeFlow *flows = nullptr;
+  InputFlow inputFlow;
   unsigned int speed = 1;
   void convertInputToMovingFlow();
-  void insertFlow(PipeFlow f);
-
-  unsigned int selfInputCount = 0;
-  unsigned int totalInputCount = 0;
-  unsigned int outputCount = 0;
-  
-  unsigned int overflowThreshold = 0;
-  bool outputOverflowing = false;
-  double overflowLevel = 0;
-  double overflowRate = 0.1;
-  bool inputOverflowing = false;
-
-  bool canOutput = false;
-  bool useCanInput = false;
-  PipeOverflow canInput;
-  unsigned int canInputFlow = 0;
-
-  void processFlow(PipeFlow &flow);
-  void drawFlow(PipeFlow &flow);
+  void insertFlow(PipeFlow *f);
   void updateInput();
-  void updateOverflow();
-  unsigned int stripIndex(unsigned int i);
-  virtual unsigned int length();
 };
 
 

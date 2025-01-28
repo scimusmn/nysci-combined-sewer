@@ -14,15 +14,15 @@ void processMessage(const CAN_message_t &msg) {
   switch(type) {
   case PIPE_OUTPUT:
     do {
-      PipeOutput output;
-      memcpy(&output, msg.buf, sizeof(PipeOutput));
+      CanPipeOutput output;
+      memcpy(&output, msg.buf, sizeof(CanPipeOutput));
       processPipeOutput(src, output);
     } while(0);
     break;
   case PIPE_OVERFLOW:
     do {
-      PipeOverflow overflow;
-      memcpy(&overflow, msg.buf, sizeof(PipeOverflow));
+      CanPipeOverflow overflow;
+      memcpy(&overflow, msg.buf, sizeof(CanPipeOverflow));
       processPipeOverflow(overflow);
     } while(0);
     break;
@@ -69,13 +69,13 @@ void sendCanBusInputLevels(uint8_t src, InputLevels levels) {
 }
 
 
-void sendCanBusPipeOutput(PipeOutput output) {
-  sendMessage(PIPE_OUTPUT, &output, sizeof(PipeOutput));
+void sendCanBusPipeOutput(CanPipeOutput output) {
+  sendMessage(PIPE_OUTPUT, &output, sizeof(CanPipeOutput));
 }
 
 
-void sendCanBusPipeOverflow(PipeOverflow o) {
-  sendMessage(PIPE_OVERFLOW, &o, sizeof(PipeOverflow));
+void sendCanBusPipeOverflow(CanPipeOverflow o) {
+  sendMessage(PIPE_OVERFLOW, &o, sizeof(CanPipeOverflow));
 }
 
 

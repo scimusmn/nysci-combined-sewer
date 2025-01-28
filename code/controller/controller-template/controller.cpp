@@ -58,7 +58,7 @@ void processInputLevels(uint8_t src, InputLevels newLevels) {
   updatedLevels = true;
 }
 
-void processPipeOutput(uint8_t src, PipeOutput output) {
+void processPipeOutput(uint8_t src, CanPipeOutput output) {
   Serial.print("rx output! node: "); Serial.print(src);
   Serial.print(", pipe: "); Serial.print(output.pipeId);
   Serial.print(", count: "); Serial.println(output.count);
@@ -67,11 +67,11 @@ void processPipeOutput(uint8_t src, PipeOutput output) {
   }
 }
 
-void processPipeOverflow(PipeOverflow o) {
-  Serial.print("rx pipe overflow "); Serial.print(o.node); Serial.print(":"); Serial.println(o.pipeId);
-  for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
-    source->pipe->updateCanOverflow(o);
-  }
+void processPipeOverflow(CanPipeOverflow o) {
+  // Serial.print("rx pipe overflow "); Serial.print(o.node); Serial.print(":"); Serial.println(o.pipeId);
+  // for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
+  //   source->pipe->updateCanOverflow(o);
+  // }
 }
 
 // helper functions to manage creating & removing flows
