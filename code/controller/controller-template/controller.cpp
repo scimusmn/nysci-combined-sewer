@@ -51,6 +51,21 @@ void tryUpdateLevels() {
 // pipe lists
 PipeCollections pipes;
 
+void toggleOverflow() {
+  static unsigned long time = 0;
+  static bool overflowing = false;
+  if (millis() > time) {
+    Serial.print("overflow: "); Serial.println(overflowing);
+    time = millis() + 8000;
+    if (overflowing) {
+      pipes.pipes->next->next->pipe->setOverflowing();
+    } else {
+      pipes.pipes->next->next->pipe->setDraining();
+    }
+    overflowing = !overflowing;
+  }
+}
+
 // process an incoming InputLevels CAN msg
 void processInputLevels(uint8_t src, InputLevels newLevels) {
   Serial.println("new levels!");
@@ -58,7 +73,7 @@ void processInputLevels(uint8_t src, InputLevels newLevels) {
   updatedLevels = true;
 }
 
-void processPipeOutput(uint8_t src, PipeOutput output) {
+void processPipeOutput(uint8_t src, CanPipeOutput output) {
   Serial.print("rx output! node: "); Serial.print(src);
   Serial.print(", pipe: "); Serial.print(output.pipeId);
   Serial.print(", count: "); Serial.println(output.count);
@@ -67,10 +82,10 @@ void processPipeOutput(uint8_t src, PipeOutput output) {
   }
 }
 
-void processPipeOverflow(PipeOverflow o) {
+void processPipeOverflow(uint8_t src, CanPipeOverflow o) {
   Serial.print("rx pipe overflow "); Serial.print(o.node); Serial.print(":"); Serial.println(o.pipeId);
   for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
-    source->pipe->updateCanOverflow(o);
+    source->pipe->updateCanOverflow(src, o);
   }
 }
 
@@ -104,6 +119,7 @@ void controllerSetup(uint8_t canBusId) {
 void controllerLoop(bool debug=false) {
   if (debug) {
     tryUpdateLevels();
+    toggleOverflow();
   }
   // update flows if a CAN msg was received
   if (updatedLevels) {

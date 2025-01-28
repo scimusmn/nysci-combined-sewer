@@ -22,24 +22,29 @@ typedef struct {
 typedef struct {
   unsigned int pipeId;
   unsigned int count;
-} PipeOutput;
+} CanPipeOutput;
+
 
 typedef struct {
   uint8_t node;
   unsigned int pipeId;
-  bool overflowing;
-} PipeOverflow;
+  enum Action {
+    SET_OVERFLOWING,
+    SET_DRAINING,
+    IS_DRAINED,
+  } action;
+} CanPipeOverflow;
 
 // callbacks for receiving data
 // MUST BE USER DEFINED
 // src: the id of the source node
 void processInputLevels(uint8_t src, InputLevels levels);
-void processPipeOutput(uint8_t src, PipeOutput output);
-void processPipeOverflow(PipeOverflow o);
+void processPipeOutput(uint8_t src, CanPipeOutput output);
+void processPipeOverflow(uint8_t src, CanPipeOverflow o);
 // transmit input levels via CAN bus
 void sendCanBusInputLevels(InputLevels levels);
-void sendCanBusPipeOutput(PipeOutput output);
-void sendCanBusPipeOverflow(PipeOverflow o);
+void sendCanBusPipeOutput(CanPipeOutput output);
+void sendCanBusPipeOverflow(CanPipeOverflow o);
 
 
 // function to set up the CAN bus
