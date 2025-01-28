@@ -241,7 +241,6 @@ void Pipe::render() {
   }
 
   drawFlow(inputFlow);
-<<<<<<< HEAD
 }
 
 
@@ -260,8 +259,6 @@ unsigned int Pipe::length() {
   } else {
     return start - end;
   }
-=======
->>>>>>> FR_Update
 }
 
 

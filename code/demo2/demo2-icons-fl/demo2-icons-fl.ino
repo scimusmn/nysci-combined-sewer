@@ -91,15 +91,16 @@ struct IconList {
 #define ICON_COLOR 0xffffff
 class Icon {
   public:
-  unsigned long time = 3000; //Added a 3 second delay (untested)
+  unsigned int level;
 
-  Icon(size_t begin, size_t end, IconList *list=nullptr) 
+  Icon(size_t begin, size_t end,int Level, IconList *list=nullptr) 
     : begin(begin), end(end) {
     if (list != nullptr) {
       IconList *self = new IconList;
       self->icon = this;
       self->next = list->next;
       list->next = self;
+      level = Level;
       Serial.println((unsigned int) list->next->icon, HEX);
       Serial.println((unsigned int) this, HEX);
     }
@@ -124,7 +125,7 @@ void IconList::setLevel(unsigned int level) {
   for (IconList *it = next; it != nullptr; it = it->next) {
     Icon *icon = it->icon;
     if (level > 0) {
-      icon->show();
+      if(icon->level <= level){icon->show();}
       Serial.print("show "); Serial.print(icon->begin); Serial.print(", "); Serial.println(icon->end);
     } else {
       icon->hide();
@@ -153,21 +154,21 @@ void setupIcons() {
   washer->next = nullptr;
   dishwasher->next = nullptr;
   // fl
-  Icon *fl0 = new Icon(0, 58, dishwasher);
-  Icon *fl1 = new Icon(59, 116, shower);
-  Icon *fl2 = new Icon(117, 174, toilet);
-  Icon *fl3 = new Icon(420, 480, toilet);
-  Icon *fl4 = new Icon(481, 538, shower);
-  Icon *fl5 = new Icon(539, 596, dishwasher);
-  Icon *fl6 = new Icon(597, 655, dishwasher);
-  Icon *fl7 = new Icon(656, 713, shower);
-  Icon *fl8 = new Icon(714, 840, toilet);
-  Icon *fl9 = new Icon(841, 900, dishwasher);
-  Icon *fl10 = new Icon(900, 960, washer);
-  Icon *fl11 = new Icon(960, 1020, shower);
-  Icon *fl12 = new Icon(1020, 1080, toilet);
-  Icon *fl13 = new Icon(1080, 1140, toilet);
-  Icon *fl14 = new Icon(1140, 1200, toilet);
+  Icon *fl0 = new Icon(0, 58, 1, dishwasher);
+  Icon *fl1 = new Icon(59, 116, 1, shower);
+  Icon *fl2 = new Icon(117, 174, 1, toilet);
+  Icon *fl3 = new Icon(420, 480, 3,toilet);
+  Icon *fl4 = new Icon(481, 538, 2, shower);
+  Icon *fl5 = new Icon(539, 596, 3, dishwasher);
+  Icon *fl6 = new Icon(597, 655, 2, dishwasher);
+  Icon *fl7 = new Icon(656, 713, 2, shower);
+  Icon *fl8 = new Icon(714, 840, 2, toilet);
+  Icon *fl9 = new Icon(841, 900, 1, dishwasher);
+  Icon *fl10 = new Icon(900, 960, 2, washer);
+  Icon *fl11 = new Icon(960, 1020, 3, shower);
+  Icon *fl12 = new Icon(1020, 1080, 3, toilet);
+  Icon *fl13 = new Icon(1080, 1140, 2, toilet);
+  Icon *fl14 = new Icon(1140, 1200, 1, toilet);
 }
 
 

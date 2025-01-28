@@ -147,18 +147,15 @@ void setupIcons() {
   shower->next = nullptr;
   washer->next = nullptr;
   dishwasher->next = nullptr;
-  // fr
-  Icon *fr0 = new Icon(0, 60, 1, toilet); //
-  Icon *fr1 = new Icon(60, 120, 2, shower); //
-  Icon *fr2 = new Icon(120, 180, 2, dishwasher); //
-  Icon *fr3 = new Icon(180, 240, 2, washer); //
-  Icon *fr4 = new Icon(600, 659, 3, toilet); //
-  Icon *fr5 = new Icon(659, 718, 3, shower); //
-  Icon *fr6 = new Icon(719, 778, 3, dishwasher); //
-  Icon *fr7 = new Icon(778, 838, 3, washer);
-  Icon *fr8 = new Icon(420, 480, 1,toilet); //
-  Icon *fr9 = new Icon(481, 540, 2, dishwasher); //
-  Icon *fr10 = new Icon(540, 599, 1, dishwasher); //
+  // cr
+  Icon *cr0 = new Icon(0, 60, 2, toilet);
+  Icon *cr1 = new Icon(60, 120, 1, shower);
+  Icon *cr2 = new Icon(120, 180, 1, dishwasher);
+  Icon *cr3 = new Icon(180, 240, 3, washer);
+  Icon *cr4 = new Icon(420, 480, 1, toilet);
+  Icon *cr5 = new Icon(480, 540, 2, shower);
+  Icon *cr6 = new Icon(540, 600, 2, dishwasher);
+  Icon *cr7 = new Icon(600, 660, 2, washer);
 }
 
 

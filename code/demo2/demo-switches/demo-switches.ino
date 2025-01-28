@@ -3,12 +3,12 @@
 #include "messages.h"
 #include "rain.h"
 
-#define LEVEL_TIMEOUT 5000
+#define LEVEL_TIMEOUT 750
 
 // #define RAIN_PIN 16
 // #define TOILET_PIN 17
-#define TOILET_PIN 16
-#define RAIN_PIN 17
+#define TOILET_PIN 17
+#define RAIN_PIN 16
 
 #define WASHER_PIN 14
 #define DISHWASHER_PIN 18

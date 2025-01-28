@@ -67,16 +67,17 @@ struct IconList {
   unsigned int level = 0;
   bool on;
   void update(unsigned int level) {
-    if (level == 0 && this->level > 0) {
-      if (millis() > timeout) {
-        setLevel(level);
-      }
-    } else if (level != this->level) {
+    if (level != this->level) {
       if (level == 0) {
         timeout = millis() + 3000;
       }
       setLevel(level);
     }
+    else if (level == 0 && this->level > 0) {
+      if (millis() > timeout) {
+        setLevel(level);
+      }
+    } 
   }
 };
 
@@ -86,7 +87,6 @@ struct IconList {
 class Icon {
   public:
   unsigned int level;
-
   Icon(size_t begin, size_t end, int Level, IconList *list=nullptr) 
     : begin(begin), end(end) {
     if (list != nullptr) {
@@ -147,18 +147,32 @@ void setupIcons() {
   shower->next = nullptr;
   washer->next = nullptr;
   dishwasher->next = nullptr;
-  // fr
-  Icon *fr0 = new Icon(0, 60, 1, toilet); //
-  Icon *fr1 = new Icon(60, 120, 2, shower); //
-  Icon *fr2 = new Icon(120, 180, 2, dishwasher); //
-  Icon *fr3 = new Icon(180, 240, 2, washer); //
-  Icon *fr4 = new Icon(600, 659, 3, toilet); //
-  Icon *fr5 = new Icon(659, 718, 3, shower); //
-  Icon *fr6 = new Icon(719, 778, 3, dishwasher); //
-  Icon *fr7 = new Icon(778, 838, 3, washer);
-  Icon *fr8 = new Icon(420, 480, 1,toilet); //
-  Icon *fr9 = new Icon(481, 540, 2, dishwasher); //
-  Icon *fr10 = new Icon(540, 599, 1, dishwasher); //
+  // cl
+  Icon *cl0 = new Icon(0, 60, 1, toilet);
+  Icon *cl1 = new Icon(61, 120, 3, shower);
+  Icon *cl2 = new Icon(420, 480, 2, shower);
+  Icon *cl3 = new Icon(480, 540, 2,toilet);
+  Icon *cl4 = new Icon(121, 180, 3,toilet);
+  Icon *cl5 = new Icon(180, 240, 1,shower);
+  Icon *cl6 = new Icon(540, 600, 3,dishwasher);
+  Icon *cl7 = new Icon(600, 659, 2,washer);
+  Icon *cl8 = new Icon(240, 300, 2,dishwasher);
+  Icon *cl9 = new Icon(600, 719, 3,washer);
+  Icon *cl10 = new Icon(719, 779, 3,shower);
+  Icon *cl11 = new Icon(779, 840, 1,toilet);
+  Icon *cl12 = new Icon(840, 900, 2,toilet);
+  Icon *cl13 = new Icon(300, 360, 3,shower);
+  Icon *cl14 = new Icon(360, 420, 3,washer);
+  Icon *cl15 = new Icon(1260, 1320, 1,dishwasher);
+  Icon *cl16 = new Icon(900, 960, 2,shower);
+  Icon *cl17 = new Icon(960, 1020, 3,toilet);
+  Icon *cl18 = new Icon(1320, 1380, 3,washer);
+  Icon *cl19 = new Icon(1380, 1440, 3,dishwasher);
+  Icon *cl20 = new Icon(1020, 1080, 1,washer);
+  Icon *cl21 = new Icon(1080, 1140, 2,washer);
+  Icon *cl22 = new Icon(1140, 1200, 1,washer);
+  Icon *cl23 = new Icon(1440, 1500, 3,washer);
+  Icon *cl24 = new Icon(1500, 1560, 1,washer);
 }
 
 
@@ -230,3 +244,4 @@ void loop() {
   }
   updateIcons();
 }
+

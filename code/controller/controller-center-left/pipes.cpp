@@ -29,7 +29,8 @@
 #define SEGMENT23 344, 395
 #define SEGMENT24 1594, 1658
 #define SEGMENT25 1658, 1691
-#define SEGMENT26 1691, 1792
+#define SEGMENT260 1691, 1720
+#define SEGMENT261 1742, 1792
 #define SEGMENT27 440, 480
 #define SEGMENT28 432, 440
 #define SEGMENT29 480, 504
@@ -49,7 +50,8 @@
 #define SEGMENT41 1935, 1943
 #define SEGMENT42 1984, 2007
 #define SEGMENT43 795, 829
-#define SEGMENT44 925, 974
+#define SEGMENT440 831,837
+#define SEGMENT441 922, 974
 #define SEGMENT45 731, 772
 #define SEGMENT46 723, 731
 #define SEGMENT47 772, 795
@@ -121,10 +123,12 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
 
     TPIPE(24, dishwashers);
     TPIPE(25, washers);
-    PIPE(26);
-    pipe26->attachInput(pipe24);
-    pipe26->attachInput(pipe25);
-    pipe26->attachInput(pipe21);
+    PIPE(260);
+    pipe260->attachInput(pipe24);
+    pipe260->attachInput(pipe25);
+    pipe260->attachInput(pipe21);
+    PIPE(261);
+    pipe261->attachInput(pipe260);
 
     TPIPE(27, showers);
     TPIPE(28, toilets);
@@ -144,7 +148,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     pipe34->attachInput(pipe33);
     PIPE(35);
     pipe35->attachInput(pipe34);
-    pipe35->attachInput(pipe26);
+    pipe35->attachInput(pipe261);
 
     TPIPE(36, toilets);
     TPIPE(37, showers);
@@ -161,11 +165,13 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     pipe42->attachInput(pipe40);
     pipe42->attachInput(pipe41);
     TPIPE(43, washers);
-    PIPE(44);
-    pipe44->attachInput(pipe42);
-    pipe44->attachInput(pipe43);
-    pipe44->attachInput(pipe35);
-    pipe44->setAsOutput();
+    PIPE(440);
+    pipe440->attachInput(pipe42);
+    pipe440->attachInput(pipe43);
+    pipe440->attachInput(pipe35);
+    PIPE(441);
+    pipe441->attachInput(pipe440);
+    pipe441->setAsOutput();
 
     TPIPE(45, washers);
     TPIPE(46, washers);
