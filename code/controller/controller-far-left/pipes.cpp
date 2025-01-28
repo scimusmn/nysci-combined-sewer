@@ -54,19 +54,25 @@ PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
 
 
 void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
-  TPIPE(0, toilets); //
+  TPIPE(0, toilets);
+  pipe0->setActivationLevel(1);
   TPIPE(10, showers);
+  pipe10->setActivationLevel(1);
   PIPE(30);
   pipe30->attachInput(pipe0);
   pipe30->attachInput(pipe10);
   TPIPE(20, dishwashers);
+  pipe20->setActivationLevel(1);
   PIPE(40);
   pipe40->attachInput(pipe30);
   pipe40->attachInput(pipe20);
 
   TPIPE(50, dishwashers); //
+  pipe50->setActivationLevel(3);
   TPIPE(60, showers);
+  pipe60->setActivationLevel(2);
   TPIPE(70, toilets);
+  pipe70->setActivationLevel(3);
   PIPE(80);
   pipe80->attachInput(pipe60);
   pipe80->attachInput(pipe70);
@@ -76,33 +82,42 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe90->attachInput(pipe80);
 
   TPIPE(100, toilets); //
+  pipe100->setActivationLevel(2);
   TPIPE(110, showers);
+  pipe110->setActivationLevel(2);
   PIPE(130);
   pipe130->attachInput(pipe100);
   pipe130->attachInput(pipe110);
   TPIPE(120, dishwashers);
+  pipe120->setActivationLevel(2);
   PIPE(140);
   pipe140->attachInput(pipe90);
   pipe140->attachInput(pipe120);
   pipe140->attachInput(pipe130);
 
   TPIPE(150, toilets); //
+  pipe150->setActivationLevel(3);
   TPIPE(160, showers);
+  pipe160->setActivationLevel(3);
   PIPE(190);
   pipe190->attachInput(pipe150);
   pipe190->attachInput(pipe160);
   TPIPE(170, washers);
+  pipe170->setActivationLevel(2);
   PIPE(200);
   pipe200->attachInput(pipe170);
   pipe200->attachInput(pipe190);
   TPIPE(180, dishwashers);
+  pipe180->setActivationLevel(1);
   PIPE(210);
   pipe210->attachInput(pipe140);
   pipe210->attachInput(pipe180);
   pipe210->attachInput(pipe200);
 
   TPIPE(230, toilets);
+  pipe230->setActivationLevel(2);
   TPIPE(220, toilets);
+  pipe220->setActivationLevel(1);
   PIPE(250);
   pipe250->attachInput(pipe230);
   pipe250->attachInput(pipe220);
