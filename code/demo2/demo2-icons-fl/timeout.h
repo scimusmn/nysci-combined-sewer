@@ -9,13 +9,12 @@ typedef void (*timefunc_t)(void*);
 
 class Timeout {
   public:
-  Timeout();
   bool set(unsigned long ms, timefunc_t f, void *data);
   void update();
 
   private:
   unsigned long time = 0;
-  void (*f)() = nullptr;
+  timefunc_t f = nullptr;
   void *data = nullptr;
 };
 
