@@ -1,5 +1,6 @@
 #include <OctoWS2811.h>
 #include "messages.h"
+#include "timeout.h"
 
 InputLevels levels;
 //InputLevels nextLevels = { 1, 1, 1, 1, 1 };
@@ -63,18 +64,23 @@ struct IconList {
   Icon *icon = nullptr;
   IconList *next = nullptr;
   void setLevel(unsigned int level);
-  unsigned int timeout = 0;
+  Timeout timeout;
   unsigned int level = 0;
-  bool on;
+  bool hold = false;
+  static void releaseHold(void *data) {
+    IconList *list = static_cast<IconList*>(data);
+    list->hold = false;
+  }
+
   void update(unsigned int level) {
-    if (level == 0 && this->level > 0) {
-      if (millis() > timeout) {
-        setLevel(level);
-      }
-    } else if (level != this->level) {
-      if (level == 0) {
-        timeout = millis() + 3000;
-      }
+    timeout.update();
+    if (level > this->level) {
+      this->level = level;
+      hold = true;
+      timeout.set(3000, IconList::releaseHold, this);
+      setLevel(level);
+    } else if (!hold && this->level != level) {
+      this->level = level;
       setLevel(level);
     }
   }
