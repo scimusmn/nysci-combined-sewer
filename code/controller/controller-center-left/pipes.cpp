@@ -167,6 +167,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     PIPE(35);
     pipe35->attachInput(pipe34);
     pipe35->attachInput(pipe261);
+    pipe35->setOverflowSpeed(0);
 
     TPIPE(36, toilets);
     pipe36->setActivationLevel(3);
@@ -186,8 +187,10 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     PIPE(42);
     pipe42->attachInput(pipe40);
     pipe42->attachInput(pipe41);
+    pipe42->setOverflowSpeed(0);
     TPIPE(43, washers);
     pipe43->setActivationLevel(1);
+    pipe43->setOverflowSpeed(0);
     PIPE(440);
     pipe440->attachInput(pipe42);
     pipe440->attachInput(pipe43);
@@ -203,9 +206,11 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     PIPE(47);
     pipe47->attachInput(pipe45);
     pipe47->attachInput(pipe46);
+    pipe47->setOverflowSpeed(0);
     PIPE(48);
     pipe48->attachInput(pipe47);
     pipe48->attachInput(pipe39);
+    pipe48->setOverflowSpeed(0);
     PIPE(49);
     pipe49->attachInput(pipe48);
     pipe49->setAsOutput();
