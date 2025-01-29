@@ -23,9 +23,9 @@ void sendMessage(uint8_t type, uint8_t nodeId, void *data, size_t sz) {
 
 
 void processMessage(const CAN_message_t &msg) {
-  Serial.println("rx");
+  //Serial.println("rx");
   uint8_t type = msg.id >> 4;
-  Serial.println(type);
+  //Serial.println(type);
   uint8_t src = msg.id & 0xf;
   switch(type) {
   case INPUT_LEVELS_MSG:
@@ -36,7 +36,7 @@ void processMessage(const CAN_message_t &msg) {
 
   default:
     // do nothing
-    Serial.print("WARNING: unknown message type: "); Serial.println(type);
+    //Serial.print("WARNING: unknown message type: "); Serial.println(type);
     break;
   }
 }

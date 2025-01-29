@@ -1,6 +1,5 @@
 #include <OctoWS2811.h>
 #include "messages.h"
-#include "timeout.h"
 
 InputLevels levels;
 //InputLevels nextLevels = { 1, 1, 1, 1, 1 };
@@ -64,25 +63,26 @@ struct IconList {
   Icon *icon = nullptr;
   IconList *next = nullptr;
   void setLevel(unsigned int level);
-  Timeout timeout;
+  unsigned int timeout = 0;
   unsigned int level = 0;
-  bool hold = false;
-  static void releaseHold(void *data) {
-    IconList *list = static_cast<IconList*>(data);
-    list->hold = false;
-  }
-
+  bool on;
   void update(unsigned int level) {
-    timeout.update();
-    if (level > this->level) {
-      this->level = level;
-      hold = true;
-      timeout.set(3000, IconList::releaseHold, this);
-      setLevel(level);
-    } else if (!hold && this->level != level) {
-      this->level = level;
+    if(level > 0 && this->level == 0){
+      timeout = millis()+3000;
       setLevel(level);
     }
+    else if(level > this->level){setLevel(level);}
+    else if (level == 0 && this->level != level && millis() > timeout){setLevel(level);}
+    // if (level == 0 && this->level > 0) {
+    //   if (millis() > timeout) {
+    //     setLevel(level);
+    //   }
+    // } else if (level != this->level) {
+    //   if (level == 0) {
+    //     timeout = millis() + 3000;
+    //   }
+    //   setLevel(level);
+    // }
   }
 };
 
@@ -93,7 +93,7 @@ class Icon {
   public:
   unsigned int level;
 
-  Icon(size_t begin, size_t end,int Level, IconList *list=nullptr) 
+  Icon(size_t begin, size_t end, int Level, IconList *list=nullptr) 
     : begin(begin), end(end) {
     if (list != nullptr) {
       IconList *self = new IconList;
@@ -233,10 +233,10 @@ void loop() {
   // delay(1000);
   // updateIconList(dishwasher, 0);
   //tryUpdateLevels();
+  updateIcons();
   if (updatedLevels) {
     Serial.println("UPDATED LEVELS");
     updatedLevels = false; // reset flag
     memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
   }
-  updateIcons();
 }

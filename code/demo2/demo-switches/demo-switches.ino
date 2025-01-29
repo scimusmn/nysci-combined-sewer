@@ -3,7 +3,7 @@
 #include "messages.h"
 #include "rain.h"
 
-#define LEVEL_TIMEOUT 750
+#define LEVEL_TIMEOUT 3000
 
 // #define RAIN_PIN 16
 // #define TOILET_PIN 17
@@ -26,7 +26,8 @@ class LevelSwitch : public smm::Switch {
   {}
   void onLow() {
     active = true;
-    *level = min(*level+1, 3);
+    *level = min(max(*level+1,holdLevel+1), 3);
+    holdLevel = *level;
     updateFlag = true;
     if (time == 0) {
       time = millis() + LEVEL_TIMEOUT;
@@ -34,14 +35,17 @@ class LevelSwitch : public smm::Switch {
   }
   void onHigh() {
     active = false;
-    if (millis() > time) {
-      *level = 0;
-      updateFlag = true;
-      time = 0;
-    }
+    *level = 0;
+    //if(holdLevel == 3){holdLevel = 0;}
+    updateFlag = true;
+    // if (millis() > time) {
+    //   updateFlag = true;
+    //   time = 0;
+    // }
   }
   void update() {
     if (!active && time != 0 && millis() > time) {
+      holdLevel = 0;
       *level = 0;
       updateFlag = true;
       time = 0;
@@ -50,6 +54,7 @@ class LevelSwitch : public smm::Switch {
   static volatile bool updateFlag;
   private:
   uint8_t *level;
+  uint8_t holdLevel;
   bool active = false;
   unsigned long time = 0;
 };
