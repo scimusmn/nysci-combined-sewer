@@ -3,6 +3,10 @@
 #include "timeout.h"
 
 
+#define MAIN_OUTPUT_MAX 230
+#define OVERFLOW_OUTPUT_MAX 330
+
+
 Timeout t;
 void drainAll(void*) {
   mainDrain->setDraining();
@@ -13,10 +17,19 @@ void setup() {
   controllerSetup(6);
   mainDrain->setOverflowing();
   overflowDrain->setOverflowing();
-  t.set(60000, drainAll, nullptr);
 }
 
 void loop() {
-  t.update();
+  // t.update();
+  if (mainDrain->getOutputCount() > MAIN_OUTPUT_MAX) {
+    mainDrain->setOverflowing();
+  } else {
+    mainDrain->setDraining();
+  }
+  if (overflowDrain->getOutputCount() > OVERFLOW_OUTPUT_MAX) {
+    overflowDrain->setOverflowing();
+  } else {
+    overflowDrain->setDraining();
+  }
   controllerLoop(false);
 }

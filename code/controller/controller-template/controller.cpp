@@ -134,7 +134,7 @@ void controllerLoop(bool debug=false) {
     Serial.print("shower: "); Serial.println(levels.showerFlow);
     Serial.println("\n");
 
-    startFlow(pipes.rains, levels.rainFlow);
+    startFlow(pipes.rains, 100*levels.rainFlow);
     startFlow(pipes.toilets, levels.toiletFlow);
     startFlow(pipes.washers, levels.washerFlow);
     startFlow(pipes.dishwashers, levels.dishWasherFlow);
