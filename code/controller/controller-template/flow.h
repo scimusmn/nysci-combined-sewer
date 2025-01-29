@@ -4,8 +4,10 @@
 
 #define N_FLOWS 32
 #define N_INPUTS 8
+#define N_SEGMENTS 2
 
 #define SEWER_OVERFLOW_SPEED 7
+#define DEFAULT_OVERFLOW_SPEED 0.1
 
 
 class Pipe;
@@ -117,13 +119,14 @@ typedef struct {
 // handles pipe drawing
 struct PipeRenderer {
   public:
-  PipeRenderer(OctoWS2811 &strip, size_t start, size_t end);
+  void configure(OctoWS2811 &strip, size_t start, size_t end);
   void drawFlow(PipeFlow &flow);
   void drawOverflow(double overflowLevel);
   void clear();
+  bool active = false;
 
   protected:
-  OctoWS2811 &strip;
+  OctoWS2811 *strip;
   size_t start, end;
 
   size_t stripIndex(unsigned int i);
@@ -141,6 +144,7 @@ class Pipe {
   // attach a pipe as input to this pipe
   void attachInput(Pipe *pipe);
   void attachCanInput(uint8_t node, unsigned int pipeId);
+  void addSegment(OctoWS2811 &strip, size_t start, size_t end);
   // set whether the pipe should output CAN PipeOutput messages
   void setAsOutput(bool out=true);
   void setActivationLevel(unsigned int level);
@@ -174,7 +178,7 @@ class Pipe {
   unsigned int pipeId;
   PipeInput input;
   PipeOutput output;
-  PipeRenderer renderer;
+  PipeRenderer renderers[N_SEGMENTS];
   PipeFlow movingFlows[N_FLOWS];
   InputFlow inputFlow;
   unsigned int speed = 1;
@@ -189,7 +193,7 @@ class Pipe {
 
   void convertInputToMovingFlow();
   void insertFlow(PipeFlow *f);
-  void updateInput();
+  virtual void updateInput();
   virtual void updateOverflow();
 };
 
@@ -198,14 +202,15 @@ class VirtualPipe : public Pipe {
   public:
   VirtualPipe(OctoWS2811 &strip, unsigned int length);
   void render();
-  private:
-  unsigned int length();
-  unsigned int len;
+  void setId(unsigned int pipeId);
 };
 
 
 class OverflowPipe : public Pipe {
+  public:
+  OverflowPipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end);
   private:
+  void updateInput();
   void updateOverflow();
 };
 
@@ -221,3 +226,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes);
 #define TPIPE(number, type) \
   PIPE(number) \
   pipes->type = pushPipe(pipe ## number, pipes->type);
+
+
+// extern Pipe * overflowMe;
+// extern Pipe * overflowInput;

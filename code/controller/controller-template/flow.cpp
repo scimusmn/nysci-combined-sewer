@@ -266,11 +266,16 @@ void PipeOutput::flush() {
 // (constructor)
 Pipe::Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end) 
 : length(stripLength(start, end)), pipeId(pipeId),
-  output(pipeId, stripLength(start, end)), renderer(strip, start, end)
-{}
+  output(pipeId, stripLength(start, end))
+{
+  renderer[0].configure(strip, start, end);
+}
+
+OverflowPipe::OverflowPipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end)
+: Pipe(pipeId, strip, start, end) {}
 
 VirtualPipe::VirtualPipe(OctoWS2811 &strip, unsigned int length)
-  : Pipe(-1, strip, 0, 0), len(length) {}
+  : Pipe(-1, strip, 0, length) {}
 
 
 void Pipe::attachInput(Pipe *pipe) {
@@ -279,6 +284,18 @@ void Pipe::attachInput(Pipe *pipe) {
 
 void Pipe::attachCanInput(uint8_t node, unsigned int pipeId) {
   input.attachCanInput(node, pipeId);
+}
+
+
+
+void addSegment(OctoWS2811 &strip, size_t start, size_t end) {
+  for (int i=0; i<N_SEGMENTS; i++) {
+    if (renderers[i].active == false) {
+      renderers[i].configure(strip, start, end);
+      return;
+    }
+  }
+  Serial.print("!! WARNING !! Attempt to add too many segments on pipe "); Serial.println(pipeId);
 }
 
 
@@ -425,8 +442,37 @@ void Pipe::updateOverflow() {
 }
 
 
+void OverflowPipe::updateInput() {
+  if (input.isOverflowing()) {
+    Pipe::updateInput();
+  } else {
+    convertInputToMovingFlow();
+  }
+}
+
+
 void OverflowPipe::updateOverflow() {
-  
+  if (overflowLevel > 0 && input.drained()) {
+    draining = true;
+  }
+
+  if (overflowing) {
+    overflowLevel += overflowSpeed;
+    if (overflowLevel > length) {
+      overflowLevel = length;
+      // overflowing = false;
+      input.setOverflowSpeed(DEFAULT_OVERFLOW_SPEED);
+    }
+  } else if (draining) {
+    overflowLevel -= drainSpeed;
+    if (overflowLevel < 0) {
+      overflowLevel = 0;
+      draining = false;
+      output.sendDrained();
+      input.setOverflowSpeed(0);
+    }
+  } 
+
 }
 
 
@@ -449,16 +495,28 @@ void Pipe::update() {
 
 
 void Pipe::render() {
-  renderer.clear();
-  for (int i=0; i<N_FLOWS; i++) {
-    renderer.drawFlow(movingFlows[i]);
+  for (int i=0; i<N_SEGMENTS; i++) {
+    PipeRenderer &renderer = renderers[i];
+    if (renderer.active) {
+      renderer.clear();
+      for (int i=0; i<N_FLOWS; i++) {
+        renderer.drawFlow(movingFlows[i]);
+      }
+  
+      renderer.drawFlow(inputFlow);
+      renderer.drawOverflow(overflowLevel);
+      // Serial.print(pipeId); Serial.print(": "); Serial.println(overflowLevel);
+    }
   }
-
-  renderer.drawFlow(inputFlow);
-  renderer.drawOverflow(overflowLevel);
-  // Serial.print(pipeId); Serial.print(": "); Serial.println(overflowLevel);
 }
 
+
+void VirtualPipe::setId(unsigned int id) {
+  pipeId = id;
+}
+
+
+void VirtualPipe::render() {}
 
 
 /* ================================================================ *\
@@ -468,9 +526,12 @@ void Pipe::render() {
  * ================================================================ */
 
 
-// (constructor)
-PipeRenderer::PipeRenderer(OctoWS2811 &strip, size_t start, size_t end)
-  : strip(strip), start(start), end(end) {}
+void PipeRenderer::configure(OctoWS2811 &strip, size_t start, size_t end) {
+  this->start = start;
+  this->end = end;
+  this->strip = &strip;
+  this->active = true;
+}
 
 
 // lerp for uint8_t values
@@ -514,7 +575,7 @@ color_t leaderColor(int index) {
 
 
 void PipeRenderer::drawPixel(int index, color_t c) {
-  strip.setPixel(index, c.r, c.g, c.b);
+  strip->setPixel(index, c.r, c.g, c.b);
 }
 
 
@@ -569,7 +630,4 @@ unsigned int PipeRenderer::length() {
 }
 
 
-unsigned int VirtualPipe::length() {
-  return len;
-}
-void VirtualPipe::render() {}
+
