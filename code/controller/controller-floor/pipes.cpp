@@ -37,6 +37,10 @@
 #define SEGMENT200 2040, 2071
 
 
+Pipe* overflowMe;
+Pipe* overflowMeToo;
+
+
 PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
   PipeSource *node = new PipeSource;
   node->pipe = pipe;
@@ -48,41 +52,41 @@ PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
 void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   Pipe *vpipe;
   PIPE(10);
-  PIPE(20);
+  pipe10->addSegment(strip, SEGMENT20);
+  // PIPE(20);
+  // overflowInput = pipe20;
   pipe10->attachCanInput(5,8);
-  pipe20->attachCanInput(5,8);
+  // pipe20->attachCanInput(5,8);
 
   PIPE(100);
-  pipe100->attachInput(pipe20);
+  pipe100->attachInput(pipe10);
   PIPE(110);
   pipe110->attachInput(pipe100);
-  PIPE(120);
-  pipe120->attachInput(pipe100);
+  pipe110->addSegment(strip, SEGMENT120);
   PIPE(130);
   pipe130->attachInput(pipe110);
   PIPE(140);
   pipe140->attachInput(pipe130);
-  PIPE(150);
-  pipe150->attachInput(pipe130);
+  pipe140->addSegment(strip, SEGMENT130);
   PIPE(160);
   pipe160->attachInput(pipe140);
+  pipe160->addSegment(strip, SEGMENT170);
   PIPE(161);
   pipe161->attachInput(pipe160);
-  PIPE(170);
-  pipe170->attachInput(pipe140);
-  PIPE(171);
-  pipe171->attachInput(pipe170);
+  pipe161->addSegment(strip, SEGMENT171);
   PIPE(180);
   pipe180->attachInput(pipe161);
   PIPE(190);
   pipe190->attachInput(pipe180);
-  PIPE(200);
-  pipe200->attachInput(pipe180);
-
+  pipe190->addSegment(strip, SEGMENT200);
+  mainDrain = pipe190;
 
 
   PIPE(40);
-  PIPE(30);
+  OverflowPipe *pipe30 = new OverflowPipe(30, strip, SEGMENT30);
+  pipes->pipes = pushPipe(pipe30, pipes->pipes);
+  // PIPE(30);
+  pipe30->attachInput(pipe10);
 
   PIPE(50);
   pipe50->attachInput(pipe30);
@@ -96,4 +100,5 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe80->attachInput(pipe70);
   PIPE(90);
   pipe90->attachInput(pipe70);
+  overflowDrain = pipe90;
 }

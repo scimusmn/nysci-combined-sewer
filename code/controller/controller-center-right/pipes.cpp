@@ -99,9 +99,12 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   PIPE(190);
   PIPE(200);
   pipe180->setAsOutput();
+  pipe180->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   pipe180->attachInput(pipe130);
   pipe180->attachInput(pipe190);
   pipe190->attachInput(pipe141);
+  pipe190->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   pipe190->attachInput(pipe200);
   pipe200->attachCanInput(4, 270);
+  pipe200->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
 }

@@ -43,11 +43,9 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe5->attachInput(pipe6);
   pipe5->attachCanInput(2, 49);
 
-  PIPE(7);
   PIPE(8);
-  pipe7->attachInput(pipe4);
+  pipe8->addSegment(strip, SEGMENT7);
   pipe8->attachInput(pipe4);
-  pipe7->attachInput(pipe5);
   pipe8->attachInput(pipe5);
   pipe8->setAsOutput();
 

@@ -23,3 +23,7 @@ pushd controller-center-left-sewer
 call update.bat
 call del *~
 popd
+pushd controller-floor
+call update.bat
+call del *~
+popd

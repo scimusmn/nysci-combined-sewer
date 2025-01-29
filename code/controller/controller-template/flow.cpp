@@ -3,6 +3,10 @@
 #include <OctoWS2811.h>
 
 
+Pipe *mainDrain;
+Pipe *overflowDrain;`
+
+
 size_t stripLength(size_t start, size_t end) {
   if (start < end) {
     return end - start;
@@ -447,12 +451,14 @@ void OverflowPipe::updateInput() {
     Pipe::updateInput();
   } else {
     convertInputToMovingFlow();
+    inputFlow.active = false;
+    input.prevCount = 0;
   }
 }
 
 
 void OverflowPipe::updateOverflow() {
-  if (overflowLevel > 0 && input.drained()) {
+  if (!overflowing && overflowLevel > 0 && input.drained()) {
     draining = true;
   }
 
@@ -471,8 +477,9 @@ void OverflowPipe::updateOverflow() {
       output.sendDrained();
       input.setOverflowSpeed(0);
     }
-  } 
-
+  } else {
+    input.setOverflowSpeed(0);
+  }
 }
 
 

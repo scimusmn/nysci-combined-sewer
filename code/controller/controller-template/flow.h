@@ -2,12 +2,13 @@
 #include <OctoWS2811.h>
 #include "messages.h"
 
-#define N_FLOWS 32
+#define N_FLOWS 70
 #define N_INPUTS 8
 #define N_SEGMENTS 2
 
-#define SEWER_OVERFLOW_SPEED 7
-#define DEFAULT_OVERFLOW_SPEED 0.1
+#define SEWER_OVERFLOW_SPEED 2
+#define DEFAULT_OVERFLOW_SPEED 0.5
+#define DEFAULT_DRAIN_SPEED 1
 
 
 class Pipe;
@@ -55,6 +56,7 @@ struct InputFlow : public PipeFlow {
 class PipeInput {
   protected:
   friend class Pipe;
+  friend class OverflowPipe;
   Pipe *localSource[N_INPUTS];
 
   bool useCan = false;
@@ -185,8 +187,8 @@ class Pipe {
   bool overflowing = false;
   bool draining = false;
   double overflowLevel = 0;
-  double overflowSpeed = 0.1;
-  double drainSpeed = 1;
+  double overflowSpeed = DEFAULT_OVERFLOW_SPEED;
+  double drainSpeed = DEFAULT_DRAIN_SPEED;
   double maxOverflowLevel = -1;
 
   unsigned int activationLevel = 1;
@@ -228,5 +230,5 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes);
   pipes->type = pushPipe(pipe ## number, pipes->type);
 
 
-// extern Pipe * overflowMe;
-// extern Pipe * overflowInput;
+extern Pipe * mainDrain;
+extern Pipe * overflowDrain;
