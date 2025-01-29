@@ -268,7 +268,7 @@ Pipe::Pipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end)
 : length(stripLength(start, end)), pipeId(pipeId),
   output(pipeId, stripLength(start, end))
 {
-  renderer[0].configure(strip, start, end);
+  renderers[0].configure(strip, start, end);
 }
 
 OverflowPipe::OverflowPipe(int pipeId, OctoWS2811 &strip, size_t start, size_t end)
@@ -288,7 +288,7 @@ void Pipe::attachCanInput(uint8_t node, unsigned int pipeId) {
 
 
 
-void addSegment(OctoWS2811 &strip, size_t start, size_t end) {
+void Pipe::addSegment(OctoWS2811 &strip, size_t start, size_t end) {
   for (int i=0; i<N_SEGMENTS; i++) {
     if (renderers[i].active == false) {
       renderers[i].configure(strip, start, end);
