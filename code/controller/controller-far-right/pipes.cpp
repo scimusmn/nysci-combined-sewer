@@ -30,7 +30,7 @@
 
 #define SEGMENT230 955, 985 //
 #define SEGMENT231 955, 924 //
-#define SEGMENT240 985, 1046 //
+#define SEGMENT240 988, 1046 //
 
 #define SEGMENT250 1160, 1215 //
 #define SEGMENT260 1215,1254 //
@@ -81,6 +81,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe130->attachInput(pipe60);
   pipe130->attachInput(pipe110);
   pipe130->attachInput(pipe70);
+  pipe130->setOverflowSpeed(0);
 
   TPIPE(140, dishwashers);
   pipe140->setActivationLevel(1);
@@ -94,6 +95,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   PIPE(170);
   pipe170->attachInput(pipe180);
   pipe170->attachInput(pipe140);
+  pipe170->setOverflowSpeed(0);
   PIPE(190);
   pipe190->attachInput(pipe130);
   pipe190->attachInput(pipe170);

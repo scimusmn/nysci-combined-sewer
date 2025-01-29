@@ -79,6 +79,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   PIPE(140);
   pipe140->attachInput(pipe90);
   pipe140->attachInput(pipe120);
+  pipe140->setOverflowSpeed(0);
   PIPE(141);
   pipe141->attachInput(pipe140);
 

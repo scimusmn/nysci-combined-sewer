@@ -32,24 +32,29 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe2->attachInput(vpipe);
 
   PIPE(3);
+  pipe3->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(4);
+  pipe4->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   pipe3->attachCanInput(1,330);
   pipe4->attachInput(pipe3);
-  pipe4->attachCanInput(2,44);
+  pipe4->attachCanInput(2,441);
 
   PIPE(5);
+  pipe5->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(6);
   pipe6->attachCanInput(3, 180);
   pipe5->attachInput(pipe6);
   pipe5->attachCanInput(2, 49);
+  pipe6->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
 
-  PIPE(7);
   PIPE(8);
-  pipe7->attachInput(pipe4);
+  pipe8->addSegment(strip,SEGMENT7);
   pipe8->attachInput(pipe4);
-  pipe7->attachInput(pipe5);
+  pipe8->attachInput(pipe4);
+  pipe8->attachInput(pipe5);
   pipe8->attachInput(pipe5);
   pipe8->setAsOutput();
+  pipe8->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
 
   // pipe7->setOverflowThreshold(6);
   // pipe8->setOverflowThreshold(6);

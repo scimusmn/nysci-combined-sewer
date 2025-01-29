@@ -34,14 +34,15 @@ class LevelSwitch : public smm::Switch {
     }
   }
   void onHigh() {
+    if(active){hold = millis() + 150;}
     active = false;
-    *level = 0;
-    //if(holdLevel == 3){holdLevel = 0;}
-    updateFlag = true;
-    // if (millis() > time) {
-    //   updateFlag = true;
-    //   time = 0;
-    // }
+    // *level = 0;
+    // //if(holdLevel == 3){holdLevel = 0;}
+    // updateFlag = true;
+    // // if (millis() > time) {
+    // //   updateFlag = true;
+    // //   time = 0;
+    // // }
   }
   void update() {
     if (!active && time != 0 && millis() > time) {
@@ -50,6 +51,11 @@ class LevelSwitch : public smm::Switch {
       updateFlag = true;
       time = 0;
     }
+    else if(!active && hold != 0 && millis() > hold){
+      *level = 0;
+      hold = 0;
+      updateFlag = true;
+    }
   }
   static volatile bool updateFlag;
   private:
@@ -57,6 +63,7 @@ class LevelSwitch : public smm::Switch {
   uint8_t holdLevel;
   bool active = false;
   unsigned long time = 0;
+  unsigned long hold = 0;
 };
 volatile bool LevelSwitch::updateFlag = false;
 
