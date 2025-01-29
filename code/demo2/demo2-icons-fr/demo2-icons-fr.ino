@@ -67,16 +67,22 @@ struct IconList {
   unsigned int level = 0;
   bool on;
   void update(unsigned int level) {
-    if (level == 0 && this->level > 0) {
-      if (millis() > timeout) {
-        setLevel(level);
-      }
-    } else if (level != this->level) {
-      if (level == 0) {
-        timeout = millis() + 3000;
-      }
+    if(level > 0 && this->level == 0){
+      timeout = millis()+3000;
       setLevel(level);
     }
+    else if(level > this->level){setLevel(level);}
+    else if (level == 0 && this->level != level && millis() > timeout){setLevel(level);}
+    // if (level == 0 && this->level > 0) {
+    //   if (millis() > timeout) {
+    //     setLevel(level);
+    //   }
+    // } else if (level != this->level) {
+    //   if (level == 0) {
+    //     timeout = millis() + 3000;
+    //   }
+    //   setLevel(level);
+    // }
   }
 };
 
@@ -223,10 +229,10 @@ void loop() {
   // delay(1000);
   // updateIconList(dishwasher, 0);
   //tryUpdateLevels();
+  updateIcons();
   if (updatedLevels) {
     Serial.println("UPDATED LEVELS");
     updatedLevels = false; // reset flag
     memcpy(&levels, &nextLevels, sizeof(InputLevels)); // copy levels
   }
-  updateIcons();
 }
