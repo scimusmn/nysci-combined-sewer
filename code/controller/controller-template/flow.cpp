@@ -4,7 +4,7 @@
 
 
 Pipe *mainDrain;
-Pipe *overflowDrain;`
+Pipe *overflowDrain;
 
 
 size_t stripLength(size_t start, size_t end) {
