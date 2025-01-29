@@ -53,6 +53,8 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   Pipe *vpipe;
   PIPE(10);
   pipe10->addSegment(strip, SEGMENT20);
+  pipe10->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
+  flowSensor = pipe10;
   // PIPE(20);
   // overflowInput = pipe20;
   pipe10->attachCanInput(5,8);
@@ -60,45 +62,55 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
 
   PIPE(100);
   pipe100->attachInput(pipe10);
+  pipe100->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(110);
   pipe110->attachInput(pipe100);
+  pipe110->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   pipe110->addSegment(strip, SEGMENT120);
   PIPE(130);
   pipe130->attachInput(pipe110);
+  pipe130->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(140);
   pipe140->attachInput(pipe130);
-  pipe140->addSegment(strip, SEGMENT130);
+  pipe140->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(160);
   pipe160->attachInput(pipe140);
   pipe160->addSegment(strip, SEGMENT170);
+  pipe160->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(161);
   pipe161->attachInput(pipe160);
   pipe161->addSegment(strip, SEGMENT171);
+  pipe161->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(180);
   pipe180->attachInput(pipe161);
+  pipe180->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(190);
   pipe190->attachInput(pipe180);
   pipe190->addSegment(strip, SEGMENT200);
+  pipe190->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   mainDrain = pipe190;
 
 
-  PIPE(40);
   OverflowPipe *pipe30 = new OverflowPipe(30, strip, SEGMENT30);
   pipes->pipes = pushPipe(pipe30, pipes->pipes);
   // PIPE(30);
   pipe30->attachInput(pipe10);
+  pipe30->addSegment(strip, SEGMENT40);
+  pipe30->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
 
   PIPE(50);
   pipe50->attachInput(pipe30);
+  pipe50->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(51);
   pipe51->attachInput(pipe50);
-  PIPE(60);
-  pipe60->attachInput(pipe50);
+  pipe51->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
+  pipe51->addSegment(strip, SEGMENT60);
   PIPE(70);
   pipe70->attachInput(pipe51);
-  PIPE(80);
-  pipe80->attachInput(pipe70);
+  pipe70->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(90);
   pipe90->attachInput(pipe70);
+  pipe90->addSegment(strip, SEGMENT80);
+  pipe90->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   overflowDrain = pipe90;
 }
