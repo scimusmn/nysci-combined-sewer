@@ -5,6 +5,8 @@
 #define N_FLOWS 32
 #define N_INPUTS 8
 
+#define SEWER_OVERFLOW_SPEED 7
+
 
 class Pipe;
 
@@ -77,6 +79,8 @@ class PipeInput {
   void setOverflowing();
   void setDraining();
   bool drained();
+  bool isOverflowing();
+  void setOverflowSpeed(double speed);
 };
 
 
@@ -149,6 +153,11 @@ class Pipe {
   void updateCanOverflow(uint8_t srcNode, CanPipeOverflow overflow);
   // getters for pipe output
   unsigned int getOutputCount();
+
+  void setOverflowSpeed(double speed);
+  void setDrainSpeed(double speed);
+  // getter for overflowing
+  bool isOverflowing();
   // setter for overflowing
   void setOverflowing();
   // setter for draining
@@ -172,13 +181,16 @@ class Pipe {
   bool overflowing = false;
   bool draining = false;
   double overflowLevel = 0;
+  double overflowSpeed = 0.1;
+  double drainSpeed = 1;
+  double maxOverflowLevel = -1;
 
   unsigned int activationLevel = 1;
 
   void convertInputToMovingFlow();
   void insertFlow(PipeFlow *f);
   void updateInput();
-  void updateOverflow();
+  virtual void updateOverflow();
 };
 
 
@@ -189,6 +201,12 @@ class VirtualPipe : public Pipe {
   private:
   unsigned int length();
   unsigned int len;
+};
+
+
+class OverflowPipe : public Pipe {
+  private:
+  void updateOverflow();
 };
 
 

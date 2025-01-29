@@ -172,6 +172,25 @@ bool PipeInput::drained() {
 }
 
 
+bool PipeInput::isOverflowing() {
+  bool overflowing = false;
+  for (int i=0; i<N_INPUTS; i++) {
+    if (localSource[i] == nullptr) { break; }
+    overflowing = overflowing || localSource[i]->isOverflowing();
+  }
+  return overflowing;
+}
+
+
+void PipeInput::setOverflowSpeed(double speed) {
+  for (int i=0; i<N_INPUTS; i++) {
+    if (localSource[i] == nullptr) { break; }
+    localSource[i]->setOverflowSpeed(speed);
+  }
+}
+
+
+
 
 /****************************************************************\
  *                                                              *
@@ -293,6 +312,17 @@ unsigned int Pipe::getOutputCount() {
   return output.count();
 }
 
+void Pipe::setOverflowSpeed(double speed) {
+  overflowSpeed = speed;
+}
+void Pipe::setDrainSpeed(double speed) {
+  drainSpeed = speed;
+}
+
+bool Pipe::isOverflowing() {
+  return overflowing;
+}
+
 void Pipe::setOverflowing() {
   overflowing = true;
   draining = false;
@@ -378,20 +408,25 @@ void Pipe::updateOverflow() {
   }
 
   if (overflowing) {
-    overflowLevel += 0.1;
+    overflowLevel += overflowSpeed;
     if (overflowLevel > length) {
       overflowLevel = length;
       // overflowing = false;
       input.setOverflowing();
     }
   } else if (draining) {
-    overflowLevel -= 1;
+    overflowLevel -= drainSpeed;
     if (overflowLevel < 0) {
       overflowLevel = 0;
       draining = false;
       output.sendDrained();
     }
   } 
+}
+
+
+void OverflowPipe::updateOverflow() {
+  
 }
 
 
