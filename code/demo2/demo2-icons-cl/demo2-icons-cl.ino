@@ -161,7 +161,7 @@ void setupIcons() {
   Icon *cl4 = new Icon(121, 180, 3,toilet);
   Icon *cl5 = new Icon(180, 240, 1,shower);
   Icon *cl6 = new Icon(540, 600, 3,dishwasher);
-  Icon *cl7 = new Icon(600, 659, 2,washer);
+  Icon *cl7 = new Icon(600, 659, 1,washer);
   Icon *cl8 = new Icon(240, 300, 2,dishwasher);
   Icon *cl9 = new Icon(600, 719, 3,washer);
   Icon *cl10 = new Icon(719, 779, 3,shower);

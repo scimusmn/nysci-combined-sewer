@@ -103,7 +103,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe190->attachInput(pipe150);
   pipe190->attachInput(pipe160);
   TPIPE(170, washers);
-  pipe170->setActivationLevel(2);
+  pipe170->setActivationLevel(1);
   PIPE(200);
   pipe200->attachInput(pipe170);
   pipe200->attachInput(pipe190);
@@ -136,7 +136,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   // pipe280->attachInput(pipe270);
 
   TPIPE(290, rains);
-  TPIPE(300,rains);
+  //TPIPE(300,rains);
   TPIPE(310,constant);
   pipe310->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(320);

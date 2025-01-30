@@ -21,8 +21,9 @@
 #define SEGMENT160 596, 642 //
 #define SEGMENT170 676, 694 //
 #define SEGMENT180 643, 676 //
-#define SEGMENT190 514, 554 //
-#define SEGMENT191 697, 728 //
+#define SEGMENT190 514, 530 //
+#define SEGMENT191 530, 554
+#define SEGMENT192 697, 728 //
 
 #define SEGMENT200 1109, 1076 //
 #define SEGMENT210 1046, 1076 //
@@ -30,7 +31,7 @@
 
 #define SEGMENT230 955, 985 //
 #define SEGMENT231 955, 924 //
-#define SEGMENT240 988, 1046 //
+#define SEGMENT240 990, 1046 //
 
 #define SEGMENT250 1160, 1215 //
 #define SEGMENT260 1215,1254 //
@@ -95,17 +96,19 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   PIPE(170);
   pipe170->attachInput(pipe180);
   pipe170->attachInput(pipe140);
-  pipe170->setOverflowSpeed(0);
   PIPE(190);
   pipe190->attachInput(pipe130);
   pipe190->attachInput(pipe170);
+  pipe190->setOverflowSpeed(0);
   PIPE(191);
   pipe191->attachInput(pipe190);
+  PIPE(192);
+  pipe192->attachInput(pipe191);
 
   TPIPE(240, rains);
-  TPIPE(230, rains);
-  PIPE(231);
-  pipe231->attachInput(pipe20);
+  // TPIPE(230, rains);
+  // PIPE(231);
+  // pipe231->attachInput(pipe20);
 
   TPIPE(250,constant);
   pipe250->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
@@ -116,7 +119,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   PIPE(270);
   pipe270->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   pipe270->attachInput(pipe260);
-  pipe270->attachInput(pipe191);
+  pipe270->attachInput(pipe192);
   pipe270->setAsOutput();
 
   // TPIPE(220, constant);

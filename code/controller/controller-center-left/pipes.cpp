@@ -50,12 +50,14 @@
 #define SEGMENT41 1935, 1943
 #define SEGMENT42 1984, 2007
 #define SEGMENT43 795, 829
-#define SEGMENT440 831,837
-#define SEGMENT441 922, 974
+#define SEGMENT440 831,833
+#define SEGMENT441 833,837
+#define SEGMENT442 922, 974
 #define SEGMENT45 731, 772
 #define SEGMENT46 723, 731
 #define SEGMENT47 772, 795
-#define SEGMENT48 706, 723
+#define SEGMENT480 706, 719
+#define SEGMENT481 719, 723
 #define SEGMENT49 870, 920
 #define SEGMENT50 920, 925
 
@@ -90,7 +92,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     pipe7->attachInput(pipe6);
 
     TPIPE(8, washers);
-    pipe8->setActivationLevel(2);
+    pipe8->setActivationLevel(1);
     TPIPE(9, dishwashers);
     pipe9->setActivationLevel(3);
     PIPE(10);
@@ -119,7 +121,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     pipe18->setActivationLevel(3);
     PIPE(19);
     pipe19->attachInput(pipe17);
-    pipe19->attachInput(pipe19);
+    pipe19->attachInput(pipe18);
     TPIPE(20, washers);
     pipe20->setActivationLevel(3);
     PIPE(21);
@@ -190,14 +192,16 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     pipe42->setOverflowSpeed(0);
     TPIPE(43, washers);
     pipe43->setActivationLevel(1);
-    pipe43->setOverflowSpeed(0);
     PIPE(440);
     pipe440->attachInput(pipe42);
     pipe440->attachInput(pipe43);
     pipe440->attachInput(pipe35);
+    pipe440->setOverflowSpeed(0);
     PIPE(441);
     pipe441->attachInput(pipe440);
-    pipe441->setAsOutput();
+    PIPE(442);
+    pipe442->attachInput(pipe441);
+    pipe442->setAsOutput();
 
     TPIPE(45, washers);
     pipe45->setActivationLevel(2);
@@ -207,12 +211,14 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
     pipe47->attachInput(pipe45);
     pipe47->attachInput(pipe46);
     pipe47->setOverflowSpeed(0);
-    PIPE(48);
-    pipe48->attachInput(pipe47);
-    pipe48->attachInput(pipe39);
-    pipe48->setOverflowSpeed(0);
+    PIPE(480);
+    pipe480->setOverflowSpeed(0);
+    pipe480->attachInput(pipe47);
+    pipe480->attachInput(pipe39);
+    PIPE(481);
+    pipe481->attachInput(pipe480);
     PIPE(49);
-    pipe49->attachInput(pipe48);
+    pipe49->attachInput(pipe481);
     pipe49->setAsOutput();
     // PIPE(50);
     // pipe50->attachInput(pipe49);

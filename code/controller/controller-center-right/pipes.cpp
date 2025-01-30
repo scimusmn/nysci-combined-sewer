@@ -49,7 +49,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   TPIPE(30, washers);
   pipe30->setActivationLevel(3);
   TPIPE(40, dishwashers);
-  pipe40->setActivationLevel(1);
+  pipe40->setActivationLevel(2);
   PIPE(50);
   pipe50->attachInput(pipe30);
   pipe50->attachInput(pipe40);
