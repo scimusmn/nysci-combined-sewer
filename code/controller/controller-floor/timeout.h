@@ -9,7 +9,8 @@ typedef void (timefunc_t)(void*);
 
 class Timeout {
   public:
-  bool set(unsigned long ms, timefunc_t *f, void *data);
+  bool set(unsigned long ms, timefunc_t *f, void *data=nullptr);
+  void clear();
   void update();
 
   private:

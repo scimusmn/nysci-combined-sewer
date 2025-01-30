@@ -16,6 +16,11 @@ bool Timeout::set(unsigned long ms, timefunc_t *f, void* data) {
 }
 
 
+void Timeout::clear() {
+  f = nullptr;
+}
+
+
 void Timeout::update() {
   if (f != nullptr) {
     if (millis() > time) {
