@@ -82,7 +82,7 @@ void sendMessage(MessageType type, void *data, size_t sz) {
 
 
 
-void sendCanBusInputLevels(uint8_t src, InputLevels levels) {
+void sendCanBusInputLevels(InputLevels levels) {
   sendMessage(INPUT_LEVELS, &levels, sizeof(InputLevels));
 }
 
@@ -102,6 +102,8 @@ void sendCanBusPipeOverflow(CanPipeOverflow o) {
 
 void sendCanSwapColors(bool swap) {
   sendMessage(COLOR_SWAP, &swap, sizeof(bool));
+  Serial.print("Color changed   ");
+  Serial.println(swap);
 }
 
 

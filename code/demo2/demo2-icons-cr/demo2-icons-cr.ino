@@ -156,7 +156,7 @@ void setupIcons() {
   // cr
   Icon *cr0 = new Icon(0, 60, 2, toilet);
   Icon *cr1 = new Icon(60, 120, 1, shower);
-  Icon *cr2 = new Icon(120, 180, 1, dishwasher);
+  Icon *cr2 = new Icon(120, 180, 2, dishwasher);
   Icon *cr3 = new Icon(180, 240, 3, washer);
   Icon *cr4 = new Icon(420, 480, 1, toilet);
   Icon *cr5 = new Icon(480, 540, 2, shower);
