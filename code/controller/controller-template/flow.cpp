@@ -3,8 +3,10 @@
 #include <OctoWS2811.h>
 
 
-Pipe *mainDrain;
-Pipe *overflowDrain;
+// externs
+Pipe *mainDrain = nullptr;
+Pipe *overflowDrain = nullptr;
+Pipe *flowSensor = nullptr;
 
 
 size_t stripLength(size_t start, size_t end) {

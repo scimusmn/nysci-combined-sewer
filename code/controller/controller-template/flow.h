@@ -230,5 +230,4 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes);
   pipes->type = pushPipe(pipe ## number, pipes->type);
 
 
-extern Pipe * mainDrain;
-extern Pipe * overflowDrain;
+extern Pipe *mainDrain, *overflowDrain, *flowSensor;

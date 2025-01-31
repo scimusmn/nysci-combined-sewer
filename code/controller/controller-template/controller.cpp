@@ -4,6 +4,10 @@
 #include "flow.h"
 
 
+// externs
+void (*extraProcessInputLevels)(InputLevels &levels) = nullptr;
+
+
 // the leds
 #define STRIP_LEN 290
 byte pins[8] = { 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -83,16 +87,16 @@ void processPipeOutput(uint8_t src, CanPipeOutput output) {
 }
 
 void processPipeOverflow(uint8_t src, CanPipeOverflow o) {
-  Serial.print("rx pipe overflow "); Serial.print(o.node); Serial.print(":"); Serial.println(o.pipeId);
+  // Serial.print("rx pipe overflow "); Serial.print(o.node); Serial.print(":"); Serial.println(o.pipeId);
   for (PipeSource *source = pipes.pipes; source != nullptr; source = source->next) {
     source->pipe->updateCanOverflow(src, o);
   }
 }
 
 // helper functions to manage creating & removing flows
-void startFlow(PipeSource *source, unsigned int level=1) {
+void startFlow(PipeSource *source, unsigned int level=1, unsigned int count=1) {
   for (; source != nullptr; source = source->next) {
-    source->pipe->startFlow(1, level);
+    source->pipe->startFlow(count, level);
   }
 }
 void endFlow(PipeSource *source) {
@@ -134,11 +138,15 @@ void controllerLoop(bool debug=false) {
     Serial.print("shower: "); Serial.println(levels.showerFlow);
     Serial.println("\n");
 
-    startFlow(pipes.rains, 100*levels.rainFlow);
+    startFlow(pipes.rains, levels.rainFlow, 100*levels.rainFlow);
     startFlow(pipes.toilets, levels.toiletFlow);
     startFlow(pipes.washers, levels.washerFlow);
     startFlow(pipes.dishwashers, levels.dishWasherFlow);
     startFlow(pipes.showers, levels.showerFlow);
+
+    if (extraProcessInputLevels != nullptr) {
+      extraProcessInputLevels(levels);
+    }
   }
 
   // wait for update to finish
