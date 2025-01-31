@@ -2,6 +2,7 @@
 #include "smm.h"
 #include "messages.h"
 #include "rain.h"
+#include "timeout.h"
 
 #define LEVEL_TIMEOUT 3000
 
@@ -90,6 +91,16 @@ void updateSwitches() {
 void processInputLevels(uint8_t src, InputLevels levels) {}
 
 
+Timeout overflowClock;
+#define OVERFLOW_CLOCK_INTERVAL 500
+void overflowClockFn(void*) {
+  static bool swap = false;
+  sendCanSwapColors(swap);
+  swap = !swap;
+  overflowClock.set(OVERFLOW_CLOCK_INVERVAL, overflowClockFn);
+}
+
+
 void setup() {
   Serial.begin(9600);
   delay(1000);
@@ -97,10 +108,12 @@ void setup() {
   Serial.println("[switches] boot!");
   smm::setup();
   setupRain();
+  overflowClock.set(OVERFLOW_CLOCK_INVERVAL, overflowClockFn);
 }
 
 
 void loop() {
+  overflowClock.update();
   updateRain(levels.rainFlow);
   updateSwitches();
   // Serial.println("[switches] update!");
