@@ -112,7 +112,6 @@ void loop() {
     mainDrain->setDraining();
   }
 
->>>>>>> 2a9a4f0f9ac9e4a61653624d50e51a11889bb6b4
   if (poonami.state == 0 && poonami.drainable) {
     overflowDrain->setDraining();
   } else if (!poonami.drainable && overflowDrain->getOutputCount() > 0) {
