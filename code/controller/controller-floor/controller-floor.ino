@@ -85,14 +85,6 @@ void setup() {
 }
 
 void loop() {
-<<<<<<< HEAD
-  cso.timeout.update();
-  poonami.timeout.update();
-  if (cso.state == 0 && cso.drainable && poonami.drainable) {
-    mainDrain->setDraining();
-  }
-
-=======
   rain.timeout.update();
   toilet.timeout.update();
   washer.timeout.update();
