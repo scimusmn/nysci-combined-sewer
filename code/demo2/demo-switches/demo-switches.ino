@@ -89,6 +89,9 @@ void updateSwitches() {
 
 
 void processInputLevels(uint8_t src, InputLevels levels) {}
+void processPipeOutput(uint8_t src, CanPipeOutput output) {}
+void processPipeOverflow(uint8_t src, CanPipeOverflow o) {}
+
 
 
 Timeout overflowClock;
