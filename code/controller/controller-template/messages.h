@@ -48,6 +48,7 @@ void processPipeOverflow(uint8_t src, CanPipeOverflow o);
 void sendCanBusInputLevels(InputLevels levels);
 void sendCanBusPipeOutput(CanPipeOutput output);
 void sendCanBusPipeOverflow(CanPipeOverflow o);
+void sendCanSwapColors(bool swap);
 
 
 // function to set up the CAN bus

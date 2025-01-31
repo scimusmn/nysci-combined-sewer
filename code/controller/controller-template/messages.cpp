@@ -37,6 +37,9 @@ void processMessage(const CAN_message_t &msg) {
       processInputLevels(src, levels);
     } while(0);
     break;
+  case COLOR_SWAP:
+    memcpy(&overflowColorSwap, msg.buf, sizeof(bool));
+    break;
   default:
     // do nothing
     Serial.print("WARNING: unknown message type: "); Serial.println(type);
@@ -94,6 +97,11 @@ void sendCanBusPipeOverflow(CanPipeOverflow o) {
   Serial.print(o.node); Serial.print(":"); Serial.print(o.pipeId);
   Serial.print(" "); Serial.println(o.action);
   sendMessage(PIPE_OVERFLOW, &o, sizeof(CanPipeOverflow));
+}
+
+
+void sendCanSwapColors(bool swap) {
+  sendMessage(COLOR_SWAP, &swap, sizeof(bool));
 }
 
 
