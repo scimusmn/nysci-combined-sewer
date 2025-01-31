@@ -97,18 +97,18 @@ void overflowClockFn(void*) {
   static bool swap = false;
   sendCanSwapColors(swap);
   swap = !swap;
-  overflowClock.set(OVERFLOW_CLOCK_INVERVAL, overflowClockFn);
+  overflowClock.set(OVERFLOW_CLOCK_INTERVAL, overflowClockFn);
 }
 
 
 void setup() {
   Serial.begin(9600);
   delay(1000);
-  setupCan();
+  setupCan(0);
   Serial.println("[switches] boot!");
   smm::setup();
   setupRain();
-  overflowClock.set(OVERFLOW_CLOCK_INVERVAL, overflowClockFn);
+  overflowClock.set(OVERFLOW_CLOCK_INTERVAL, overflowClockFn);
 }
 
 
@@ -119,7 +119,7 @@ void loop() {
   // Serial.println("[switches] update!");
   if (LevelSwitch::updateFlag) {
     LevelSwitch::updateFlag = false;
-    sendInputLevels(0, levels);
+    sendCanBusInputLevels(levels);
     Serial.println("================================================================");
     Serial.print("rain: "); Serial.println(levels.rainFlow);
     Serial.print("toilet: "); Serial.println(levels.toiletFlow);
