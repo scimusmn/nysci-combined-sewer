@@ -6,6 +6,7 @@ typedef enum : uint8_t {
   INPUT_LEVELS,
   PIPE_OUTPUT,
   PIPE_OVERFLOW,
+  COLOR_SWAP,
 } MessageType;
 
 
@@ -55,6 +56,7 @@ void setupCan(uint8_t id);
 
 
 uint8_t selfNodeId();
+bool switchOverflowColor();
 
 // send generic data
 void sendMessage(MessageType type, void *data);

@@ -582,6 +582,10 @@ color_t leaderColor(int index) {
   return { 0, 255, 128 };
 }
 
+color_t overflowColor(int index){  
+  if(SwitchOverflowColor()){return {0,255,50};}
+  else{return {0, 255,128};}
+}
 
 void PipeRenderer::drawPixel(int index, color_t c) {
   strip->setPixel(index, c.r, c.g, c.b);

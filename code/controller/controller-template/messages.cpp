@@ -4,6 +4,7 @@ static FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> MsgCan;
 
 
 static uint8_t selfId = 0xff;
+bool overflowColorSwap = false;
 
 
 void processMessage(const CAN_message_t &msg) {
@@ -98,4 +99,8 @@ void sendCanBusPipeOverflow(CanPipeOverflow o) {
 
 uint8_t selfNodeId() {
   return selfId;
+}
+
+bool switchOverflowColor(){
+  return overflowColorSwap;
 }
