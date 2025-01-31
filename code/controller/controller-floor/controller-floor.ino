@@ -24,6 +24,45 @@ struct EventState {
 } cso, poonami;
 
 
+bool updateEventsFlag = false;
+void updateEvents(unsigned int rain, unsigned int appliances) {
+  updateEventsFlag = false;
+  cso.updateState(rain >= CSO_RAIN && appliances >= CSO_APPLIANCE);
+  if (cso.state == 1) {
+    cso.drainable = false;
+    mainDrain->setOverflowing();
+    cso.timeout.set(CSO_TIME, setTrue, &(cso.drainable));
+  }
+
+  poonami.updateState(rain >= POONAMI_RAIN && appliances >= POONAMI_APPLIANCE);
+  if (poonami.state == 1) {
+    poonami.drainable = false;
+    poonami.timeout.set(POONAMI_TIME, setTrue, &(poonami.drainable));
+  }
+}
+
+
+struct Holdable {
+  unsigned int value;
+  unsigned long holdTime = 4000;
+  Timeout timeout;
+  void update(unsigned int v) {
+    Serial.println(value);
+    if (v < value) {
+      timeout.set(holdTime, Holdable::reset, this);
+    } else if (v > value) {
+      value = v;
+      timeout.clear();
+    }
+  }
+  static void reset(void *data) {
+    Holdable *self = static_cast<Holdable*>(data);
+    self->value = 0;
+    updateEventsFlag = true;
+  }
+} rain, toilet, washer, dishes, shower;
+
+
 void setTrue(void *data) {
   bool *b = static_cast<bool*>(data);
   *b = true;
@@ -31,105 +70,13 @@ void setTrue(void *data) {
 
 
 void onLevels(InputLevels &levels) {
-  unsigned int appliances =
-    levels.toiletFlow + levels.washerFlow +
-    levels.dishWasherFlow + levels.showerFlow;
-
-  cso.updateState(
-    levels.rainFlow >= CSO_RAIN && appliances >= CSO_APPLIANCE
-  );
-  if (cso.state == 1) {
-    cso.drainable = false;
-    mainDrain->setOverflowing();
-    cso.timeout.set(CSO_TIME, setTrue, &(cso.drainable));
-  }
-
-  poonami.updateState(
-    levels.rainFlow >= POONAMI_RAIN && appliances >= POONAMI_APPLIANCE
-  );
-  if (poonami.state == 1) {
-    poonami.drainable = false;
-    poonami.timeout.set(POONAMI_TIME, setTrue, &(poonami.drainable));
-  }
-
-  // if (levels.rainFlow >= POONAMI_RAIN && appliances >= POONAMI_APPLIANCE) {
+  rain.update(levels.rainFlow);
+  toilet.update(levels.toiletFlow);
+  washer.update(levels.washerFlow);
+  dishes.update(levels.dishWasherFlow);
+  shower.update(levels.showerFlow);
+  updateEventsFlag = true;
 }
-
-
-
-// void holdLevels(){
-//   int Hold = 4000;
-//   static unsigned long rainHold;
-//   static unsigned long toiletHold;
-//   static unsigned long washerHold;
-//   static unsigned long showerHold;
-//   static unsigned long dishwasherHold;
-
-//   if(nextLevels.rainFlow < levels.rainFlow && rainHold == 0){rainHold = millis() + Hold;}
-//   else if(nextLevels.rainFlow > levels.rainFlow){
-//     levels.rainFlow = nextLevels.rainFlow;
-//     updatedLevels = true;
-//   }
-//   else if(rainHold <= millis() && rainHold != 0){
-//     rainHold = 0;
-//     levels.rainFlow = 0;
-//     updatedLevels = true;
-//   }
-
-
-
-//   if(nextLevels.toiletFlow < levels.toiletFlow && toiletHold == 0){toiletHold = millis() + Hold;}
-//   else if(nextLevels.toiletFlow > levels.toiletFlow){
-//     levels.toiletFlow = nextLevels.toiletFlow;
-//     updatedLevels = true;
-//   }
-//   else if(toiletHold <= millis() && toiletHold != 0){
-//     toiletHold = 0;
-//     levels.toiletFlow = 0;
-//     updatedLevels = true;
-//   }
-
-
-
-//   if(nextLevels.washerFlow < levels.washerFlow && washerHold == 0){washerHold = millis() + Hold;}
-//   else if(nextLevels.washerFlow > levels.washerFlow){
-//     levels.washerFlow = nextLevels.washerFlow;
-//     updatedLevels = true;
-//   }
-//   else if(washerHold <= millis() && washerHold != 0){
-//     washerHold = 0;
-//     levels.washerFlow = 0;
-//     updatedLevels = true;
-//   }
-
-
-
-//   if(nextLevels.showerFlow < levels.showerFlow && showerHold == 0){showerHold = millis() + Hold;}
-//   else if(nextLevels.showerFlow > levels.showerFlow){
-//     levels.showerFlow = nextLevels.showerFlow;
-//     updatedLevels = true;
-//   }
-//   else if(showerHold <= millis() && showerHold != 0){
-//     showerHold = 0;
-//     levels.showerFlow = 0;
-//     updatedLevels = true;
-//   }
-
-
-
-//   if(nextLevels.dishWasherFlow < levels.dishWasherFlow && dishwasherHold == 0){dishwasherHold = millis() + Hold;}
-//   else if(nextLevels.dishWasherFlow > levels.dishWasherFlow){
-//     levels.dishWasherFlow = nextLevels.dishWasherFlow;
-//     updatedLevels = true;
-//   }
-//   else if(dishwasherHold <= millis() && dishwasherHold != 0){
-//     dishwasherHold = 0;
-//     levels.dishWasherFlow = 0;
-//     updatedLevels = true;
-//   }
-// }
-
-
 
 
 void setup() {
@@ -138,12 +85,34 @@ void setup() {
 }
 
 void loop() {
+<<<<<<< HEAD
   cso.timeout.update();
   poonami.timeout.update();
   if (cso.state == 0 && cso.drainable && poonami.drainable) {
     mainDrain->setDraining();
   }
 
+=======
+  rain.timeout.update();
+  toilet.timeout.update();
+  washer.timeout.update();
+  dishes.timeout.update();
+  shower.timeout.update();
+
+  if (updateEventsFlag) {
+    updateEvents(
+      rain.value, 
+      toilet.value + washer.value + dishes.value + shower.value
+    );
+  }
+
+  cso.timeout.update();
+  poonami.timeout.update();
+  if (cso.state == 0 && cso.drainable && poonami.drainable) {
+    mainDrain->setDraining();
+  }
+
+>>>>>>> 2a9a4f0f9ac9e4a61653624d50e51a11889bb6b4
   if (poonami.state == 0 && poonami.drainable) {
     overflowDrain->setDraining();
   } else if (!poonami.drainable && overflowDrain->getOutputCount() > 0) {
