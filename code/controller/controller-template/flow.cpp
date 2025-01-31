@@ -583,7 +583,7 @@ color_t leaderColor(int index) {
 }
 
 color_t overflowColor(int index){  
-  if(SwitchOverflowColor()){return {0,255,50};}
+  if(switchOverflowColor()){return {0,255,50};}
   else{return {0, 255,128};}
 }
 
