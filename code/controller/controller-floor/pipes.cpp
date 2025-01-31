@@ -54,7 +54,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   PIPE(10);
   pipe10->addSegment(strip, SEGMENT20);
   pipe10->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
-  flowSensor = pipe10;
+  //flowSensor = pipe10;
   // PIPE(20);
   // overflowInput = pipe20;
   pipe10->attachCanInput(5,8);
@@ -72,11 +72,8 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   pipe130->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(140);
   pipe140->attachInput(pipe130);
-<<<<<<< HEAD
   pipe140->addSegment(strip, SEGMENT150);
-=======
   pipe140->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
->>>>>>> dbb2a466390ae1a04b23629d7f26a6f970c373cd
   PIPE(160);
   pipe160->attachInput(pipe140);
   pipe160->addSegment(strip, SEGMENT170);
