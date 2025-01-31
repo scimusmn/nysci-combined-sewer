@@ -583,7 +583,7 @@ color_t leaderColor(int index) {
 }
 
 color_t overflowColor(int index){  
-  if(switchOverflowColor()){return {0,255,50};}
+  if(switchOverflowColor()){return {0,255,100};}
   else{return {0, 255,128};}
 }
 
@@ -620,7 +620,7 @@ void PipeRenderer::drawFlow(PipeFlow &flow) {
 
 void PipeRenderer::drawOverflow(double level) {
   for (int i=0; i<level; i++) {
-    drawPixel(stripIndex(length() - i - 1), leaderColor(0));
+    drawPixel(stripIndex(length() - i - 1), overflowColor(0));
   }
 }
 
