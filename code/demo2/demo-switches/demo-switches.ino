@@ -16,7 +16,7 @@
 
 
 InputLevels levels = {
-  0, 1, 2, 3, 4,
+  0, 0, 0, 0, 0,
 };
 
 class LevelSwitch : public smm::Switch {
@@ -34,7 +34,10 @@ class LevelSwitch : public smm::Switch {
     }
   }
   void onHigh() {
-    if(active){hold = millis() + 150;}
+    if(active){
+      hold = millis() + 150;
+      open = millis() + 200;
+    }
     active = false;
     // *level = 0;
     // //if(holdLevel == 3){holdLevel = 0;}
@@ -45,9 +48,10 @@ class LevelSwitch : public smm::Switch {
     // // }
   }
   void update() {
-    if (!active && time != 0 && millis() > time) {
+    if (!active && time != 0 && millis() > time && open < millis() && open != 0) {
       holdLevel = 0;
       *level = 0;
+      open = 0;
       updateFlag = true;
       time = 0;
     }
@@ -64,6 +68,7 @@ class LevelSwitch : public smm::Switch {
   bool active = false;
   unsigned long time = 0;
   unsigned long hold = 0;
+  unsigned long open = 0;
 };
 volatile bool LevelSwitch::updateFlag = false;
 
