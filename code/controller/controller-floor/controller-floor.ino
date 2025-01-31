@@ -85,14 +85,6 @@ void setup() {
 }
 
 void loop() {
-<<<<<<< HEAD
-  cso.timeout.update();
-  poonami.timeout.update();
-  if (cso.state == 0 && cso.drainable && poonami.drainable) {
-    mainDrain->setDraining();
-  }
-
-=======
   rain.timeout.update();
   toilet.timeout.update();
   washer.timeout.update();
@@ -112,7 +104,6 @@ void loop() {
     mainDrain->setDraining();
   }
 
->>>>>>> 2a9a4f0f9ac9e4a61653624d50e51a11889bb6b4
   if (poonami.state == 0 && poonami.drainable) {
     overflowDrain->setDraining();
   } else if (!poonami.drainable && overflowDrain->getOutputCount() > 0) {
