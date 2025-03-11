@@ -52,6 +52,9 @@ void tryUpdateLevels() {
   }
 }
 
+
+
+
 // pipe lists
 PipeCollections pipes;
 
@@ -106,8 +109,23 @@ void endFlow(PipeSource *source) {
 }
 
 
+void updateConstantLevels() {
+  static unsigned long time = 1000;
+  static bool level = false;
+  Serial.println(time - millis());
+  if (millis() > time) {
+    updatedLevels = true;
+    time = millis() + 1000 + (rand() % 4000);
+    startFlow(pipes.constant, 1, level ? 1 : 2);
+    level = !level;
+  }
+}
+
+
+
+
 void controllerSetup(uint8_t canBusId) {
-  srand(0);
+  srand(canBusId);
   Serial.begin(15200);
   delay(1000);
   setupCan(canBusId);
@@ -125,6 +143,7 @@ void controllerLoop(bool debug=false) {
     tryUpdateLevels();
     toggleOverflow();
   }
+  updateConstantLevels();
   // update flows if a CAN msg was received
   if (updatedLevels) {
     updatedLevels = false; // reset flag

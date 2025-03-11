@@ -620,7 +620,7 @@ void PipeRenderer::drawFlow(PipeFlow &flow) {
 
 void PipeRenderer::drawOverflow(double level) {
   for (int i=0; i<level; i++) {
-    drawPixel(stripIndex(length() - i - 1), overflowColor(0));
+    drawPixel(stripIndex(length() - i - 1), overflowColor(stripIndex(i)));
   }
 }
 
@@ -629,7 +629,7 @@ unsigned int PipeRenderer::stripIndex(unsigned int i) {
   if (start < end) {
     return start+i;
   } else {
-    return start-i;
+    return end+i;
   }
 }
 
