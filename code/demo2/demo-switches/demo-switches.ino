@@ -6,8 +6,11 @@
 
 #define LEVEL_TIMEOUT 3000
 
-// #define RAIN_PIN 16
-// #define TOILET_PIN 17
+#define RAIN_ONE_SFX_PIN 6
+#define RAIN_TWO_SFX_PIN 7
+#define RAIN_THREE_SFX_PIN 8
+
+
 #define TOILET_PIN 17
 #define RAIN_PIN 16
 
@@ -92,6 +95,16 @@ void processInputLevels(uint8_t src, InputLevels levels) {}
 void processPipeOutput(uint8_t src, CanPipeOutput output) {}
 void processPipeOverflow(uint8_t src, CanPipeOverflow o) {}
 
+void updateAudio(uint8_t Levels){
+  if(Levels == 1){digitalWrite(RAIN_ONE_SFX_PIN,HIGH);}
+  else if (Levels == 2){digitalWrite(RAIN_TWO_SFX_PIN,HIGH);delay(10);digitalWrite(RAIN_ONE_SFX_PIN,LOW);}
+  else if (Levels == 3){digitalWrite(RAIN_THREE_SFX_PIN,HIGH);delay(10);digitalWrite(RAIN_TWO_SFX_PIN,LOW);}
+  else{
+    digitalWrite(RAIN_ONE_SFX_PIN,LOW);
+    digitalWrite(RAIN_TWO_SFX_PIN,LOW);
+    digitalWrite(RAIN_THREE_SFX_PIN,LOW);
+  }
+}
 
 
 Timeout overflowClock;
@@ -112,12 +125,16 @@ void setup() {
   smm::setup();
   setupRain();
   overflowClock.set(OVERFLOW_CLOCK_INTERVAL, overflowClockFn);
-}
 
+  pinMode(RAIN_ONE_SFX_PIN,OUTPUT);
+  pinMode(RAIN_TWO_SFX_PIN,OUTPUT);
+  pinMode(RAIN_THREE_SFX_PIN,OUTPUT);
+}
 
 void loop() {
   overflowClock.update();
   updateRain(levels.rainFlow);
+  updateAudio(levels.rainFlow);
   updateSwitches();
   // Serial.println("[switches] update!");
   if (LevelSwitch::updateFlag) {
