@@ -1,10 +1,10 @@
 #include "flow.h"
 
 
-#define SEGMENT10 0,39
+#define SEGMENT10 0,40
 #define SEGMENT20 290, 330
 
-#define SEGMENT30 39, 50
+#define SEGMENT30 40, 50
 #define SEGMENT40 433, 423
 
 #define SEGMENT50 50, 213
@@ -51,17 +51,17 @@ PipeSource * pushPipe(Pipe *pipe, PipeSource *list) {
 
 void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   Pipe *vpipe;
-  PIPE(20);
-  pipe20->addSegment(strip, SEGMENT10);
-  pipe20->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
+  PIPE(10);
+  pipe10->addSegment(strip, SEGMENT20);
+  pipe10->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   //flowSensor = pipe10;
   // PIPE(20);
   // overflowInput = pipe20;
-  pipe20->attachCanInput(5,8);
+  pipe10->attachCanInput(5,8);
   // pipe20->attachCanInput(5,8);
 
   PIPE(100);
-  pipe100->attachInput(pipe20);
+  pipe100->attachInput(pipe10);
   pipe100->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
   PIPE(120);
   pipe120->attachInput(pipe100);
@@ -95,7 +95,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   OverflowPipe *pipe30 = new OverflowPipe(30, strip, SEGMENT30);
   pipes->pipes = pushPipe(pipe30, pipes->pipes);
   // PIPE(30);
-  pipe30->attachInput(pipe20);
+  pipe30->attachInput(pipe10);
   pipe30->addSegment(strip, SEGMENT40);
   pipe30->setOverflowSpeed(SEWER_OVERFLOW_SPEED);
 

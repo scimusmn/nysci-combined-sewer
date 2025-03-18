@@ -66,9 +66,10 @@ class LevelSwitch : public smm::Switch {
     }
   }
   static volatile bool updateFlag;
+  uint8_t holdLevel;
+
   private:
   uint8_t *level;
-  uint8_t holdLevel;
   bool active = false;
   unsigned long time = 0;
   unsigned long hold = 0;
@@ -96,9 +97,9 @@ void processPipeOutput(uint8_t src, CanPipeOutput output) {}
 void processPipeOverflow(uint8_t src, CanPipeOverflow o) {}
 
 void updateAudio(uint8_t Levels){
-  if(Levels == 1){digitalWrite(RAIN_ONE_SFX_PIN,HIGH);}
-  else if (Levels == 2){digitalWrite(RAIN_TWO_SFX_PIN,HIGH);delay(10);digitalWrite(RAIN_ONE_SFX_PIN,LOW);}
-  else if (Levels == 3){digitalWrite(RAIN_THREE_SFX_PIN,HIGH);delay(10);digitalWrite(RAIN_TWO_SFX_PIN,LOW);}
+  if(Levels == 1){digitalWrite(RAIN_ONE_SFX_PIN,HIGH);Serial.println("light rain");}
+  else if (Levels == 2){digitalWrite(RAIN_TWO_SFX_PIN,HIGH);delay(10);digitalWrite(RAIN_ONE_SFX_PIN,LOW);Serial.println("medium rain");}
+  else if (Levels == 3){digitalWrite(RAIN_THREE_SFX_PIN,HIGH);delay(10);digitalWrite(RAIN_TWO_SFX_PIN,LOW);Serial.println("Heavy rain");}
   else{
     digitalWrite(RAIN_ONE_SFX_PIN,LOW);
     digitalWrite(RAIN_TWO_SFX_PIN,LOW);
@@ -133,15 +134,15 @@ void setup() {
 
 void loop() {
   overflowClock.update();
-  updateRain(levels.rainFlow);
-  updateAudio(levels.rainFlow);
+  updateRain(rainSwitch.holdLevel);
+  updateAudio(rainSwitch.holdLevel);
   updateSwitches();
   // Serial.println("[switches] update!");
   if (LevelSwitch::updateFlag) {
     LevelSwitch::updateFlag = false;
     sendCanBusInputLevels(levels);
     Serial.println("================================================================");
-    Serial.print("rain: "); Serial.println(levels.rainFlow);
+    Serial.print("rain: "); Serial.println(rainSwitch.holdLevel);
     Serial.print("toilet: "); Serial.println(levels.toiletFlow);
     Serial.print("washer: "); Serial.println(levels.washerFlow);
     Serial.print("dishwasher: "); Serial.println(levels.dishWasherFlow);

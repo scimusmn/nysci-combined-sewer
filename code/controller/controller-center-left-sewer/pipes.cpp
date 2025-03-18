@@ -4,11 +4,11 @@
 #define SEGMENT0 149, 89
 #define SEGMENT1 89, 69
 #define SEGMENT2 0, 69
-#define SEGMENT3 546, 485
-#define SEGMENT4 485, 475
+#define SEGMENT3 418, 479
+#define SEGMENT4 479, 489
 #define SEGMENT5 294, 360
 #define SEGMENT6 290, 294
-#define SEGMENT7 475, 418
+#define SEGMENT7 489, 546
 #define SEGMENT8 360, 418
 
 
@@ -50,7 +50,7 @@ void createPipes(OctoWS2811 &strip, PipeCollections *pipes) {
   PIPE(8);
   pipe8->addSegment(strip,SEGMENT7);
   pipe8->attachInput(pipe4);
-  pipe8->attachInput(pipe4);
+  //pipe8->attachInput(pipe4);
   pipe8->attachInput(pipe5);
   pipe8->setAsOutput();
   pipe8->setOverflowSpeed(SEWER_OVERFLOW_SPEED);

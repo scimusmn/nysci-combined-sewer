@@ -36,7 +36,7 @@ void processMessage(const CAN_message_t &msg) {
 
   default:
     // do nothing
-    //Serial.print("WARNING: unknown message type: "); Serial.println(type);
+    Serial.print("WARNING: unknown message type: "); Serial.println(type);
     break;
   }
 }
